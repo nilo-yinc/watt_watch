@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     mqtt_keepalive: int = 60
     mqtt_topic_cv: str = "wattwatch/+/cv"
     mqtt_topic_device_state: str = "wattwatch/+/+/state"
+    mqtt_topic_ghost_frame: str = "wattwatch/+/ghost/frame"
     cors_origins: str = "*"
 
     model_config = SettingsConfigDict(

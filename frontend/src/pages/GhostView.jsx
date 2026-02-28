@@ -152,10 +152,17 @@ export default function GhostView() {
             const monitors = roomDevices.filter(d => d.type === 'monitor');
             const monitorsOn = monitors.filter(d => d.is_on).length;
             if (monitors.length > 0) {
-                items.push({ label: `Desktop ON`, value: `${monitorsOn} / ${monitors.length}`, on: monitorsOn > 0 });
+                items.push({ label: 'Desktop', value: monitorsOn > 0 ? `ON ${monitorsOn} / ${monitors.length}` : `OFF 0 / ${monitors.length}`, on: monitorsOn > 0 });
+                // Phantom load: CPU running but monitor off
+                const details = activeRoom.desktopDetails;
+                const phantom = details ? Math.min(details.cpuActive, details.monitorsOff) : 0;
+                items.push({ label: 'CPU ON / Monitor OFF', value: `${phantom} / ${monitors.length}`, on: phantom > 0 });
             }
         } else if (app.desktops > 0) {
-            items.push({ label: 'Desktops', value: `${app.desktops}`, on: true });
+            const details = activeRoom.desktopDetails;
+            const phantom = details ? Math.min(details.cpuActive, details.monitorsOff) : 0;
+            items.push({ label: 'Desktop', value: phantom > 0 ? `ON 0 / ${app.desktops}` : `OFF 0 / ${app.desktops}`, on: phantom > 0 });
+            items.push({ label: 'CPU ON / Monitor OFF', value: `${phantom} / ${app.desktops}`, on: phantom > 0 });
         } else if (app.monitors !== undefined) {
             items.push({ label: 'Monitors', value: app.monitors ? 'ON' : 'OFF', on: !!app.monitors });
         }

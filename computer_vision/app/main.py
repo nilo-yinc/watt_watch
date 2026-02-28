@@ -2,32 +2,65 @@
 import cv2
 import time
 import base64
+import requests
 from app.cv.camera import get_camera
 from app.cv.detector import detect_people
 from app.cv.appliance import detect_appliance
 from app.cv.privacy import blur_people
 from app.logic.engine import WasteDetector
-from app.mqtt.client import MQTTClient
 from app.config import (
     FRAME_WIDTH,
     FRAME_HEIGHT,
     JPEG_QUALITY,
-    MQTT_CV_TOPIC,
     PUBLISH_INTERVAL_SECONDS,
     PRIVACY_MODE,
     ROOM_ID,
     WASTE_DELAY_SECONDS,
     ENABLE_GHOST_STREAM,
-    GHOST_FRAME_TOPIC,
     GHOST_STREAM_INTERVAL_SECONDS,
     GHOST_STREAM_JPEG_QUALITY,
+    BACKEND_URL,
+    USE_HTTP,
 )
 from app.metrics.evaluator import Evaluator
 
 # Initialize logic engine with delay (seconds)
 logic = WasteDetector(delay_seconds=WASTE_DELAY_SECONDS)
-mqtt = MQTTClient()
 evaluator = Evaluator()
+
+# HTTP session for connection pooling
+http_session = requests.Session() if USE_HTTP else None
+
+# MQTT client (only if HTTP mode is off)
+mqtt = None
+if not USE_HTTP:
+    from app.mqtt.client import MQTTClient
+    from app.config import MQTT_CV_TOPIC, GHOST_FRAME_TOPIC
+    mqtt = MQTTClient()
+
+
+def safe_log(*parts):
+    try:
+        print(*parts)
+    except OSError:
+        pass
+
+
+def post_cv_data(payload):
+    """Send detection data to backend via HTTP POST."""
+    try:
+        http_session.post(f"{BACKEND_URL}/api/cv/data", json=payload, timeout=2)
+    except Exception as e:
+        safe_log(f"[HTTP] Failed to send CV data: {e}")
+
+
+def post_ghost_frame(payload):
+    """Send ghost frame to backend via HTTP POST."""
+    try:
+        http_session.post(f"{BACKEND_URL}/api/cv/ghost-frame", json=payload, timeout=2)
+    except Exception as e:
+        safe_log(f"[HTTP] Failed to send ghost frame: {e}")
+
 
 def draw_boxes(frame, boxes):
     """Draw bounding boxes around detected people."""
@@ -37,16 +70,33 @@ def draw_boxes(frame, boxes):
 
 
 def main():
+    safe_log(f"[CV] Starting Watt-Watch Computer Vision")
+    safe_log(f"[CV] Room ID: {ROOM_ID}")
+    safe_log(f"[CV] Mode: {'HTTP POST -> {}'.format(BACKEND_URL) if USE_HTTP else 'MQTT'}")
+    safe_log(f"[CV] Privacy: {PRIVACY_MODE}")
+    safe_log(f"[CV] Ghost stream: {'ON' if ENABLE_GHOST_STREAM else 'OFF'}")
+
     cap = get_camera()
     last_publish_ts = 0.0
     last_ghost_publish_ts = 0.0
     last_signature = None
+    failed_reads = 0
 
     while True:
         ret, frame = cap.read()
         start_time = time.time()
         if not ret:
-            break
+            failed_reads += 1
+            # Transient camera read failure: retry and attempt reconnect.
+            if failed_reads <= 10:
+                time.sleep(0.15)
+                continue
+            cap.release()
+            time.sleep(0.5)
+            cap = get_camera()
+            failed_reads = 0
+            continue
+        failed_reads = 0
 
         frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), JPEG_QUALITY]
@@ -85,7 +135,7 @@ def main():
 
         if ground_truth is not None:
             evaluator.update(ground_truth, int(waste_detected))
-        print("Metrics:", evaluator.compute())
+        safe_log("Metrics:", evaluator.compute())
 
         payload = {
             "timestamp": int(time.time()),
@@ -100,7 +150,10 @@ def main():
         signature = (payload["person_count"], payload["appliance_on"], payload["waste_detected"])
         now = time.time()
         if signature != last_signature or (now - last_publish_ts) >= PUBLISH_INTERVAL_SECONDS:
-            mqtt.publish_json(MQTT_CV_TOPIC, payload)
+            if USE_HTTP:
+                post_cv_data(payload)
+            elif mqtt:
+                mqtt.publish_json(MQTT_CV_TOPIC, payload)
             last_publish_ts = now
             last_signature = signature
 
@@ -108,14 +161,15 @@ def main():
             ghost_param = [int(cv2.IMWRITE_JPEG_QUALITY), GHOST_STREAM_JPEG_QUALITY]
             ok_enc, ghost_jpg = cv2.imencode(".jpg", ghost_frame, ghost_param)
             if ok_enc:
-                mqtt.publish_json(
-                    GHOST_FRAME_TOPIC,
-                    {
-                        "room_id": ROOM_ID,
-                        "timestamp": int(now),
-                        "image_b64": base64.b64encode(ghost_jpg.tobytes()).decode("ascii"),
-                    },
-                )
+                ghost_payload = {
+                    "room_id": ROOM_ID,
+                    "timestamp": int(now),
+                    "image_b64": base64.b64encode(ghost_jpg.tobytes()).decode("ascii"),
+                }
+                if USE_HTTP:
+                    post_ghost_frame(ghost_payload)
+                elif mqtt:
+                    mqtt.publish_json(GHOST_FRAME_TOPIC, ghost_payload)
             last_ghost_publish_ts = now
 
         # Draw boxes

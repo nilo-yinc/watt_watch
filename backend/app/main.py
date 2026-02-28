@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.routes import devices, energy, rooms, websocket
+from app.routes import devices, energy, rooms, websocket, cv_ingest
 from app.services.mqtt_service import set_event_loop, start_mqtt, stop_mqtt
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -24,6 +24,7 @@ app.include_router(rooms.router)
 app.include_router(devices.router)
 app.include_router(energy.router)
 app.include_router(websocket.router)
+app.include_router(cv_ingest.router)
 
 
 @app.get("/health")

@@ -13,7 +13,10 @@ class MQTTClient:
         """Internal publish with duplicate filtering."""
         if self.last_messages.get(topic) != message:
             publish.single(topic, message, hostname=MQTT_BROKER, port=MQTT_PORT)
-            print(f"📡 MQTT → {topic}: {message}")
+            try:
+                print(f"MQTT -> {topic}: {message}")
+            except OSError:
+                pass
             self.last_messages[topic] = message
 
     def publish_waste(self, room, state):

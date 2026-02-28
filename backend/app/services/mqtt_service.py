@@ -77,10 +77,33 @@ def _handle_cv_payload(topic: str, payload: str) -> None:
             _dispatch({"type": "device_update", "payload": device})
 
 
+def _handle_ghost_frame(topic: str, payload: str) -> None:
+    """Forward ghost (privacy-blurred) video frames to WebSocket clients."""
+    room_id = _room_id_from_topic(topic)
+    if not room_id:
+        return
+    try:
+        data = json.loads(payload) if payload else {}
+    except json.JSONDecodeError:
+        logger.warning("Invalid ghost frame JSON on %s", topic)
+        return
+
+    _dispatch({
+        "type": "ghost_frame",
+        "payload": {
+            "room_id": data.get("room_id", room_id),
+            "image_b64": data.get("image_b64", ""),
+            "timestamp": data.get("timestamp", 0),
+        },
+    })
+
+
 def _on_mqtt_message(topic: str, payload: str) -> None:
     try:
         if topic.endswith("/cv"):
             _handle_cv_payload(topic, payload)
+        elif "/ghost/frame" in topic:
+            _handle_ghost_frame(topic, payload)
         elif topic.endswith("/state"):
             _handle_device_telemetry(topic, payload)
     except Exception as exc:
@@ -91,7 +114,7 @@ mqtt_client = BackendMQTTClient(
     host=settings.mqtt_host,
     port=settings.mqtt_port,
     keepalive=settings.mqtt_keepalive,
-    subscriptions=[settings.mqtt_topic_cv, settings.mqtt_topic_device_state],
+    subscriptions=[settings.mqtt_topic_cv, settings.mqtt_topic_device_state, settings.mqtt_topic_ghost_frame],
     on_message=_on_mqtt_message,
 )
 
