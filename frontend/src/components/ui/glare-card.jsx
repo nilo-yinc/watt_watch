@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 
 export function GlareCard({ children, className }) {
     const ref = useRef(null);

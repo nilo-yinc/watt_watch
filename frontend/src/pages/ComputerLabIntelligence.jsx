@@ -1,122 +1,137 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { computerLabs } from '../data/mockData';
+import { Spotlight } from '../components/ui/spotlight';
+import { BackgroundBeams } from '../components/ui/background-beams';
 
 export default function ComputerLabIntelligence() {
     const totalDesktops = computerLabs.reduce((s, l) => s + l.totalDesktops, 0);
     const totalOn = computerLabs.reduce((s, l) => s + l.desktopsOn, 0);
-    const totalHiddenWaste = computerLabs.filter(l => l.hiddenWaste).length;
     const totalWaste = computerLabs.reduce((s, l) => s + l.energyWaste, 0);
+    const hiddenCount = computerLabs.filter(l => l.hiddenWaste).length;
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 dark:from-black dark:via-indigo-950 dark:to-black text-white p-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="mb-12 relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 blur-3xl"></div>
-                    <div className="relative">
-                        <h1 className="text-5xl md:text-6xl font-black mb-3 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent tracking-tight">Computer Lab Intelligence</h1>
-                        <p className="text-xl text-slate-400 font-light">Advanced monitoring for computer lab efficiency</p>
+        <Spotlight className="min-h-full">
+            <BackgroundBeams />
+            <div className="relative z-10 max-w-[1400px] mx-auto">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                        <span className="hud-label">LAB INTELLIGENCE</span>
                     </div>
+                    <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Computer Lab Monitoring</h1>
+                    <p className="text-xs font-mono text-slate-500">Desktop array analysis · Hidden waste detection</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                {/* Stats */}
+                <div className="grid grid-cols-4 gap-3 mb-8">
                     {[
-                        { label: 'Total Desktops', val: totalDesktops, color: 'border-cyan-500/50', accent: 'text-cyan-400', glow: 'from-blue-500 to-cyan-500' },
-                        { label: 'Currently Active', val: totalOn, sub: `${((totalOn / totalDesktops) * 100).toFixed(1)}% utilization`, color: 'border-emerald-500/50', accent: 'text-emerald-400', glow: 'from-green-500 to-emerald-500' },
-                        { label: 'Hidden Waste', val: totalHiddenWaste, sub: 'Labs with monitor-off CPUs', color: 'border-red-500/50', accent: 'text-red-400', glow: 'from-red-500 to-orange-500' },
-                        { label: 'Energy Waste', val: `${totalWaste.toFixed(1)} kWh`, color: 'border-purple-500/50', accent: 'text-purple-400', glow: 'from-purple-500 to-pink-500' },
+                        { label: 'TOTAL DESKTOPS', val: totalDesktops, accent: 'text-cyan-400' },
+                        { label: 'CURRENTLY ON', val: totalOn, sub: `${((totalOn / totalDesktops) * 100).toFixed(0)}% utilization`, accent: 'text-white' },
+                        { label: 'HIDDEN WASTE', val: hiddenCount, sub: 'Labs with ghost CPUs', accent: 'text-red-400' },
+                        { label: 'ENERGY WASTE', val: `${totalWaste.toFixed(1)}`, sub: 'kWh total', accent: 'text-amber-400' },
                     ].map((s, i) => (
-                        <div key={i} className="relative group">
-                            <div className={`absolute inset-0 bg-gradient-to-r ${s.glow} rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity`}></div>
-                            <div className={`relative bg-slate-800/80 dark:bg-slate-950/80 backdrop-blur-sm border-2 ${s.color} rounded-2xl p-6`}>
-                                <div className={`text-sm font-bold ${s.accent} uppercase tracking-widest mb-2`}>{s.label}</div>
-                                <div className="text-4xl font-black text-white mb-1">{s.val}</div>
-                                {s.sub && <div className={`${s.accent} text-sm font-semibold`}>{s.sub}</div>}
-                            </div>
-                        </div>
+                        <motion.div key={i} className="hud-card p-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                            <div className="hud-label mb-2">{s.label}</div>
+                            <div className={`text-2xl font-mono font-bold ${s.accent}`}>{s.val}</div>
+                            {s.sub && <div className="text-[9px] font-mono text-slate-600 mt-1">{s.sub}</div>}
+                            <div className="corner-bracket corner-bracket-tl" />
+                            <div className="corner-bracket corner-bracket-br" />
+                        </motion.div>
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-                    {computerLabs.map(lab => (
-                        <div key={lab.id} className="relative group">
-                            {lab.hiddenWaste && <div className="absolute inset-0 bg-gradient-to-r from-red-500/30 to-orange-500/30 rounded-3xl blur-xl"></div>}
-                            <div className="relative bg-slate-800/90 dark:bg-slate-950/90 backdrop-blur-sm border-2 border-slate-700 rounded-3xl p-6 hover:border-cyan-500/50 transition-all duration-300">
-                                <div className="flex justify-between items-start mb-6">
-                                    <div>
-                                        <h3 className="text-2xl font-black text-white mb-1">{lab.name}</h3>
-                                        <p className="text-slate-400 font-medium">{lab.building}</p>
-                                    </div>
-                                    {lab.hiddenWaste && <span className="px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 rounded-full text-white text-xs font-black uppercase shadow-lg">⚠️ Hidden Waste</span>}
+                {/* Lab Cards */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+                    {computerLabs.map((lab, i) => (
+                        <motion.div key={lab.id} className={`hud-card ${lab.hiddenWaste ? 'border-red-500/15' : ''}`}
+                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + i * 0.06 }}>
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.03]">
+                                <div className="flex items-center gap-2.5">
+                                    <div className={`w-2 h-2 rounded-full ${lab.hiddenWaste ? 'bg-red-400 animate-pulse' : 'bg-emerald-400'}`} />
+                                    <span className="text-sm font-semibold text-white">{lab.name}</span>
                                 </div>
+                                {lab.hiddenWaste && (
+                                    <span className="text-[9px] font-mono font-bold text-red-400 tracking-wider">⚠ HIDDEN WASTE</span>
+                                )}
+                            </div>
 
-                                <div className="grid grid-cols-3 gap-4 mb-6">
+                            <div className="p-5">
+                                <div className="text-[10px] font-mono text-slate-600 mb-4">{lab.building}</div>
+
+                                {/* Metrics */}
+                                <div className="grid grid-cols-3 gap-2 mb-4">
                                     {[
-                                        { val: lab.occupancy, label: 'Occupants', accent: 'text-cyan-400' },
-                                        { val: `${lab.desktopsOn}/${lab.totalDesktops}`, label: 'PCs On', accent: 'text-green-400' },
-                                        { val: lab.energyWaste, label: 'kWh Waste', accent: 'text-red-400' },
-                                    ].map((s, i) => (
-                                        <div key={i} className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-                                            <div className={`text-2xl font-black ${s.accent} mb-1`}>{s.val}</div>
-                                            <div className="text-xs text-slate-400 uppercase tracking-wider">{s.label}</div>
+                                        { l: 'OCCUPANTS', v: lab.occupancy, a: lab.occupancy === 0 ? 'text-red-400' : 'text-cyan-400' },
+                                        { l: 'PCS ON', v: `${lab.desktopsOn}/${lab.totalDesktops}`, a: 'text-white' },
+                                        { l: 'WASTE', v: `${lab.energyWaste} kWh`, a: 'text-amber-400' },
+                                    ].map((m, j) => (
+                                        <div key={j} className="bg-white/[0.02] rounded-md p-2.5">
+                                            <div className="text-[8px] font-mono text-slate-700 mb-0.5">{m.l}</div>
+                                            <div className={`text-sm font-mono font-bold ${m.a}`}>{m.v}</div>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="bg-slate-900/50 rounded-2xl p-5 border border-slate-700 mb-6">
-                                    <div className="text-sm font-bold text-cyan-400 uppercase tracking-widest mb-4">Desktop Analysis</div>
-                                    <div className="grid grid-cols-3 gap-4 text-center">
+                                {/* Desktop Analysis */}
+                                <div className="bg-white/[0.01] border border-white/[0.04] rounded-md p-4 mb-4">
+                                    <div className="text-[9px] font-mono text-cyan-400 tracking-wider mb-3">DESKTOP ARRAY ANALYSIS</div>
+                                    <div className="grid grid-cols-3 gap-3 text-center">
                                         {[
-                                            { emoji: '💻', val: lab.desktopsOn, label: 'ON' },
-                                            { emoji: '🖥️', val: lab.monitorsOff, label: 'Monitors OFF', accent: 'text-orange-400' },
-                                            { emoji: '⚙️', val: lab.cpuActive, label: 'CPU Active', accent: 'text-green-400' },
-                                        ].map((d, i) => (
-                                            <div key={i}>
-                                                <div className="text-3xl mb-2">{d.emoji}</div>
-                                                <div className={`text-2xl font-black ${d.accent || 'text-white'}`}>{d.val}</div>
-                                                <div className="text-xs text-slate-400 uppercase mt-1">{d.label}</div>
+                                            { v: lab.desktopsOn, l: 'POWERED', a: 'text-white' },
+                                            { v: lab.monitorsOff, l: 'MON OFF', a: 'text-orange-400' },
+                                            { v: lab.cpuActive, l: 'CPU ON', a: 'text-emerald-400' },
+                                        ].map((d, j) => (
+                                            <div key={j}>
+                                                <div className={`text-xl font-mono font-bold ${d.a}`}>{d.v}</div>
+                                                <div className="text-[8px] font-mono text-slate-600 mt-0.5">{d.l}</div>
                                             </div>
                                         ))}
                                     </div>
                                     {lab.monitorsOff > 5 && (
-                                        <div className="mt-4 p-4 bg-red-500/20 border-l-4 border-red-500 rounded-lg flex items-center gap-3">
-                                            <span className="text-xl">⚠️</span>
-                                            <span className="text-sm font-semibold text-red-300">{lab.monitorsOff} desktops running with monitors off</span>
+                                        <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center gap-2">
+                                            <div className="w-1 h-1 rounded-full bg-red-400" />
+                                            <span className="text-[9px] font-mono text-red-400/80">{lab.monitorsOff} desktops running with monitors off — phantom load detected</span>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="mb-6">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-sm font-bold text-slate-400 uppercase">Efficiency</span>
-                                        <span className="text-sm font-black text-cyan-400">{((lab.occupancy / lab.desktopsOn) * 100 || 0).toFixed(0)}%</span>
+                                {/* Efficiency bar */}
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="text-[9px] font-mono text-slate-600 w-16">EFFICIENCY</span>
+                                    <div className="flex-1 h-1 bg-white/[0.03] rounded-full overflow-hidden">
+                                        <div className="h-full bg-cyan-500/40 rounded-full" style={{ width: `${(lab.occupancy / lab.desktopsOn) * 100 || 0}%` }} />
                                     </div>
-                                    <div className="h-3 bg-slate-900/50 rounded-full overflow-hidden border border-slate-700">
-                                        <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full" style={{ width: `${(lab.occupancy / lab.desktopsOn) * 100 || 0}%` }}></div>
-                                    </div>
+                                    <span className="text-[9px] font-mono text-cyan-400 w-8 text-right">{((lab.occupancy / lab.desktopsOn) * 100 || 0).toFixed(0)}%</span>
                                 </div>
 
-                                <Link to={`/room/${lab.id}`} className="block w-full text-center px-6 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg">View Details →</Link>
+                                <Link to={`/room/${lab.id}`} className="block text-center text-[10px] font-mono text-cyan-400 py-2 border border-cyan-500/20 rounded-md hover:bg-cyan-500/[0.04] transition-colors">
+                                    OPEN FEED →
+                                </Link>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
 
-                <div className="bg-gradient-to-br from-slate-800/50 to-indigo-900/50 backdrop-blur-sm border-2 border-slate-700 rounded-3xl p-8">
-                    <h2 className="text-3xl font-black text-white mb-8 flex items-center gap-3"><span className="text-4xl">💡</span>Optimization Tips</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Tips */}
+                <div className="hud-card p-5">
+                    <div className="hud-label mb-4">OPTIMIZATION PROTOCOLS</div>
+                    <div className="grid grid-cols-3 gap-3">
                         {[
-                            { title: 'Monitor-Off Detection', desc: 'CPUs with monitors off consume 60% power. Auto-shutdown after 15 min idle.', accent: 'text-cyan-400', border: 'border-cyan-500/30 hover:border-cyan-500/60' },
-                            { title: 'Group Power Mgmt', desc: 'Auto-sleep inactive desktops during lab hours — save up to 45 kWh daily.', accent: 'text-purple-400', border: 'border-purple-500/30 hover:border-purple-500/60' },
-                            { title: 'Occupancy Control', desc: 'Below 20% occupancy: reduce AC and dim lights for optimal efficiency.', accent: 'text-pink-400', border: 'border-pink-500/30 hover:border-pink-500/60' },
+                            { label: 'PHANTOM LOAD', desc: 'CPUs with monitors off still draw 60% power. Enable auto-sleep after 15min idle.' },
+                            { label: 'GROUP MGMT', desc: 'Wake-on-LAN + scheduled shutdown. Potential daily savings: 45 kWh.' },
+                            { label: 'LOW OCCUPANCY', desc: 'Below 20% utilization — reduce AC and dim lights automatically.' },
                         ].map((tip, i) => (
-                            <div key={i} className={`bg-slate-900/50 rounded-2xl p-6 border ${tip.border} transition-colors`}>
-                                <h4 className={`text-xl font-bold ${tip.accent} mb-3`}>{tip.title}</h4>
-                                <p className="text-slate-300 leading-relaxed">{tip.desc}</p>
+                            <div key={i} className="bg-white/[0.01] rounded-md p-3 border border-white/[0.03]">
+                                <div className="text-[9px] font-mono text-cyan-400 tracking-wider mb-2">{tip.label}</div>
+                                <p className="text-[10px] font-mono text-slate-500 leading-relaxed">{tip.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
-        </div>
+        </Spotlight>
     );
 }

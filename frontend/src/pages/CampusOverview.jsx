@@ -1,17 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { rooms } from '../data/mockData';
-import { GlareCard } from '../components/ui/glare-card';
+import { Spotlight } from '../components/ui/spotlight';
+import { BackgroundBeams } from '../components/ui/background-beams';
+import { MovingBorder } from '../components/ui/moving-border';
+import { TextGenerateEffect } from '../components/ui/text-generate';
 
 export default function CampusOverview() {
     const [viewMode, setViewMode] = useState('grid');
     const [filterType, setFilterType] = useState('all');
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const t = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(t);
+    }, []);
 
     const stats = {
         totalRooms: rooms.length,
         activeWaste: rooms.filter(r => r.status === 'waste').length,
-        energySavedToday: 187,
-        costSaved: 2805,
+        efficient: rooms.filter(r => r.status === 'efficient').length,
+        energySaved: 187,
     };
 
     const filteredRooms = filterType === 'all'
@@ -20,144 +30,164 @@ export default function CampusOverview() {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'efficient': return 'from-emerald-400 to-teal-500';
-            case 'waste': return 'from-rose-400 to-pink-500';
-            case 'review': return 'from-amber-400 to-orange-500';
-            default: return 'from-sky-400 to-blue-500';
-        }
-    };
-
-    const getStatusLabel = (status) => {
-        switch (status) {
-            case 'efficient': return 'Efficient';
-            case 'waste': return 'Empty but Active';
-            case 'review': return 'Needs Review';
-            default: return 'Unknown';
-        }
-    };
-
-    const getMonitoringIcon = (method) => {
-        switch (method) {
-            case 'Camera': return '📹';
-            case 'Smart Plug': return '🔌';
-            case 'Sensor': return '📡';
-            case 'Schedule-Based': return '📅';
-            default: return '❓';
+            case 'efficient': return { dot: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]', text: 'text-emerald-400', border: 'border-emerald-500/20', label: 'CLEAR' };
+            case 'waste': return { dot: 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.6)] animate-pulse', text: 'text-red-400', border: 'border-red-500/20', label: 'ALERT' };
+            case 'review': return { dot: 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]', text: 'text-amber-400', border: 'border-amber-500/20', label: 'REVIEW' };
+            default: return { dot: 'bg-slate-400', text: 'text-slate-400', border: 'border-slate-500/20', label: 'UNKNOWN' };
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-100 dark:bg-slate-950 transition-colors duration-300">
-            {/* Hero Section */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 dark:from-violet-900 dark:via-purple-900 dark:to-fuchsia-900">
-                <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-0 -left-4 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-                    <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-                    <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style={{ animationDelay: '4s' }}></div>
-                </div>
-                <div className="relative max-w-7xl mx-auto px-8 py-16">
-                    <h1 className="text-6xl md:text-7xl font-black text-white mb-4 tracking-tight">Campus Energy Dashboard</h1>
-                    <p className="text-2xl text-purple-100 font-light">Real-time monitoring across {stats.totalRooms} campus locations</p>
-                </div>
-            </div>
+        <Spotlight className="min-h-full">
+            <BackgroundBeams />
 
-            <div className="max-w-7xl mx-auto px-8 -mt-16 relative z-10">
-                {/* Stats Grid with GlareCard */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div className="relative z-10 max-w-[1400px] mx-auto">
+                {/* Header — surveillance style */}
+                <div className="flex items-start justify-between mb-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                            <span className="hud-label">LIVE MONITORING</span>
+                        </div>
+                        <TextGenerateEffect
+                            words="Campus Energy Surveillance"
+                            className="text-3xl font-bold text-white tracking-tight"
+                            duration={0.3}
+                        />
+                        <p className="text-slate-500 text-sm mt-2 font-mono">
+                            {stats.totalRooms} feeds active · {currentTime.toLocaleTimeString('en-US', { hour12: false })}
+                        </p>
+                    </div>
+                    <div className="text-right">
+                        <div className="hud-label mb-1">SYSTEM STATUS</div>
+                        <div className="flex items-center gap-2 justify-end">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            <span className="text-emerald-400 text-xs font-mono">ALL SYSTEMS NOMINAL</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Stats Row — clean HUD cards */}
+                <div className="grid grid-cols-4 gap-3 mb-8">
                     {[
-                        { label: 'Total Rooms Monitored', value: stats.totalRooms, sub: '↑ All systems operational', color: 'border-indigo-500', subColor: 'text-emerald-400' },
-                        { label: 'Active Waste Cases', value: stats.activeWaste, sub: '⚠️ Requires attention', color: 'border-rose-500', subColor: 'text-rose-400' },
-                        { label: 'Energy Saved Today', value: `${stats.energySavedToday} kWh`, sub: '↑ 12% vs yesterday', color: 'border-amber-500', subColor: 'text-emerald-400' },
-                        { label: 'Estimated Cost Saved', value: `₹${stats.costSaved.toLocaleString()}`, sub: '↑ ₹340 today', color: 'border-teal-500', subColor: 'text-emerald-400' },
-                    ].map((card, i) => (
-                        <GlareCard key={i} className={`!p-8 border-l-4 ${card.color}`}>
-                            <div className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">{card.label}</div>
-                            <div className="text-4xl font-black text-white mb-3">{card.value}</div>
-                            <div className={`${card.subColor} font-semibold text-sm`}>{card.sub}</div>
-                        </GlareCard>
+                        { label: 'TOTAL FEEDS', value: stats.totalRooms, sub: 'monitored', accent: 'text-cyan-400' },
+                        { label: 'EFFICIENT', value: stats.efficient, sub: 'rooms clear', accent: 'text-emerald-400' },
+                        { label: 'WASTE DETECTED', value: stats.activeWaste, sub: 'requires action', accent: 'text-red-400' },
+                        { label: 'ENERGY SAVED', value: `${stats.energySaved}`, sub: 'kWh today', accent: 'text-amber-400' },
+                    ].map((s, i) => (
+                        <div key={i} className="hud-card p-4">
+                            <div className="hud-label mb-2">{s.label}</div>
+                            <div className={`text-2xl font-mono font-bold ${s.accent}`}>{s.value}</div>
+                            <div className="text-[10px] font-mono text-slate-600 mt-1">{s.sub}</div>
+                            {/* Corner brackets */}
+                            <div className="corner-bracket corner-bracket-tl" />
+                            <div className="corner-bracket corner-bracket-br" />
+                        </div>
                     ))}
                 </div>
 
-                {/* Controls Bar */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-lg mb-8 flex flex-col md:flex-row justify-between items-center gap-4 border border-slate-200 dark:border-slate-800">
-                    <div className="flex items-center gap-4">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Filter:</label>
+                {/* Filter Bar */}
+                <div className="flex items-center justify-between mb-5 py-3 px-4 hud-card">
+                    <div className="flex items-center gap-3">
+                        <span className="hud-label">FILTER</span>
                         <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
-                            className="px-6 py-3 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-xl focus:border-purple-500 dark:focus:border-purple-400 focus:outline-none text-slate-900 dark:text-slate-100 font-medium cursor-pointer">
-                            <option value="all">All Rooms</option>
-                            <option value="Classroom">Classrooms</option>
-                            <option value="Computer Lab">Computer Labs</option>
-                            <option value="Lab">Labs</option>
-                            <option value="Office">Offices</option>
-                            <option value="Hostel">Hostels</option>
+                            className="px-3 py-1.5 bg-transparent border border-white/[0.06] rounded-md text-slate-300 text-xs font-mono focus:border-cyan-500/30 focus:outline-none cursor-pointer">
+                            <option value="all" className="bg-slate-900">All Types</option>
+                            <option value="Classroom" className="bg-slate-900">Classrooms</option>
+                            <option value="Computer Lab" className="bg-slate-900">Computer Labs</option>
+                            <option value="Lab" className="bg-slate-900">Labs</option>
+                            <option value="Office" className="bg-slate-900">Offices</option>
+                            <option value="Hostel" className="bg-slate-900">Hostels</option>
                         </select>
+                        <span className="text-[10px] font-mono text-slate-600">{filteredRooms.length} results</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                         {['grid', 'list'].map(m => (
                             <button key={m} onClick={() => setViewMode(m)}
-                                className={`px-6 py-3 rounded-xl font-bold transition-all ${viewMode === m ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
-                                {m === 'grid' ? '▦ Grid' : '☰ List'}
+                                className={`px-3 py-1.5 rounded-md font-mono text-xs transition-all ${viewMode === m ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-600 hover:text-slate-400'}`}>
+                                {m === 'grid' ? '▦ GRID' : '☰ LIST'}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Rooms */}
-                <div className={`grid gap-6 mb-12 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-                    {filteredRooms.map(room => (
-                        <div key={room.id} className="bg-white dark:bg-slate-900 rounded-3xl shadow-lg overflow-hidden border-2 border-slate-200 dark:border-slate-800 hover:shadow-2xl transition-shadow duration-300">
-                            <div className={`bg-gradient-to-r ${getStatusColor(room.status)} p-6 relative overflow-hidden`}>
-                                <div className="absolute inset-0 bg-black opacity-10"></div>
-                                <div className="relative z-10">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div>
-                                            <h3 className="text-2xl font-black text-white mb-1">{room.name}</h3>
-                                            <p className="text-white/80 font-medium">{room.type} • {room.building}</p>
-                                        </div>
-                                        <span className="px-4 py-2 bg-white/30 backdrop-blur-sm rounded-full text-white text-xs font-bold uppercase">{getStatusLabel(room.status)}</span>
-                                    </div>
-                                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold">
-                                        <span>{getMonitoringIcon(room.monitoring)}</span>
-                                        <span>{room.monitoring}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-6">
-                                <div className="flex gap-4 mb-6">
-                                    <div className="flex items-center gap-2 px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl flex-1">
-                                        <span className="text-2xl">👥</span>
-                                        <span className="font-bold text-slate-900 dark:text-white">{room.occupancy}/{room.capacity}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl flex-1">
-                                        <span className="text-2xl">⚡</span>
-                                        <span className="font-bold text-slate-900 dark:text-white">{room.energyUsage} kWh</span>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3 mb-6">
-                                    {[
-                                        { emoji: '💡', label: 'Lights', on: room.appliances.lights },
-                                        { emoji: '📽️', label: 'Projector', on: room.appliances.projector },
-                                        { emoji: '❄️', label: 'AC', on: room.appliances.ac },
-                                        ...(room.appliances.desktops > 0 ? [{ emoji: '💻', label: `${room.appliances.desktops} PCs`, on: true }] : []),
-                                    ].map((a, i) => (
-                                        <div key={i} className={`p-3 rounded-xl border-2 ${a.on ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-xl">{a.emoji}</span>
-                                                <span className={`text-xs font-black uppercase ${a.on ? 'text-amber-700 dark:text-amber-300' : 'text-slate-400'}`}>{a.on ? 'ON' : 'OFF'}</span>
+                {/* Room Grid */}
+                <div className={`grid gap-3 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+                    <AnimatePresence>
+                        {filteredRooms.map((room, i) => {
+                            const status = getStatusColor(room.status);
+                            return (
+                                <motion.div
+                                    key={room.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2, delay: i * 0.03 }}
+                                >
+                                    <Link to={`/room/${room.id}`} className="block group">
+                                        <div className={`hud-card p-0 hover:border-cyan-500/15 transition-all duration-300`}>
+                                            {/* Header strip */}
+                                            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.03]">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className={`w-2 h-2 rounded-full ${status.dot}`} />
+                                                    <span className="text-white text-sm font-medium tracking-wide">{room.name}</span>
+                                                </div>
+                                                <span className={`text-[9px] font-mono font-bold ${status.text} tracking-[0.15em]`}>{status.label}</span>
                                             </div>
-                                            <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-1">{a.label}</div>
+
+                                            {/* Body */}
+                                            <div className="px-4 py-3">
+                                                <div className="flex items-center gap-4 mb-3">
+                                                    <span className="text-[10px] font-mono text-slate-600">{room.type}</span>
+                                                    <span className="text-[10px] font-mono text-slate-700">·</span>
+                                                    <span className="text-[10px] font-mono text-slate-600">{room.building}</span>
+                                                    <span className="text-[10px] font-mono text-slate-700">·</span>
+                                                    <span className="text-[10px] font-mono text-slate-600">{room.monitoring}</span>
+                                                </div>
+
+                                                {/* Metrics Row */}
+                                                <div className="grid grid-cols-3 gap-2 mb-3">
+                                                    <div className="bg-white/[0.02] rounded-md px-2.5 py-2">
+                                                        <div className="text-[9px] font-mono text-slate-600 mb-0.5">OCCUPANCY</div>
+                                                        <div className="text-sm font-mono font-bold text-white">{room.occupancy}<span className="text-slate-600">/{room.capacity}</span></div>
+                                                    </div>
+                                                    <div className="bg-white/[0.02] rounded-md px-2.5 py-2">
+                                                        <div className="text-[9px] font-mono text-slate-600 mb-0.5">POWER</div>
+                                                        <div className="text-sm font-mono font-bold text-white">{room.energyUsage}<span className="text-slate-600"> kWh</span></div>
+                                                    </div>
+                                                    <div className="bg-white/[0.02] rounded-md px-2.5 py-2">
+                                                        <div className="text-[9px] font-mono text-slate-600 mb-0.5">UTIL</div>
+                                                        <div className="text-sm font-mono font-bold text-white">{((room.occupancy / room.capacity) * 100).toFixed(0)}<span className="text-slate-600">%</span></div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Appliance indicators */}
+                                                <div className="flex gap-2">
+                                                    {[
+                                                        { l: 'LT', on: room.appliances.lights },
+                                                        { l: 'PJ', on: room.appliances.projector },
+                                                        { l: 'AC', on: room.appliances.ac },
+                                                        ...(room.appliances.desktops > 0 ? [{ l: `${room.appliances.desktops}PC`, on: true }] : []),
+                                                    ].map((a, j) => (
+                                                        <div key={j}
+                                                            className={`px-2 py-1 rounded text-[9px] font-mono font-bold tracking-wider ${a.on ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-white/[0.02] text-slate-700 border border-white/[0.03]'
+                                                                }`}>
+                                                            {a.l}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Footer scan line */}
+                                            <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent group-hover:via-cyan-500/20 transition-all duration-500" />
                                         </div>
-                                    ))}
-                                </div>
-                                <Link to={`/room/${room.id}`}
-                                    className="block w-full text-center px-6 py-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-                                    View Details →
-                                </Link>
-                            </div>
-                        </div>
-                    ))}
+                                    </Link>
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
                 </div>
             </div>
-        </div>
+        </Spotlight>
     );
 }

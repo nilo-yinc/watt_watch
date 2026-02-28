@@ -3,61 +3,238 @@
 @tailwind utilities;
 
 /* ── Base ─────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: #434e62 transparent;
+  scrollbar-color: #1e3a4a transparent;
 }
-*::-webkit-scrollbar { width: 6px; height: 6px; }
-*::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { background: #434e62; border-radius: 999px; }
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #1e3a4a;
+  border-radius: 999px;
+}
 
 body {
-  @apply bg-surface-950 text-surface-200 font-sans;
+  @apply bg-[#080c12] text-slate-300 font-sans;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(14, 165, 233, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.02) 0%, transparent 50%);
 }
 
-/* ── Glass card utility ──────────────────────────────────── */
+/* ── CCTV HUD Overlay ─────────────────────────────────────── */
+.cctv-bg {
+  position: relative;
+}
+
+.cctv-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.cctv-bg::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 12, 18, 0) 0%, rgba(8, 12, 18, 0) 98%, rgba(14, 165, 233, 0.05) 100%);
+}
+
+/* Scanline overlay */
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.15), transparent);
+  z-index: 1;
+  pointer-events: none;
+  animation: scanDown 8s linear infinite;
+}
+
+@keyframes scanDown {
+  0% {
+    top: -2px;
+  }
+
+  100% {
+    top: 100vh;
+  }
+}
+
+/* ── Glass card utility — cleaner, darker ────────────────── */
 @layer components {
   .glass {
-    @apply bg-surface-900/60 backdrop-blur-md border border-surface-700/40 rounded-2xl;
+    @apply bg-slate-900/60 backdrop-blur-md border border-white/[0.04] rounded-xl;
   }
+
   .glass-light {
-    @apply bg-surface-800/40 backdrop-blur-sm border border-surface-700/30 rounded-xl;
+    @apply bg-slate-900/40 backdrop-blur-sm border border-white/[0.03] rounded-lg;
   }
 
-  /* Status dot pulsing */
+  /* HUD card — the signature look */
+  .hud-card {
+    @apply relative bg-[#0a1018]/80 backdrop-blur-md border border-cyan-500/[0.08] rounded-lg overflow-hidden;
+    box-shadow: inset 0 1px 0 rgba(14, 165, 233, 0.04);
+  }
+
+  .hud-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.15), transparent);
+  }
+
+  /* Status dots */
   .status-dot {
-    @apply w-3 h-3 rounded-full;
-  }
-  .status-dot-secure {
-    @apply bg-secure shadow-[0_0_8px_rgba(34,197,94,0.6)];
-  }
-  .status-dot-waste {
-    @apply bg-waste shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse;
-  }
-  .status-dot-caution {
-    @apply bg-caution shadow-[0_0_8px_rgba(245,158,11,0.6)];
+    @apply w-2 h-2 rounded-full;
   }
 
-  /* Metric card */
+  .status-dot-secure {
+    @apply bg-emerald-400 shadow-[0_0_6px_rgba(52, 211, 153, 0.5)];
+  }
+
+  .status-dot-waste {
+    @apply bg-red-400 shadow-[0_0_6px_rgba(248, 113, 113, 0.5)] animate-pulse;
+  }
+
+  .status-dot-caution {
+    @apply bg-amber-400 shadow-[0_0_6px_rgba(251, 191, 36, 0.5)];
+  }
+
+  /* Metric card — surveillance style */
   .metric-card {
-    @apply glass p-5 flex flex-col gap-1 transition-all duration-300 hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/5;
+    @apply hud-card p-4 flex flex-col gap-1 transition-all duration-300 hover:border-cyan-500/20;
   }
 
   /* Nav link */
   .nav-link {
-    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-surface-400 transition-all duration-200 hover:bg-surface-800/60 hover:text-white;
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 text-sm transition-all duration-200 hover:bg-white/[0.03] hover:text-slate-300;
   }
+
   .nav-link-active {
-    @apply bg-brand-500/10 text-brand-400 border border-brand-500/20;
+    @apply bg-cyan-500/[0.06] text-cyan-400 border border-cyan-500/10;
+  }
+
+  /* HUD label  */
+  .hud-label {
+    @apply text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500;
+  }
+
+  /* HUD value */
+  .hud-value {
+    @apply text-2xl font-mono font-bold text-white;
+  }
+
+  /* Corner bracket decoration */
+  .corner-bracket {
+    @apply absolute w-3 h-3;
+  }
+
+  .corner-bracket-tl {
+    @apply top-0 left-0 border-l border-t border-cyan-500/20;
+  }
+
+  .corner-bracket-tr {
+    @apply top-0 right-0 border-r border-t border-cyan-500/20;
+  }
+
+  .corner-bracket-bl {
+    @apply bottom-0 left-0 border-l border-b border-cyan-500/20;
+  }
+
+  .corner-bracket-br {
+    @apply bottom-0 right-0 border-r border-b border-cyan-500/20;
   }
 }
 
 /* ── Animations ──────────────────────────────────────────── */
 @keyframes shimmer {
-  to { background-position: -200% center; }
+  to {
+    background-position: -200% center;
+  }
 }
+
 .shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.04) 50%, transparent 75%);
+  background: linear-gradient(90deg, transparent 25%, rgba(255, 255, 255, 0.02) 50%, transparent 75%);
   background-size: 200% 100%;
-  animation: shimmer 2s infinite;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-scan {
+  animation: scan 4s linear infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
 }

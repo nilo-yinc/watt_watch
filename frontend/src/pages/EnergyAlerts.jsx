@@ -1,124 +1,131 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { alerts } from '../data/mockData';
+import { Spotlight } from '../components/ui/spotlight';
 
 export default function EnergyAlerts() {
     const [filterBuilding, setFilterBuilding] = useState('all');
-    const [filterType, setFilterType] = useState('all');
     const [filterSeverity, setFilterSeverity] = useState('all');
 
     const buildings = ['all', ...new Set(alerts.map(a => a.building))];
-    const types = ['all', ...new Set(alerts.map(a => a.roomType))];
 
     const filteredAlerts = alerts.filter(a => {
         if (filterBuilding !== 'all' && a.building !== filterBuilding) return false;
-        if (filterType !== 'all' && a.roomType !== filterType) return false;
         if (filterSeverity !== 'all' && a.severity !== filterSeverity) return false;
         return true;
     });
 
-    const getSeverityColor = (severity) => {
-        switch (severity) {
-            case 'high': return { bg: 'from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30', border: 'border-red-400 dark:border-red-700', text: 'text-red-700 dark:text-red-400', badge: 'bg-red-500' };
-            case 'medium': return { bg: 'from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30', border: 'border-amber-400 dark:border-amber-700', text: 'text-amber-700 dark:text-amber-400', badge: 'bg-amber-500' };
-            case 'low': return { bg: 'from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30', border: 'border-blue-400 dark:border-blue-700', text: 'text-blue-700 dark:text-blue-400', badge: 'bg-blue-500' };
-            default: return { bg: 'from-slate-50 dark:from-slate-950/30', border: 'border-slate-400 dark:border-slate-700', text: 'text-slate-700 dark:text-slate-400', badge: 'bg-slate-500' };
+    const getSeverity = (s) => {
+        switch (s) {
+            case 'high': return { dot: 'bg-red-400 animate-pulse', text: 'text-red-400', border: 'border-red-500/15', label: 'HIGH' };
+            case 'medium': return { dot: 'bg-amber-400', text: 'text-amber-400', border: 'border-amber-500/15', label: 'MED' };
+            case 'low': return { dot: 'bg-blue-400', text: 'text-blue-400', border: 'border-blue-500/15', label: 'LOW' };
+            default: return { dot: 'bg-slate-400', text: 'text-slate-400', border: 'border-white/[0.06]', label: '—' };
         }
     };
 
     const formatTime = (ts) => {
         const diff = Math.floor((Date.now() - ts) / 60000);
         if (diff < 60) return `${diff}m ago`;
-        if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
-        return new Date(ts).toLocaleDateString();
+        return `${Math.floor(diff / 60)}h ago`;
     };
 
-    const totalWaste = filteredAlerts.reduce((sum, a) => sum + a.estimatedWaste, 0);
+    const totalWaste = filteredAlerts.reduce((s, a) => s + a.estimatedWaste, 0);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors duration-300">
-            <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 dark:from-orange-700 dark:via-red-700 dark:to-pink-700 px-8 py-12">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                        <div>
-                            <h1 className="text-5xl font-black text-white mb-2 tracking-tight">Energy Waste Alerts</h1>
-                            <p className="text-red-100 text-lg font-medium">Active alerts requiring attention</p>
+        <Spotlight className="min-h-full">
+            <div className="max-w-[1400px] mx-auto">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                            <span className="hud-label">ACTIVE ALERTS</span>
                         </div>
-                        <div className="flex gap-6">
-                            {[{ val: filteredAlerts.length, label: 'Active Alerts' }, { val: totalWaste.toFixed(1), label: 'kWh Wasted' }].map((s, i) => (
-                                <div key={i} className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/30">
-                                    <div className="text-4xl font-black text-white">{s.val}</div>
-                                    <div className="text-sm font-semibold text-red-100 uppercase tracking-wider">{s.label}</div>
-                                </div>
-                            ))}
+                        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Energy Alerts</h1>
+                        <p className="text-xs font-mono text-slate-500">Waste detection feed · {filteredAlerts.length} active</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <div className="hud-card px-4 py-3 text-center">
+                            <div className="text-xl font-mono font-bold text-red-400">{filteredAlerts.length}</div>
+                            <div className="text-[8px] font-mono text-slate-600">ALERTS</div>
+                        </div>
+                        <div className="hud-card px-4 py-3 text-center">
+                            <div className="text-xl font-mono font-bold text-amber-400">{totalWaste.toFixed(1)}</div>
+                            <div className="text-[8px] font-mono text-slate-600">kWh WASTE</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="max-w-7xl mx-auto px-8 py-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    {[
-                        { label: 'Building', value: filterBuilding, onChange: setFilterBuilding, options: buildings.map(b => ({ v: b, l: b === 'all' ? 'All Buildings' : b })) },
-                        { label: 'Room Type', value: filterType, onChange: setFilterType, options: types.map(t => ({ v: t, l: t === 'all' ? 'All Types' : t })) },
-                        { label: 'Severity', value: filterSeverity, onChange: setFilterSeverity, options: [{ v: 'all', l: 'All Severities' }, { v: 'high', l: 'High' }, { v: 'medium', l: 'Medium' }, { v: 'low', l: 'Low' }] },
-                    ].map((f, i) => (
-                        <div key={i}>
-                            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-2">{f.label}</label>
-                            <select value={f.value} onChange={(e) => f.onChange(e.target.value)}
-                                className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl focus:border-orange-500 focus:outline-none text-slate-900 dark:text-slate-100 font-medium">
-                                {f.options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
-                            </select>
-                        </div>
-                    ))}
+                {/* Filters */}
+                <div className="hud-card p-3 flex items-center gap-4 mb-6">
+                    <span className="hud-label">FILTER</span>
+                    <select value={filterBuilding} onChange={(e) => setFilterBuilding(e.target.value)}
+                        className="px-3 py-1.5 bg-transparent border border-white/[0.06] rounded-md text-xs font-mono text-slate-300 focus:border-cyan-500/30 focus:outline-none">
+                        {buildings.map(b => <option key={b} value={b} className="bg-slate-900">{b === 'all' ? 'All Buildings' : b}</option>)}
+                    </select>
+                    <select value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}
+                        className="px-3 py-1.5 bg-transparent border border-white/[0.06] rounded-md text-xs font-mono text-slate-300 focus:border-cyan-500/30 focus:outline-none">
+                        <option value="all" className="bg-slate-900">All Severity</option>
+                        <option value="high" className="bg-slate-900">High</option>
+                        <option value="medium" className="bg-slate-900">Medium</option>
+                        <option value="low" className="bg-slate-900">Low</option>
+                    </select>
                 </div>
 
-                <div className="space-y-6">
+                {/* Alert List */}
+                <div className="space-y-3">
                     {filteredAlerts.length === 0 ? (
-                        <div className="text-center py-20">
-                            <div className="text-8xl mb-4">✓</div>
-                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">No Alerts Found</h3>
-                            <p className="text-slate-600 dark:text-slate-400 text-lg">All rooms operating efficiently</p>
+                        <div className="hud-card p-12 text-center">
+                            <div className="text-2xl text-slate-700 mb-2">◉</div>
+                            <span className="text-xs font-mono text-slate-600">NO ALERTS MATCHING CRITERIA</span>
                         </div>
-                    ) : filteredAlerts.map(alert => {
-                        const colors = getSeverityColor(alert.severity);
+                    ) : filteredAlerts.map((alert, i) => {
+                        const sev = getSeverity(alert.severity);
                         return (
-                            <div key={alert.id} className={`bg-gradient-to-br ${colors.bg} border-l-8 ${colors.border} rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow`}>
-                                <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-                                    <div>
-                                        <div className="flex items-start gap-3 mb-2">
-                                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{alert.roomName}</h3>
-                                            <span className={`${colors.badge} text-white px-3 py-1 rounded-full text-xs font-black uppercase`}>{alert.severity}</span>
+                            <motion.div key={alert.id} className={`hud-card border-l-2 ${sev.border}`}
+                                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
+                                <div className="p-4">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className={`w-2 h-2 rounded-full ${sev.dot}`} />
+                                            <span className="text-sm font-semibold text-white">{alert.roomName}</span>
+                                            <span className={`text-[9px] font-mono font-bold ${sev.text} tracking-wider`}>{sev.label}</span>
                                         </div>
-                                        <p className="text-slate-600 dark:text-slate-400 font-medium">{alert.roomType} • {alert.building}</p>
+                                        <span className="text-[9px] font-mono text-slate-600">{formatTime(alert.timestamp)}</span>
+                                    </div>
+
+                                    <p className="text-xs font-mono text-slate-400 mb-3 leading-relaxed">{alert.issue}</p>
+
+                                    <div className="flex items-center gap-4 mb-3">
+                                        {[
+                                            { l: 'Duration', v: alert.duration },
+                                            { l: 'Waste', v: `${alert.estimatedWaste} kWh` },
+                                            { l: 'Type', v: alert.roomType },
+                                            { l: 'Building', v: alert.building },
+                                        ].map((m, j) => (
+                                            <div key={j} className="flex items-center gap-1.5">
+                                                <span className="text-[8px] font-mono text-slate-700">{m.l}:</span>
+                                                <span className="text-[10px] font-mono text-slate-400">{m.v}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <Link to={`/room/${alert.roomId}`} className="text-[10px] font-mono text-cyan-400 px-2.5 py-1 border border-cyan-500/20 rounded-md hover:bg-cyan-500/[0.04] transition-colors">
+                                            VIEW FEED
+                                        </Link>
+                                        <Link to="/manual-control" className="text-[10px] font-mono text-red-400 px-2.5 py-1 border border-red-500/20 rounded-md hover:bg-red-500/[0.04] transition-colors">
+                                            TAKE ACTION
+                                        </Link>
                                     </div>
                                 </div>
-                                <div className={`flex items-start gap-3 p-4 bg-white/50 dark:bg-black/20 rounded-xl mb-4 border ${colors.border}`}>
-                                    <span className="text-3xl">⚠️</span>
-                                    <span className={`text-lg font-semibold ${colors.text}`}>{alert.issue}</span>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4 mb-4">
-                                    {[
-                                        { emoji: '⏱️', val: alert.duration, label: 'Duration' },
-                                        { emoji: '⚡', val: alert.estimatedWaste, label: 'kWh Wasted' },
-                                        { emoji: '🕐', val: formatTime(alert.timestamp), label: 'Detected' },
-                                    ].map((m, i) => (
-                                        <div key={i} className="bg-white/70 dark:bg-slate-900/50 rounded-xl p-4 text-center">
-                                            <div className="text-2xl mb-1">{m.emoji}</div>
-                                            <div className="text-xl font-bold text-slate-900 dark:text-white mb-1">{m.val}</div>
-                                            <div className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wider">{m.label}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="flex gap-3">
-                                    <Link to={`/room/${alert.roomId}`} className="flex-1 text-center px-6 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold rounded-xl transition-colors">View Room</Link>
-                                    <Link to="/manual-control" className="flex-1 text-center px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl shadow-lg">Take Action</Link>
-                                </div>
-                            </div>
+                            </motion.div>
                         );
                     })}
                 </div>
             </div>
-        </div>
+        </Spotlight>
     );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 
 export function EvervaultCard({ text = "hover", className }) {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });

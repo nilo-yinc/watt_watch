@@ -1,25 +1,18 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { rooms } from '../data/mockData';
+import { Spotlight } from '../components/ui/spotlight';
 
 export default function HeatmapView() {
     const [timeFilter, setTimeFilter] = useState('today');
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'efficient': return '#10b981';
-            case 'waste': return '#ef4444';
-            case 'review': return '#f59e0b';
-            default: return '#3b82f6';
-        }
-    };
-
-    const getStatusLabel = (status) => {
-        switch (status) {
-            case 'efficient': return 'Efficient';
-            case 'waste': return 'High Waste';
-            case 'review': return 'Needs Review';
-            default: return 'Unknown';
+            case 'efficient': return { bg: 'bg-emerald-500/20', border: 'border-emerald-500/30', dot: 'bg-emerald-400' };
+            case 'waste': return { bg: 'bg-red-500/20', border: 'border-red-500/30', dot: 'bg-red-400' };
+            case 'review': return { bg: 'bg-amber-500/20', border: 'border-amber-500/30', dot: 'bg-amber-400' };
+            default: return { bg: 'bg-slate-500/20', border: 'border-slate-500/30', dot: 'bg-slate-400' };
         }
     };
 
@@ -36,83 +29,105 @@ export default function HeatmapView() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 dark:bg-black text-white p-8 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
+        <Spotlight className="min-h-full">
+            <div className="max-w-[1400px] mx-auto">
+                {/* Header */}
+                <div className="flex justify-between items-start mb-8">
                     <div>
-                        <h1 className="text-6xl font-black mb-2 tracking-tighter">
-                            <span className="bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 bg-clip-text text-transparent">Campus Heatmap</span>
-                        </h1>
-                        <p className="text-xl text-slate-400 font-light">Real-time energy efficiency across campus</p>
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                            <span className="hud-label">THERMAL MAP</span>
+                        </div>
+                        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Campus Heatmap</h1>
+                        <p className="text-xs font-mono text-slate-500">Energy efficiency visualization by building</p>
                     </div>
-                    <div className="flex gap-3 mt-6 md:mt-0">
+                    <div className="flex gap-1">
                         {['today', 'week'].map(f => (
                             <button key={f} onClick={() => setTimeFilter(f)}
-                                className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all ${timeFilter === f ? 'bg-white text-slate-900 shadow-xl' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
-                                {f === 'today' ? 'Today' : 'This Week'}
+                                className={`px-3 py-1.5 rounded-md text-xs font-mono transition-all ${timeFilter === f ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-600 hover:text-slate-400'}`}>
+                                {f.toUpperCase()}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-6 mb-12 p-6 bg-slate-800/50 rounded-3xl backdrop-blur-sm border border-slate-700">
-                    <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-green-500 shadow-lg shadow-green-500/50"></div><span className="text-lg font-semibold">Efficient ({stats.efficient})</span></div>
-                    <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-amber-500 shadow-lg shadow-amber-500/50"></div><span className="text-lg font-semibold">Needs Review ({stats.review})</span></div>
-                    <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-red-500 shadow-lg shadow-red-500/50"></div><span className="text-lg font-semibold">High Waste ({stats.waste})</span></div>
+                {/* Legend */}
+                <div className="hud-card p-3 flex items-center gap-6 mb-6">
+                    {[
+                        { color: 'bg-emerald-400', label: `Clear (${stats.efficient})` },
+                        { color: 'bg-amber-400', label: `Review (${stats.review})` },
+                        { color: 'bg-red-400', label: `Alert (${stats.waste})` },
+                    ].map((l, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                            <div className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
+                            <span className="text-[10px] font-mono text-slate-400">{l.label}</span>
+                        </div>
+                    ))}
                 </div>
 
-                <div className="space-y-12">
+                {/* Buildings */}
+                <div className="space-y-6">
                     {Object.entries(buildings).map(([building, buildingRooms]) => (
                         <div key={building}>
-                            <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-slate-700">
-                                <h2 className="text-3xl font-black text-white">{building}</h2>
-                                <span className="px-5 py-2 bg-slate-800 rounded-full text-slate-400 font-bold">{buildingRooms.length} rooms</span>
+                            <div className="flex items-center justify-between mb-3">
+                                <h2 className="text-sm font-semibold text-white tracking-wide">{building}</h2>
+                                <span className="text-[10px] font-mono text-slate-600">{buildingRooms.length} feeds</span>
                             </div>
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-                                {buildingRooms.map(room => (
-                                    <Link key={room.id} to={`/room/${room.id}`}
-                                        className="group relative aspect-square rounded-2xl overflow-hidden transform hover:scale-110 hover:z-10 transition-all duration-300 shadow-xl hover:shadow-2xl"
-                                        style={{ backgroundColor: getStatusColor(room.status), boxShadow: `0 10px 30px -10px ${getStatusColor(room.status)}80` }}>
-                                        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/40"></div>
-                                        <div className="relative h-full p-3 flex flex-col justify-between text-white">
-                                            <div><div className="text-xl font-black mb-1">{room.name.split(' ').slice(-1)[0]}</div><div className="text-xs font-bold opacity-80 uppercase">{room.type.slice(0, 3)}</div></div>
-                                            <div className="flex items-center justify-between"><span className="text-sm font-bold">{room.occupancy}/{room.capacity}</span><span className="text-xs">👥</span></div>
-                                        </div>
-                                        <div className="absolute inset-0 bg-black/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
-                                            <div className="text-center">
-                                                <div className="text-lg font-black mb-2">{room.name}</div>
-                                                <div className="text-sm font-semibold mb-3">{getStatusLabel(room.status)}</div>
-                                                <div className="space-y-1 text-xs">
-                                                    <div>👥 {room.occupancy}/{room.capacity}</div>
-                                                    <div>⚡ {room.energyUsage} kWh</div>
+                            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+                                {buildingRooms.map((room, i) => {
+                                    const colors = getStatusColor(room.status);
+                                    return (
+                                        <Link key={room.id} to={`/room/${room.id}`}>
+                                            <motion.div
+                                                className={`aspect-square rounded-lg ${colors.bg} border ${colors.border} p-2 flex flex-col justify-between cursor-pointer hover:scale-110 transition-transform duration-200 relative group`}
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ delay: i * 0.04 }}
+                                            >
+                                                <div>
+                                                    <div className="text-[10px] font-mono font-bold text-white truncate">{room.name.split(' ').slice(-1)[0]}</div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[8px] font-mono text-slate-400">{room.occupancy}/{room.capacity}</span>
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
+                                                </div>
+
+                                                {/* Hover tooltip */}
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                                                    <div className="bg-[#0a1018] border border-white/10 rounded-lg p-3 min-w-[160px] shadow-xl">
+                                                        <div className="text-xs font-semibold text-white mb-1">{room.name}</div>
+                                                        <div className="text-[9px] font-mono text-slate-400 space-y-0.5">
+                                                            <div>Occupancy: {room.occupancy}/{room.capacity}</div>
+                                                            <div>Power: {room.energyUsage} kWh</div>
+                                                            <div>Type: {room.type}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-12 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl p-8 border border-slate-700">
-                    <h3 className="text-3xl font-black text-white mb-6">Quick Insights</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="flex items-start gap-4 p-6 bg-green-500/10 border-2 border-green-500/30 rounded-2xl">
-                            <span className="text-4xl">✓</span>
-                            <div><div className="text-2xl font-black text-green-400 mb-1">{stats.efficient}</div><div className="text-sm text-slate-300">rooms operating efficiently</div></div>
+                {/* Summary */}
+                <div className="grid grid-cols-3 gap-3 mt-8">
+                    {[
+                        { label: 'CLEAR', val: stats.efficient, accent: 'text-emerald-400' },
+                        { label: 'ACTIVE WASTE', val: stats.waste, accent: 'text-red-400' },
+                        { label: 'EFFICIENCY', val: `${((stats.efficient / rooms.length) * 100).toFixed(0)}%`, accent: 'text-cyan-400' },
+                    ].map((s, i) => (
+                        <div key={i} className="hud-card p-4">
+                            <div className="hud-label mb-2">{s.label}</div>
+                            <div className={`text-xl font-mono font-bold ${s.accent}`}>{s.val}</div>
+                            <div className="corner-bracket corner-bracket-tl" />
+                            <div className="corner-bracket corner-bracket-br" />
                         </div>
-                        <div className="flex items-start gap-4 p-6 bg-red-500/10 border-2 border-red-500/30 rounded-2xl">
-                            <span className="text-4xl">⚠️</span>
-                            <div><div className="text-2xl font-black text-red-400 mb-1">{stats.waste}</div><div className="text-sm text-slate-300">rooms with active waste</div></div>
-                        </div>
-                        <div className="flex items-start gap-4 p-6 bg-blue-500/10 border-2 border-blue-500/30 rounded-2xl">
-                            <span className="text-4xl">📊</span>
-                            <div><div className="text-2xl font-black text-blue-400 mb-1">{((stats.efficient / rooms.length) * 100).toFixed(0)}%</div><div className="text-sm text-slate-300">overall efficiency rate</div></div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
-        </div>
+        </Spotlight>
     );
 }

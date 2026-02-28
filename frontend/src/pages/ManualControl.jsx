@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { rooms } from '../data/mockData';
+import { Spotlight } from '../components/ui/spotlight';
 
 export default function ManualControl() {
     const [selectedRoom, setSelectedRoom] = useState('');
@@ -10,86 +11,73 @@ export default function ManualControl() {
     const canTakeAction = selectedRoomData && selectedRoomData.occupancy === 0;
 
     const handleAction = (action) => { setActionType(action); setShowModal(true); };
-    const confirmAction = () => setShowModal(false);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-100 via-orange-50 to-red-50 dark:from-slate-950 dark:via-orange-950/30 dark:to-red-950/30 p-8 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
+        <Spotlight className="min-h-full">
+            <div className="max-w-[1200px] mx-auto">
+                <div className="flex items-start justify-between mb-8">
                     <div>
-                        <div className="flex items-center gap-3 mb-3">
-                            {['bg-red-500', 'bg-orange-500', 'bg-yellow-500'].map((c, i) => (
-                                <div key={i} className={`w-2 h-2 rounded-full ${c} animate-pulse`} style={{ animationDelay: `${i * 0.2}s` }}></div>
-                            ))}
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+                            <span className="hud-label">MANUAL OVERRIDE</span>
                         </div>
-                        <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Manual Control & Safety Panel</h1>
-                        <p className="text-xl text-slate-600 dark:text-slate-400 font-medium">Direct control of room power systems</p>
+                        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Power Control</h1>
+                        <p className="text-xs font-mono text-slate-500">Direct appliance control · Safety interlocks active</p>
                     </div>
-                    <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl shadow-xl mt-6 md:mt-0">
-                        <span className="text-3xl">🛡️</span><span className="text-white font-bold text-lg">Safety Protocols Active</span>
+                    <div className="flex items-center gap-2 px-3 py-2 hud-card">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <span className="text-[9px] font-mono text-emerald-400 tracking-wider">SAFETY ACTIVE</span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-                    {/* Room Selection */}
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border-4 border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-2xl">📍</div>
-                            <h2 className="text-3xl font-black text-slate-900 dark:text-white">Room Selection</h2>
-                        </div>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                    {/* Room Select */}
+                    <div className="hud-card p-5">
+                        <div className="hud-label mb-3">TARGET ROOM</div>
                         <select value={selectedRoom} onChange={(e) => setSelectedRoom(e.target.value)}
-                            className="w-full px-6 py-5 mb-6 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-2xl focus:border-indigo-500 focus:outline-none text-slate-900 dark:text-slate-100 font-bold text-lg">
-                            <option value="">Choose a room...</option>
-                            {rooms.map(room => (<option key={room.id} value={room.id}>{room.name} ({room.building})</option>))}
+                            className="w-full px-3 py-2.5 bg-transparent border border-white/[0.06] rounded-md text-slate-300 text-xs font-mono focus:border-cyan-500/30 focus:outline-none mb-4">
+                            <option value="" className="bg-slate-900">Select target...</option>
+                            {rooms.map(room => (<option key={room.id} value={room.id} className="bg-slate-900">{room.name} ({room.building})</option>))}
                         </select>
                         {selectedRoomData && (
-                            <div className="space-y-4 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
-                                <div className="grid grid-cols-2 gap-4">
-                                    {[{ l: 'Room Type', v: selectedRoomData.type }, { l: 'Building', v: selectedRoomData.building }].map((d, i) => (
-                                        <div key={i}><div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{d.l}</div><div className="text-lg font-black text-slate-900 dark:text-white">{d.v}</div></div>
-                                    ))}
-                                </div>
-                                <div className={`p-4 rounded-xl border-2 ${selectedRoomData.occupancy > 0 ? 'bg-red-50 dark:bg-red-950/30 border-red-300 dark:border-red-800' : 'bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-800'}`}>
-                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Current Occupancy</div>
-                                    <div className={`text-3xl font-black ${selectedRoomData.occupancy > 0 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}>{selectedRoomData.occupancy} people</div>
+                            <div className="space-y-2 pt-3 border-t border-white/[0.04]">
+                                {[
+                                    { l: 'Type', v: selectedRoomData.type },
+                                    { l: 'Building', v: selectedRoomData.building },
+                                ].map((d, i) => (
+                                    <div key={i} className="flex justify-between"><span className="text-[10px] font-mono text-slate-600">{d.l}</span><span className="text-xs font-mono text-white">{d.v}</span></div>
+                                ))}
+                                <div className={`flex justify-between items-center py-2 px-3 rounded-md mt-2 ${selectedRoomData.occupancy > 0 ? 'bg-red-500/[0.06] border border-red-500/15' : 'bg-emerald-500/[0.06] border border-emerald-500/15'}`}>
+                                    <span className="text-[10px] font-mono text-slate-400">Occupancy</span>
+                                    <span className={`text-sm font-mono font-bold ${selectedRoomData.occupancy > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{selectedRoomData.occupancy}</span>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Power Control */}
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border-4 border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center text-2xl">⚡</div>
-                            <h2 className="text-3xl font-black text-slate-900 dark:text-white">Power Control</h2>
-                        </div>
+                    {/* Actions */}
+                    <div className="hud-card p-5">
+                        <div className="hud-label mb-3">ACTIONS</div>
                         {!selectedRoom ? (
-                            <div className="flex flex-col items-center justify-center py-20"><div className="text-8xl mb-4">⚡</div><p className="text-xl text-slate-600 dark:text-slate-400 font-semibold">Select a room to view controls</p></div>
+                            <div className="flex items-center justify-center py-16"><span className="text-xs font-mono text-slate-700">SELECT A TARGET</span></div>
                         ) : !canTakeAction ? (
-                            <div className="p-8 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-2xl border-4 border-red-300 dark:border-red-800">
-                                <div className="flex gap-6">
-                                    <div className="text-6xl">⚠️</div>
-                                    <div>
-                                        <h3 className="text-2xl font-black text-red-800 dark:text-red-400 mb-3">Safety Lock Engaged</h3>
-                                        <p className="text-lg text-red-700 dark:text-red-300">Power controls disabled — <span className="font-black">{selectedRoomData.occupancy} occupants</span> detected.</p>
-                                    </div>
+                            <div className="p-4 bg-red-500/[0.04] border border-red-500/15 rounded-md">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                                    <span className="text-xs font-mono font-bold text-red-400 tracking-wider">SAFETY LOCK</span>
                                 </div>
+                                <p className="text-[10px] font-mono text-slate-500">Controls locked — {selectedRoomData.occupancy} occupants detected</p>
                             </div>
                         ) : (
-                            <div className="space-y-6">
+                            <div className="space-y-3">
                                 {[
-                                    { action: 'powerOff', emoji: '🔴', label: 'Turn Power OFF', sub: 'Disable all appliances', color: 'from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 border-red-400 dark:border-red-800' },
-                                    { action: 'powerOn', emoji: '🟢', label: 'Restore Power', sub: 'Enable all appliances', color: 'from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-green-400 dark:border-green-800' },
+                                    { action: 'powerOff', label: 'POWER OFF', sub: 'Disable all appliances', border: 'border-red-500/20 hover:bg-red-500/[0.04]', text: 'text-red-400' },
+                                    { action: 'powerOn', label: 'RESTORE POWER', sub: 'Enable all appliances', border: 'border-emerald-500/20 hover:bg-emerald-500/[0.04]', text: 'text-emerald-400' },
                                 ].map((btn, i) => (
                                     <button key={i} onClick={() => handleAction(btn.action)}
-                                        className={`w-full p-8 bg-gradient-to-br ${btn.color} rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 border-4`}>
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-6xl">{btn.emoji}</div>
-                                            <div className="text-left flex-1">
-                                                <div className="text-3xl font-black text-white mb-1">{btn.label}</div>
-                                                <div className="text-white/80 font-semibold">{btn.sub}</div>
-                                            </div>
-                                        </div>
+                                        className={`w-full p-4 text-left rounded-md border ${btn.border} transition-colors`}>
+                                        <div className={`text-sm font-mono font-bold ${btn.text} mb-0.5`}>{btn.label}</div>
+                                        <div className="text-[10px] font-mono text-slate-600">{btn.sub}</div>
                                     </button>
                                 ))}
                             </div>
@@ -97,63 +85,60 @@ export default function ManualControl() {
                     </div>
                 </div>
 
-                {/* Appliance States */}
+                {/* Appliance grid */}
                 {selectedRoomData && (
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border-4 border-slate-200 dark:border-slate-800 mb-12">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-12 h-12 bg-purple-500 rounded-2xl flex items-center justify-center text-2xl">🔌</div>
-                            <h2 className="text-3xl font-black text-slate-900 dark:text-white">Current Appliance States</h2>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="hud-card p-5 mb-6">
+                        <div className="hud-label mb-4">APPLIANCE MATRIX</div>
+                        <div className="grid grid-cols-4 gap-3">
                             {[
-                                { emoji: '💡', label: 'Lights', on: selectedRoomData.appliances.lights, onColor: 'from-amber-100 to-yellow-100 dark:from-amber-950/50 dark:to-yellow-950/50 border-amber-400 dark:border-amber-700', textColor: 'text-amber-700 dark:text-amber-400' },
-                                { emoji: '📽️', label: 'Projector', on: selectedRoomData.appliances.projector, onColor: 'from-purple-100 to-pink-100 dark:from-purple-950/50 dark:to-pink-950/50 border-purple-400 dark:border-purple-700', textColor: 'text-purple-700 dark:text-purple-400' },
-                                { emoji: '❄️', label: 'AC', on: selectedRoomData.appliances.ac, onColor: 'from-cyan-100 to-blue-100 dark:from-cyan-950/50 dark:to-blue-950/50 border-cyan-400 dark:border-cyan-700', textColor: 'text-cyan-700 dark:text-cyan-400' },
+                                { code: 'LT', label: 'Lights', on: selectedRoomData.appliances.lights },
+                                { code: 'PJ', label: 'Projector', on: selectedRoomData.appliances.projector },
+                                { code: 'AC', label: 'Air Conditioning', on: selectedRoomData.appliances.ac },
+                                ...(selectedRoomData.appliances.desktops > 0 ? [{ code: 'PC', label: `${selectedRoomData.appliances.desktops} Desktops`, on: true }] : []),
                             ].map((a, i) => (
-                                <div key={i} className={`p-6 rounded-2xl border-4 transition-all ${a.on ? `bg-gradient-to-br ${a.onColor}` : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700'}`}>
-                                    <div className="text-5xl mb-3">{a.emoji}</div>
-                                    <div className="text-xl font-black text-slate-900 dark:text-white mb-1">{a.label}</div>
-                                    <div className={`text-sm font-bold uppercase ${a.on ? a.textColor : 'text-slate-500 dark:text-slate-400'}`}>{a.on ? 'ON' : 'OFF'}</div>
+                                <div key={i} className={`p-3 rounded-md border ${a.on ? 'border-amber-500/15 bg-amber-500/[0.03]' : 'border-white/[0.04]'}`}>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs font-mono font-bold text-white">{a.code}</span>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${a.on ? 'bg-amber-400' : 'bg-slate-700'}`} />
+                                    </div>
+                                    <div className="text-[10px] font-mono text-slate-500">{a.label}</div>
                                 </div>
                             ))}
-                            {selectedRoomData.appliances.desktops > 0 && (
-                                <div className="p-6 rounded-2xl border-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-950/50 dark:to-indigo-950/50 border-blue-400 dark:border-blue-700">
-                                    <div className="text-5xl mb-3">💻</div>
-                                    <div className="text-xl font-black text-slate-900 dark:text-white mb-1">Desktops</div>
-                                    <div className="text-sm font-bold uppercase text-blue-700 dark:text-blue-400">{selectedRoomData.appliances.desktops} Active</div>
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}
 
-                {/* Safety */}
-                <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl p-8 shadow-2xl">
-                    <h3 className="text-3xl font-black text-white mb-8 flex items-center gap-3"><span className="text-4xl">🛡️</span>Safety Protocols</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {['Occupancy detection prevents accidental power-off', 'All actions logged with timestamp and operator', 'Confirmation required before power changes', 'Emergency restore from any admin terminal'].map((t, i) => (
-                            <div key={i} className="flex items-start gap-4 p-6 bg-white/20 backdrop-blur-sm rounded-2xl border-2 border-white/30">
-                                <span className="text-3xl">✓</span><span className="text-lg text-white font-semibold">{t}</span>
+                {/* Safety protocols */}
+                <div className="hud-card p-5">
+                    <div className="hud-label mb-4">SAFETY PROTOCOLS</div>
+                    <div className="grid grid-cols-2 gap-3">
+                        {['Occupancy interlock prevents live-room shutoff', 'All actions timestamped and audit-logged', 'Confirmation required for all power changes', 'Emergency restore available via admin terminal'].map((t, i) => (
+                            <div key={i} className="flex items-start gap-2 p-3 bg-white/[0.01] rounded-md border border-white/[0.03]">
+                                <div className="w-1 h-1 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />
+                                <span className="text-[10px] font-mono text-slate-400 leading-relaxed">{t}</span>
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
 
+            {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-8">
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-lg w-full shadow-2xl border-4 border-slate-200 dark:border-slate-800">
-                        <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6">Confirm Action</h2>
-                        <p className="text-lg text-slate-700 dark:text-slate-300 mb-4">
-                            {actionType === 'powerOff' ? 'Turn OFF power' : 'Restore power'} in <span className="font-black">{selectedRoomData?.name}</span>?
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="hud-card p-6 max-w-sm w-full mx-4">
+                        <div className="hud-label mb-3">CONFIRM ACTION</div>
+                        <p className="text-sm text-slate-300 mb-1">
+                            {actionType === 'powerOff' ? 'Turn OFF' : 'Restore'} power in:
                         </p>
-                        <div className="flex gap-4">
-                            <button onClick={() => setShowModal(false)} className="flex-1 px-6 py-4 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold rounded-xl">Cancel</button>
-                            <button onClick={confirmAction} className={`flex-1 px-6 py-4 text-white font-bold rounded-xl shadow-lg ${actionType === 'powerOff' ? 'bg-gradient-to-r from-red-500 to-rose-600' : 'bg-gradient-to-r from-green-500 to-emerald-600'}`}>Confirm</button>
+                        <p className="text-sm font-mono font-bold text-white mb-4">{selectedRoomData?.name}</p>
+                        <div className="flex gap-2">
+                            <button onClick={() => setShowModal(false)} className="flex-1 py-2 text-xs font-mono text-slate-400 border border-white/[0.06] rounded-md hover:bg-white/[0.02]">CANCEL</button>
+                            <button onClick={() => setShowModal(false)}
+                                className={`flex-1 py-2 text-xs font-mono font-bold rounded-md border ${actionType === 'powerOff' ? 'text-red-400 border-red-500/20 bg-red-500/[0.06]' : 'text-emerald-400 border-emerald-500/20 bg-emerald-500/[0.06]'}`}>CONFIRM</button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </Spotlight>
     );
 }
