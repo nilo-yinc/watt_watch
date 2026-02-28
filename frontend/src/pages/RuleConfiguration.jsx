@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { rules as initialRules } from '../data/mockData';
+import { Spotlight } from '../components/ui/spotlight';
 
 export default function RuleConfiguration() {
     const [rules, setRules] = useState(initialRules);
@@ -10,130 +11,111 @@ export default function RuleConfiguration() {
     const updateAppliance = (appliance, value) => setRules(prev => ({ ...prev, appliances: { ...prev.appliances, [appliance]: parseFloat(value) } }));
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 dark:from-slate-950 dark:via-indigo-950 dark:to-purple-950 p-8 transition-colors duration-300">
-            <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
+        <Spotlight className="min-h-full">
+            <div className="max-w-[1200px] mx-auto">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-8">
                     <div>
-                        <h1 className="text-5xl font-black mb-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">Rule Configuration</h1>
-                        <p className="text-xl text-slate-600 dark:text-slate-400 font-medium">Configure system behavior and thresholds</p>
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                            <span className="hud-label">CONFIGURATION</span>
+                        </div>
+                        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Rule Engine</h1>
+                        <p className="text-xs font-mono text-slate-500">System behavior and threshold parameters</p>
                     </div>
                     {saved && (
-                        <div className="mt-6 md:mt-0 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl shadow-xl flex items-center gap-2 animate-bounce">
-                            <span className="text-2xl">✓</span><span className="font-bold text-lg">Settings saved!</span>
+                        <div className="flex items-center gap-2 px-3 py-2 hud-card border-emerald-500/20">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            <span className="text-[10px] font-mono text-emerald-400 tracking-wider">SAVED</span>
                         </div>
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    {/* Empty Room Detection */}
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border-2 border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-4xl">⏱️</div>
-                            <h2 className="text-2xl font-black text-slate-900 dark:text-white">Empty Room Detection</h2>
-                        </div>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                    {/* Detection Threshold */}
+                    <div className="hud-card p-5">
+                        <div className="hud-label mb-4">EMPTY ROOM DETECTION</div>
                         <label className="block">
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 block">Empty Room Threshold (minutes)</span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 block mb-3">Time before room is considered empty</span>
+                            <span className="text-[10px] font-mono text-slate-400 block mb-2">Threshold (minutes)</span>
                             <input type="number" value={rules.emptyRoomThreshold} onChange={(e) => updateRule('emptyRoomThreshold', parseInt(e.target.value))} min="5" max="120"
-                                className="w-full px-6 py-4 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-2xl focus:border-indigo-500 focus:outline-none text-slate-900 dark:text-slate-100 font-bold text-2xl text-center" />
+                                className="w-full px-3 py-2.5 bg-transparent border border-white/[0.06] rounded-md text-lg font-mono font-bold text-white focus:border-cyan-500/30 focus:outline-none text-center" />
                         </label>
+                        <div className="text-[9px] font-mono text-slate-600 mt-2">Time before room flagged as empty</div>
                     </div>
 
                     {/* Automation */}
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border-2 border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-4xl">⚙️</div>
-                            <h2 className="text-2xl font-black text-slate-900 dark:text-white">Automation Settings</h2>
-                        </div>
-                        <div className="space-y-6">
+                    <div className="hud-card p-5">
+                        <div className="hud-label mb-4">AUTOMATION</div>
+                        <div className="space-y-3">
                             {[
-                                { label: 'Auto Power-Off', desc: 'Automatically turn off appliances in empty rooms', checked: rules.autoPowerOff, key: 'autoPowerOff', onColor: 'peer-checked:from-green-500 peer-checked:to-emerald-500' },
-                                { label: 'Alert Only Mode', desc: 'Send alerts instead of automatic actions', checked: rules.alertOnly, key: 'alertOnly', onColor: 'peer-checked:from-amber-500 peer-checked:to-orange-500' },
+                                { label: 'Auto Power-Off', desc: 'Disable appliances in empty rooms', checked: rules.autoPowerOff, key: 'autoPowerOff' },
+                                { label: 'Alert-Only Mode', desc: 'Notify instead of auto-action', checked: rules.alertOnly, key: 'alertOnly' },
                             ].map((toggle, i) => (
-                                <div key={i} className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                                <label key={i} className="flex items-center justify-between p-3 bg-white/[0.01] border border-white/[0.03] rounded-md cursor-pointer hover:bg-white/[0.02] transition-colors">
                                     <div>
-                                        <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">{toggle.label}</div>
-                                        <div className="text-sm text-slate-600 dark:text-slate-400">{toggle.desc}</div>
+                                        <div className="text-xs font-mono text-white mb-0.5">{toggle.label}</div>
+                                        <div className="text-[9px] font-mono text-slate-600">{toggle.desc}</div>
                                     </div>
-                                    <label className="relative inline-flex items-center cursor-pointer">
+                                    <div className="relative">
                                         <input type="checkbox" checked={toggle.checked} onChange={(e) => updateRule(toggle.key, e.target.checked)} className="sr-only peer" />
-                                        <div className={`w-16 h-8 bg-slate-300 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-gradient-to-r ${toggle.onColor}`}></div>
-                                    </label>
-                                </div>
+                                        <div className="w-10 h-5 bg-white/[0.06] rounded-full peer peer-checked:bg-cyan-500/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-600 peer-checked:after:bg-cyan-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full" />
+                                    </div>
+                                </label>
                             ))}
                         </div>
                     </div>
                 </div>
 
                 {/* Appliance Wattage */}
-                <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border-2 border-slate-200 dark:border-slate-800 mb-8">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center text-4xl">💡</div>
-                        <div>
-                            <h2 className="text-2xl font-black text-slate-900 dark:text-white">Appliance Wattage Values</h2>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Power consumption for energy calculations (kWh)</p>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="hud-card p-5 mb-6">
+                    <div className="hud-label mb-4">APPLIANCE POWER RATINGS</div>
+                    <div className="grid grid-cols-4 gap-3">
                         {[
-                            { icon: '💡', label: 'Lights', key: 'lights' },
-                            { icon: '📽️', label: 'Projector', key: 'projector' },
-                            { icon: '💻', label: 'Desktop', key: 'desktop' },
-                            { icon: '❄️', label: 'AC', key: 'ac' },
-                        ].map(({ icon, label, key }) => (
-                            <label key={key} className="block">
-                                <div className="text-3xl mb-3">{icon}</div>
-                                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 block">{label}</span>
+                            { code: 'LT', label: 'Lights', key: 'lights' },
+                            { code: 'PJ', label: 'Projector', key: 'projector' },
+                            { code: 'PC', label: 'Desktop', key: 'desktop' },
+                            { code: 'AC', label: 'Air Conditioning', key: 'ac' },
+                        ].map(({ code, label, key }) => (
+                            <div key={key} className="bg-white/[0.01] border border-white/[0.03] rounded-md p-3">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-xs font-mono font-bold text-white">{code}</span>
+                                    <span className="text-[9px] font-mono text-slate-600">{label}</span>
+                                </div>
                                 <div className="relative">
                                     <input type="number" step="0.01" value={rules.appliances[key]} onChange={(e) => updateAppliance(key, e.target.value)}
-                                        className="w-full px-4 py-4 pr-16 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-2xl focus:border-indigo-500 focus:outline-none text-slate-900 dark:text-slate-100 font-bold text-xl" />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-500">kWh</span>
+                                        className="w-full px-3 py-2 pr-12 bg-transparent border border-white/[0.06] rounded-md text-sm font-mono font-bold text-white focus:border-cyan-500/30 focus:outline-none" />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-600">kWh</span>
                                 </div>
-                            </label>
+                            </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Operating Hours */}
-                <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border-2 border-slate-200 dark:border-slate-800 mb-8">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center text-4xl">🕐</div>
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white">Operating Hours</h2>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {[{ label: 'Start Time', key: 'start' }, { label: 'End Time', key: 'end' }].map(({ label, key }) => (
-                            <label key={key} className="block">
-                                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3 block">{label}</span>
+                <div className="hud-card p-5 mb-6">
+                    <div className="hud-label mb-4">OPERATING WINDOW</div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {[{ label: 'START', key: 'start' }, { label: 'END', key: 'end' }].map(({ label, key }) => (
+                            <div key={key}>
+                                <span className="text-[10px] font-mono text-slate-500 block mb-2">{label}</span>
                                 <input type="time" value={rules.operatingHours[key]}
                                     onChange={(e) => setRules(prev => ({ ...prev, operatingHours: { ...prev.operatingHours, [key]: e.target.value } }))}
-                                    className="w-full px-6 py-4 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-2xl focus:border-indigo-500 focus:outline-none text-slate-900 dark:text-slate-100 font-bold text-2xl" />
-                            </label>
+                                    className="w-full px-3 py-2.5 bg-transparent border border-white/[0.06] rounded-md text-lg font-mono font-bold text-white focus:border-cyan-500/30 focus:outline-none" />
+                            </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Buttons */}
-                <div className="flex gap-4 mb-8">
-                    <button className="flex-1 px-8 py-5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-lg rounded-2xl">Reset to Defaults</button>
-                    <button onClick={handleSave} className="flex-1 px-8 py-5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold text-lg rounded-2xl shadow-xl flex items-center justify-center gap-3">
-                        <span className="text-2xl">💾</span><span>Save Configuration</span>
+                {/* Actions */}
+                <div className="flex gap-3">
+                    <button className="flex-1 py-3 text-xs font-mono text-slate-500 border border-white/[0.06] rounded-md hover:bg-white/[0.02] transition-colors">
+                        RESET DEFAULTS
+                    </button>
+                    <button onClick={handleSave} className="flex-1 py-3 text-xs font-mono font-bold text-cyan-400 border border-cyan-500/20 bg-cyan-500/[0.06] rounded-md hover:bg-cyan-500/[0.1] transition-colors">
+                        SAVE CONFIGURATION
                     </button>
                 </div>
-
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-3xl p-8 border-2 border-blue-200 dark:border-blue-900">
-                    <div className="flex gap-6">
-                        <div className="text-5xl">ℹ️</div>
-                        <div>
-                            <h4 className="text-2xl font-black text-slate-900 dark:text-white mb-4">Configuration Tips</h4>
-                            <ul className="space-y-3">
-                                {['Set threshold between 15-30 minutes for optimal detection', 'Enable Alert Only during initial testing', 'Update wattage values based on actual measurements', 'Operating hours optimize monitoring during active periods'].map((tip, i) => (
-                                    <li key={i} className="flex items-start gap-3"><span className="text-blue-600 dark:text-blue-400 font-black mt-1">•</span><span className="text-lg text-slate-700 dark:text-slate-300">{tip}</span></li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </div>
+        </Spotlight>
     );
 }
