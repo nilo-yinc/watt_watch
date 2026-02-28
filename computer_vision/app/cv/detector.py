@@ -1,37 +1,29 @@
 # app/cv/detector.py
 
-"""
-Person detection module using YOLOv8.
-Why modular?
-"""
 from ultralytics import YOLO
 from app.config import CONFIDENCE_THRESHOLD
 
-# Load lightweight YOLO model (fast for real-time)
-model = YOLO("yolov8n.pt")
+# Load model
+model = YOLO("yolov8m.pt")  # using medium model
+
 
 def detect_people(frame):
     """
-    Detect people in a frame.
-
-    Returns:
-        person_count (int)
-        boxes (list of bounding boxes)
+    Detect only people in the frame.
     """
 
-    # Run YOLO inference
-    results = model(frame, conf=CONFIDENCE_THRESHOLD)[0]
+    results = model(frame, imgsz=640, verbose=False)
 
-    person_count = 0
     boxes = []
+    person_count = 0
 
-    # Loop through detected objects
-    for box in results.boxes:
-        cls = int(box.cls[0])
+    for r in results:
+        for box in r.boxes:
+            cls = int(box.cls[0])
 
-        # Check if detected object is a person
-        if model.names[cls] == "person":
-            person_count += 1
-            boxes.append(box.xyxy[0].tolist())
+            if cls == 0 and box.conf[0] > CONFIDENCE_THRESHOLD:
+                x1, y1, x2, y2 = box.xyxy[0]
+                boxes.append([x1, y1, x2, y2])
+                person_count += 1
 
     return person_count, boxes
