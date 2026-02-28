@@ -23,10 +23,10 @@ export default function Rooms() {
             {/* Header */}
             <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-[var(--ww-text-1)] flex items-center gap-2">
                         <DoorOpen size={24} className="text-brand-400" /> Rooms
                     </h1>
-                    <p className="text-sm text-surface-400 mt-1">Monitor all campus rooms in real-time</p>
+                    <p className="text-sm text-[var(--ww-text-3)] mt-1">Monitor all campus rooms in real-time</p>
                 </div>
 
                 {/* Filter pills */}
@@ -42,7 +42,7 @@ export default function Rooms() {
                             onClick={() => setFilter(f.key)}
                             className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all ${filter === f.key
                                     ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
-                                    : 'bg-surface-800/40 text-surface-400 border border-surface-700/20 hover:bg-surface-800/60'
+                                    : 'bg-surface-800/40 text-[var(--ww-text-3)] border border-surface-700/20 hover:bg-surface-800/60'
                                 }`}
                         >
                             {f.label} ({f.count})
@@ -66,7 +66,7 @@ export default function Rooms() {
                         ))}
                         {filtered.length === 0 && (
                             <div className="col-span-full text-center py-12 glass">
-                                <p className="text-surface-400">No rooms match this filter</p>
+                                <p className="text-[var(--ww-text-3)]">No rooms match this filter</p>
                             </div>
                         )}
                     </div>
@@ -79,8 +79,8 @@ export default function Rooms() {
                             {/* Room header */}
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <h2 className="text-lg font-bold text-white">{detail.name}</h2>
-                                    <p className="text-xs text-surface-400 flex items-center gap-1 mt-1">
+                                    <h2 className="text-lg font-bold text-[var(--ww-text-1)]">{detail.name}</h2>
+                                    <p className="text-xs text-[var(--ww-text-3)] flex items-center gap-1 mt-1">
                                         <MapPin size={12} /> {detail.location}
                                     </p>
                                 </div>
@@ -116,7 +116,7 @@ export default function Rooms() {
 
                             {/* Appliances */}
                             <div>
-                                <p className="text-xs text-surface-400 mb-2 font-medium uppercase tracking-wide">Appliances</p>
+                                <p className="text-xs text-[var(--ww-text-3)] mb-2 font-medium uppercase tracking-wide">Appliances</p>
                                 <div className="space-y-2">
                                     <ApplianceRow icon={Projector} label="Projector" on={detail.appliances?.projector} />
                                     <ApplianceRow icon={MonitorSmartphone} label="Monitors" on={detail.appliances?.monitors} />
@@ -133,7 +133,7 @@ export default function Rooms() {
                     ) : (
                         <div className="glass p-8 text-center">
                             <DoorOpen size={40} className="mx-auto text-surface-600 mb-3" />
-                            <p className="text-surface-400 text-sm">Select a room to view details</p>
+                            <p className="text-[var(--ww-text-3)] text-sm">Select a room to view details</p>
                         </div>
                     )}
                 </div>
@@ -147,7 +147,7 @@ function DetailStat({ icon: Icon, label, value, sub, alert }) {
         <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-surface-800/40">
             <Icon size={16} className={alert ? 'text-waste' : 'text-brand-400'} />
             <div>
-                <p className={`text-lg font-bold leading-none ${alert ? 'text-waste' : 'text-white'}`}>{value}</p>
+                <p className={`text-lg font-bold leading-none ${alert ? 'text-waste' : 'text-[var(--ww-text-1)]'}`}>{value}</p>
                 <p className="text-[10px] text-surface-500 mt-0.5">{label}</p>
             </div>
         </div>

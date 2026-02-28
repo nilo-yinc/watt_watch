@@ -4,6 +4,7 @@ import {
 import { useRooms } from '../hooks/useRooms';
 import { useEnergy } from '../hooks/useEnergy';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../context/ThemeContext';
 import RoomCard from '../components/RoomCard';
 import EnergyChart from '../components/EnergyChart';
 import { GlareCard } from '../components/ui/glare-card';
@@ -15,6 +16,7 @@ export default function Dashboard() {
     const { rooms, secureCount, wasteCount, totalPeople } = useRooms();
     const { energyWasted, costWasted, totalWasteDuration, hourlyData } = useEnergy();
     const { alerts } = useApp();
+    const { isDark } = useTheme();
 
     const wasteMins = Math.floor(totalWasteDuration / 60);
     const wasteHrs = Math.floor(wasteMins / 60);
@@ -57,10 +59,10 @@ export default function Dashboard() {
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <div className="w-1.5 h-6 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.7)]" />
-                        <h1 className="font-display text-2xl text-white tracking-wide">
+                        <h1 className="font-display text-2xl text-[var(--ww-text-1)] tracking-wide">
                             <CanvasText
                                 text="WATT·WATCH"
-                                backgroundClassName="bg-[#000408]"
+                                backgroundClassName={isDark ? 'bg-[#030711]' : 'bg-[#e7edf6]'}
                                 colors={[
                                     "rgba(34, 211, 238, 1)",
                                     "rgba(34, 211, 238, 0.8)",
@@ -74,13 +76,13 @@ export default function Dashboard() {
                             />
                         </h1>
                     </div>
-                    <p className="text-[11px] font-mono text-slate-600 tracking-[0.2em] uppercase ml-3.5">
+                    <p className="text-[11px] font-mono text-[var(--ww-text-muted)] tracking-[0.2em] uppercase ml-3.5">
                         Real-time campus energy surveillance
                     </p>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/10 bg-cyan-500/5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
-                    <span className="text-[10px] font-mono text-cyan-600 tracking-widest">SYSTEM ACTIVE</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--ww-border)] bg-[var(--ww-accent-dim)]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--ww-accent)] animate-pulse shadow-[0_0_6px_var(--ww-accent-glow)]" />
+                    <span className="text-[10px] font-mono text-[var(--ww-accent)] tracking-widest">SYSTEM ACTIVE</span>
                 </div>
             </div>
 
@@ -153,10 +155,10 @@ function SectionHeader({ label, count }) {
     return (
         <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-                <div className="w-0.5 h-4 bg-cyan-500/50 rounded-full" />
-                <h2 className="text-sm font-semibold text-slate-300 tracking-wide">{label}</h2>
+                <div className="w-0.5 h-4 bg-[var(--ww-accent)] opacity-50 rounded-full" />
+                <h2 className="text-sm font-semibold text-[var(--ww-text-2)] tracking-wide">{label}</h2>
                 {count != null && (
-                    <span className="text-[9px] font-mono text-cyan-700 tracking-widest px-1.5 py-0.5 rounded border border-cyan-500/15">
+                    <span className="text-[9px] font-mono text-[var(--ww-accent)] tracking-widest px-1.5 py-0.5 rounded border border-[var(--ww-border)]">
                         {count} UNITS
                     </span>
                 )}
@@ -182,13 +184,13 @@ function MetricInner({ icon: Icon, iconColor, iconBg, label, value, sub, pulse, 
                 </div>
                 <div>
                     <p className="hud-label">{label}</p>
-                    <p className={`hud-value ${pulse ? 'text-red-400' : 'text-white'}`}>
+                    <p className={`hud-value ${pulse ? 'text-red-400' : 'text-[var(--ww-text-1)]'}`}>
                         {value}
                     </p>
                 </div>
             </div>
             {sub && (
-                <p className="text-[10px] font-mono text-slate-600 tracking-wide">{sub}</p>
+                <p className="text-[10px] font-mono text-[var(--ww-text-muted)] tracking-wide">{sub}</p>
             )}
         </div>
     );
@@ -200,27 +202,27 @@ function AlertList({ alerts }) {
         <div className="space-y-2">
             <div className="flex items-center gap-2 mb-3">
                 <AlertTriangle size={13} className="text-amber-400" />
-                <span className="text-[10px] font-mono text-slate-500 tracking-widest uppercase">
+                <span className="text-[10px] font-mono text-[var(--ww-text-3)] tracking-widest uppercase">
                     Recent Alerts — {alerts.length} total
                 </span>
             </div>
             {alerts.slice(0, 8).map(alert => (
                 <div
                     key={alert.id}
-                    className={`px-3 py-2.5 rounded-lg text-xs transition-colors hover:bg-white/[0.02] ${alert.severity === 'high'
-                            ? 'border-l-2 border-red-500/40 bg-red-500/5'
-                            : alert.severity === 'medium'
-                                ? 'border-l-2 border-amber-500/30 bg-amber-500/5'
-                                : 'border-l-2 border-cyan-500/15'
+                    className={`px-3 py-2.5 rounded-lg text-xs transition-colors hover:bg-[var(--ww-accent-dim)] ${alert.severity === 'high'
+                        ? 'border-l-2 border-red-500/40 bg-red-500/5'
+                        : alert.severity === 'medium'
+                            ? 'border-l-2 border-amber-500/30 bg-amber-500/5'
+                            : 'border-l-2 border-cyan-500/15'
                         }`}
                 >
                     <div className="flex items-center justify-between mb-0.5">
-                        <span className="font-mono font-medium text-slate-200">{alert.room_name}</span>
-                        <span className="text-[9px] font-mono text-slate-600">
+                        <span className="font-mono font-medium text-[var(--ww-text-1)]">{alert.room_name}</span>
+                        <span className="text-[9px] font-mono text-[var(--ww-text-muted)]">
                             {new Date(alert.timestamp).toLocaleTimeString()}
                         </span>
                     </div>
-                    <p className="text-[10px] font-mono text-slate-500 leading-snug">{alert.message}</p>
+                    <p className="text-[10px] font-mono text-[var(--ww-text-3)] leading-snug">{alert.message}</p>
                 </div>
             ))}
         </div>

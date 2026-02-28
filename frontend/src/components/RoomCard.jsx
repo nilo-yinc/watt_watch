@@ -27,28 +27,28 @@ export default function RoomCard({ room }) {
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <div>
-                    <h3 className="text-sm font-semibold text-white tracking-wide">{name}</h3>
-                    <p className="text-[10px] font-mono text-slate-600 mt-0.5 tracking-wider uppercase">{location}</p>
+                    <h3 className="text-sm font-semibold text-[var(--ww-text-1)] tracking-wide">{name}</h3>
+                    <p className="text-[10px] font-mono text-[var(--ww-text-muted)] mt-0.5 tracking-wider uppercase">{location}</p>
                 </div>
                 <StatusBadge status={status} />
             </div>
 
             {/* Metrics */}
             <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 border border-cyan-500/[0.06]">
-                    <Users size={14} className={person_count > 0 ? 'text-cyan-400' : 'text-slate-600'} />
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--ww-card-2)] border border-[var(--ww-border)]">
+                    <Users size={14} className={person_count > 0 ? 'text-cyan-400' : 'text-[var(--ww-text-muted)]'} />
                     <div>
-                        <p className="text-base font-bold text-white font-mono leading-none">{person_count}</p>
-                        <p className="text-[9px] font-mono text-slate-600 mt-0.5 tracking-wider">PEOPLE</p>
+                        <p className="text-base font-bold text-[var(--ww-text-1)] font-mono leading-none">{person_count}</p>
+                        <p className="text-[9px] font-mono text-[var(--ww-text-muted)] mt-0.5 tracking-wider">PEOPLE</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 border border-cyan-500/[0.06]">
-                    <Clock size={14} className={waste_detected ? 'text-red-400' : 'text-slate-600'} />
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--ww-card-2)] border border-[var(--ww-border)]">
+                    <Clock size={14} className={waste_detected ? 'text-red-400' : 'text-[var(--ww-text-muted)]'} />
                     <div>
-                        <p className={`text-base font-bold font-mono leading-none ${waste_detected ? 'text-red-400' : 'text-white'}`}>
+                        <p className={`text-base font-bold font-mono leading-none ${waste_detected ? 'text-red-400' : 'text-[var(--ww-text-1)]'}`}>
                             {formatDuration(waste_duration)}
                         </p>
-                        <p className="text-[9px] font-mono text-slate-600 mt-0.5 tracking-wider">WASTE</p>
+                        <p className="text-[9px] font-mono text-[var(--ww-text-muted)] mt-0.5 tracking-wider">WASTE</p>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@ function ApplianceChip({ icon: Icon, label, on }) {
             className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-mono font-medium tracking-wider transition-colors ${
                 on
                     ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                    : 'bg-black/30 text-slate-600 border border-white/[0.04]'
+                    : 'bg-[var(--ww-card-2)] text-[var(--ww-text-muted)] border border-[var(--ww-border)]'
             }`}
             title={`${label}: ${on ? 'ON' : 'OFF'}`}
         >
