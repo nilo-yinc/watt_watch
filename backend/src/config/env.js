@@ -17,6 +17,8 @@ export const env = {
   mqttTopicCv: process.env.MQTT_TOPIC_CV || "wattwatch/+/cv",
   mqttTopicDeviceState:
     process.env.MQTT_TOPIC_DEVICE_STATE || "wattwatch/+/+/state",
+  mqttTopicGhostFrame:
+    process.env.MQTT_TOPIC_GHOST_FRAME || "wattwatch/+/ghost/frame",
   corsOrigins: (process.env.CORS_ORIGINS || "*")
     .split(",")
     .map((origin) => origin.trim())
