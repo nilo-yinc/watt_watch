@@ -8,13 +8,15 @@ Quick test:
 - Subscribe: `mosquitto_sub -h localhost -t "wattwatch/#" -v`
 - Publish: `mosquitto_pub -h localhost -t "wattwatch/test/cv" -m "{\"waste_detected\":true}"`
 
-## 2. Backend
+## 2. Backend (Express.js)
 
 ```bash
 cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+npm install
+npm run dev
 ```
+
+`backend/.env` now includes MongoDB Atlas URI and required vars.
 
 ## 3. Frontend
 

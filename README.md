@@ -15,10 +15,10 @@ Watt-Watch is a privacy-first energy waste detection platform that combines:
 ## Quick Start
 
 1. Start MQTT broker (Mosquitto).
-2. Run backend:
+2. Run backend (Express.js + MongoDB):
    - `cd backend`
-   - `pip install -r requirements.txt`
-   - `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
+   - `npm install`
+   - `npm run dev`
 3. Run frontend:
    - `cd frontend`
    - `npm install`
