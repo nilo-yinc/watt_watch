@@ -59,7 +59,7 @@ def run():
         # 3) Frontend (Vite dev server).
         procs.append(
             subprocess.Popen(
-                ["npm", "run", "dev", "--", "--host", "127.0.0.1", "--port", "5173"],
+                ["cmd", "/c", "npm", "run", "dev", "--", "--host", "127.0.0.1", "--port", "5173"],
                 cwd=FRONTEND_DIR,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
