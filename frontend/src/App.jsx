@@ -21,8 +21,7 @@ import PrivacyCompliance from './pages/PrivacyCompliance';
 
 export default function App() {
     return (
-        <div className="flex h-screen overflow-hidden bg-[#000408] cctv-bg">
-            {/* CCTV camera-feed background */}
+        <div className="flex h-screen overflow-hidden bg-[var(--ww-bg)] cctv-bg">
             <CCTVBackground />
 
             {/* Sidebar */}
@@ -33,23 +32,23 @@ export default function App() {
                 <Navbar />
                 <main className="flex-1 overflow-y-auto p-5 relative z-10">
                     <Routes>
-                        <Route path="/"                element={<Dashboard />} />
-                        <Route path="/rooms"           element={<Rooms />} />
-                        <Route path="/analytics"       element={<Analytics />} />
-                        <Route path="/devices"         element={<Devices />} />
-                        <Route path="/settings"        element={<Settings />} />
-                        <Route path="/campus"          element={<CampusOverview />} />
-                        <Route path="/room/:roomId"    element={<RoomDetail />} />
-                        <Route path="/heatmap"         element={<HeatmapView />} />
-                        <Route path="/ghost-view"      element={<GhostView />} />
-                        <Route path="/manual-control"  element={<ManualControl />} />
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/rooms" element={<Rooms />} />
+                        <Route path="/analytics" element={<Analytics />} />
+                        <Route path="/devices" element={<Devices />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/campus" element={<CampusOverview />} />
+                        <Route path="/room/:roomId" element={<RoomDetail />} />
+                        <Route path="/heatmap" element={<HeatmapView />} />
+                        <Route path="/ghost-view" element={<GhostView />} />
+                        <Route path="/manual-control" element={<ManualControl />} />
                         <Route path="/energy-analytics" element={<EnergyAnalytics />} />
-                        <Route path="/energy-alerts"   element={<EnergyAlerts />} />
-                        <Route path="/computer-labs"   element={<ComputerLabIntelligence />} />
-                        <Route path="/audit-logs"      element={<AuditLogs />} />
-                        <Route path="/rules"           element={<RuleConfiguration />} />
-                        <Route path="/privacy"         element={<PrivacyCompliance />} />
-                        <Route path="*"                element={<Navigate to="/" replace />} />
+                        <Route path="/energy-alerts" element={<EnergyAlerts />} />
+                        <Route path="/computer-labs" element={<ComputerLabIntelligence />} />
+                        <Route path="/audit-logs" element={<AuditLogs />} />
+                        <Route path="/rules" element={<RuleConfiguration />} />
+                        <Route path="/privacy" element={<PrivacyCompliance />} />
+                        <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                 </main>
             </div>

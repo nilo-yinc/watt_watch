@@ -4,16 +4,19 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AppProvider } from './context/AppContext';
 import { WebSocketProvider } from './context/WebSocketContext';
+import { ThemeProvider } from './context/ThemeContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <BrowserRouter>
-            <AppProvider>
-                <WebSocketProvider>
-                    <App />
-                </WebSocketProvider>
-            </AppProvider>
+            <ThemeProvider>
+                <AppProvider>
+                    <WebSocketProvider>
+                        <App />
+                    </WebSocketProvider>
+                </AppProvider>
+            </ThemeProvider>
         </BrowserRouter>
     </React.StrictMode>
 );

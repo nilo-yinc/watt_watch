@@ -38,15 +38,15 @@ export default function Settings() {
         <div className="space-y-6 animate-fade-in max-w-3xl">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-[var(--ww-text-1)] flex items-center gap-2">
                     <SettingsIcon size={24} className="text-brand-400" /> Settings
                 </h1>
-                <p className="text-sm text-surface-400 mt-1">Configure detection thresholds and notifications</p>
+                <p className="text-sm text-[var(--ww-text-3)] mt-1">Configure detection thresholds and notifications</p>
             </div>
 
             {/* ── Detection Settings ────────────────────────────── */}
             <section className="glass p-6 space-y-5">
-                <h2 className="text-sm font-semibold text-surface-200 uppercase tracking-wide flex items-center gap-2">
+                <h2 className="text-sm font-semibold text-[var(--ww-text-1)] uppercase tracking-wide flex items-center gap-2">
                     <Eye size={16} className="text-brand-400" /> Detection Settings
                 </h2>
 
@@ -85,7 +85,7 @@ export default function Settings() {
 
             {/* ── Notification Settings ──────────────────────────── */}
             <section className="glass p-6 space-y-5">
-                <h2 className="text-sm font-semibold text-surface-200 uppercase tracking-wide flex items-center gap-2">
+                <h2 className="text-sm font-semibold text-[var(--ww-text-1)] uppercase tracking-wide flex items-center gap-2">
                     <Bell size={16} className="text-brand-400" /> Notifications
                 </h2>
 
@@ -111,12 +111,12 @@ export default function Settings() {
 
             {/* ── Privacy ────────────────────────────────────────── */}
             <section className="glass p-6">
-                <h2 className="text-sm font-semibold text-surface-200 uppercase tracking-wide flex items-center gap-2 mb-3">
+                <h2 className="text-sm font-semibold text-[var(--ww-text-1)] uppercase tracking-wide flex items-center gap-2 mb-3">
                     <ShieldCheck size={16} className="text-secure" /> Privacy Policy
                 </h2>
-                <div className="text-xs text-surface-400 space-y-2 leading-relaxed">
-                    <p>✅ Raw video frames are <strong className="text-surface-200">never stored or transmitted</strong>.</p>
-                    <p>✅ All preview feeds are <strong className="text-surface-200">anonymized</strong> (face/body blur) before display.</p>
+                <div className="text-xs text-[var(--ww-text-3)] space-y-2 leading-relaxed">
+                    <p>✅ Raw video frames are <strong className="text-[var(--ww-text-1)]">never stored or transmitted</strong>.</p>
+                    <p>✅ All preview feeds are <strong className="text-[var(--ww-text-1)]">anonymized</strong> (face/body blur) before display.</p>
                     <p>✅ Only metadata is logged: room ID, timestamp, person count, appliance state, waste status.</p>
                     <p>✅ No facial recognition is used.</p>
                 </div>
@@ -136,7 +136,7 @@ export default function Settings() {
                 </button>
                 <button
                     onClick={handleReset}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-surface-400 bg-surface-800/40 border border-surface-700/30 hover:bg-surface-800/60 transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-[var(--ww-text-3)] bg-surface-800/40 border border-surface-700/30 hover:bg-surface-800/60 transition-all"
                 >
                     <RotateCcw size={16} />
                     Reset Defaults
@@ -152,7 +152,7 @@ function RangeInput({ label, desc, value, min, max, step, unit, onChange }) {
         <div>
             <div className="flex items-center justify-between mb-1.5">
                 <div>
-                    <p className="text-sm text-surface-200 font-medium">{label}</p>
+                    <p className="text-sm text-[var(--ww-text-1)] font-medium">{label}</p>
                     <p className="text-[11px] text-surface-500">{desc}</p>
                 </div>
                 <span className="text-lg font-bold text-brand-400 font-mono min-w-[60px] text-right">
@@ -182,7 +182,7 @@ function ToggleRow({ icon: Icon, label, desc, checked, onChange }) {
                     <Icon size={16} />
                 </div>
                 <div>
-                    <p className="text-sm text-surface-200 font-medium">{label}</p>
+                    <p className="text-sm text-[var(--ww-text-1)] font-medium">{label}</p>
                     <p className="text-[11px] text-surface-500">{desc}</p>
                 </div>
             </div>

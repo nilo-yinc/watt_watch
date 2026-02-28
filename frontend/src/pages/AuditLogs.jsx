@@ -27,8 +27,8 @@ export default function AuditLogs() {
                             <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
                             <span className="hud-label">AUDIT TRAIL</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-white tracking-tight mb-1">System Logs</h1>
-                        <p className="text-xs font-mono text-slate-500">Immutable activity record · Tamper-evident</p>
+                        <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">System Logs</h1>
+                        <p className="text-xs font-mono text-[var(--ww-text-3)]">Immutable activity record · Tamper-evident</p>
                     </div>
                     <button className="text-[10px] font-mono text-cyan-400 px-3 py-1.5 border border-cyan-500/20 rounded-md hover:bg-cyan-500/[0.04] transition-colors">
                         EXPORT ↓
@@ -56,10 +56,10 @@ export default function AuditLogs() {
                     <span className="hud-label">SEARCH</span>
                     <div className="relative flex-1">
                         <input type="text" placeholder="Room, reason..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-3 py-1.5 bg-transparent border border-white/[0.06] rounded-md text-xs font-mono text-slate-300 focus:border-cyan-500/30 focus:outline-none placeholder-slate-700" />
+                            className="w-full px-3 py-1.5 bg-transparent border border-[var(--ww-border)] rounded-md text-xs font-mono text-[var(--ww-text-2)] focus:border-cyan-500/30 focus:outline-none placeholder-slate-700" />
                     </div>
                     <select value={filterAction} onChange={(e) => setFilterAction(e.target.value)}
-                        className="px-3 py-1.5 bg-transparent border border-white/[0.06] rounded-md text-xs font-mono text-slate-300 focus:border-cyan-500/30 focus:outline-none">
+                        className="px-3 py-1.5 bg-transparent border border-[var(--ww-border)] rounded-md text-xs font-mono text-[var(--ww-text-2)] focus:border-cyan-500/30 focus:outline-none">
                         {actions.map(a => <option key={a} value={a} className="bg-slate-900">{a === 'all' ? 'All Actions' : a}</option>)}
                     </select>
                 </div>
@@ -69,36 +69,36 @@ export default function AuditLogs() {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-white/[0.04]">
+                                <tr className="border-b border-[var(--ww-border)]">
                                     {['TIMESTAMP', 'ROOM', 'ACTION', 'REASON', 'CONF', 'ACTOR'].map(h => (
-                                        <th key={h} className="px-4 py-3 text-left text-[9px] font-mono font-bold text-slate-600 tracking-wider">{h}</th>
+                                        <th key={h} className="px-4 py-3 text-left text-[9px] font-mono font-bold text-[var(--ww-text-muted)] tracking-wider">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredLogs.length === 0 ? (
-                                    <tr><td colSpan="6" className="px-4 py-12 text-center"><span className="text-xs font-mono text-slate-700">NO RECORDS</span></td></tr>
+                                    <tr><td colSpan="6" className="px-4 py-12 text-center"><span className="text-xs font-mono text-[var(--ww-text-muted)]">NO RECORDS</span></td></tr>
                                 ) : filteredLogs.map((log, i) => (
                                     <motion.tr key={log.id} className="border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors"
                                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
-                                        <td className="px-4 py-3 text-[10px] font-mono text-slate-500">{formatTs(log.timestamp)}</td>
-                                        <td className="px-4 py-3 text-xs font-mono text-slate-300">{log.room}</td>
+                                        <td className="px-4 py-3 text-[10px] font-mono text-[var(--ww-text-3)]">{formatTs(log.timestamp)}</td>
+                                        <td className="px-4 py-3 text-xs font-mono text-[var(--ww-text-2)]">{log.room}</td>
                                         <td className="px-4 py-3">
                                             <span className={`text-[9px] font-mono font-bold tracking-wider px-2 py-0.5 rounded border ${log.action.includes('OFF') ? 'text-red-400 border-red-500/15 bg-red-500/[0.04]' : 'text-emerald-400 border-emerald-500/15 bg-emerald-500/[0.04]'
                                                 }`}>{log.action}</span>
                                         </td>
-                                        <td className="px-4 py-3 text-[10px] font-mono text-slate-500 max-w-[200px] truncate">{log.reason}</td>
+                                        <td className="px-4 py-3 text-[10px] font-mono text-[var(--ww-text-3)] max-w-[200px] truncate">{log.reason}</td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-12 h-1 bg-white/[0.03] rounded-full overflow-hidden">
                                                     <div className={`h-full rounded-full ${log.confidence >= 95 ? 'bg-emerald-400/60' : log.confidence >= 80 ? 'bg-amber-400/60' : 'bg-red-400/60'}`}
                                                         style={{ width: `${log.confidence}%` }} />
                                                 </div>
-                                                <span className="text-[9px] font-mono text-slate-500">{log.confidence}%</span>
+                                                <span className="text-[9px] font-mono text-[var(--ww-text-3)]">{log.confidence}%</span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <span className={`text-[9px] font-mono ${log.user === 'System' ? 'text-indigo-400' : 'text-slate-400'}`}>
+                                            <span className={`text-[9px] font-mono ${log.user === 'System' ? 'text-indigo-400' : 'text-[var(--ww-text-2)]'}`}>
                                                 {log.user === 'System' ? '⊙ SYS' : `◉ ${log.user}`}
                                             </span>
                                         </td>
@@ -118,7 +118,7 @@ export default function AuditLogs() {
                     ].map((info, i) => (
                         <div key={i} className="hud-card p-3">
                             <div className="text-[9px] font-mono text-cyan-400 tracking-wider mb-1">{info.label}</div>
-                            <p className="text-[10px] font-mono text-slate-600 leading-relaxed">{info.desc}</p>
+                            <p className="text-[10px] font-mono text-[var(--ww-text-muted)] leading-relaxed">{info.desc}</p>
                         </div>
                     ))}
                 </div>
