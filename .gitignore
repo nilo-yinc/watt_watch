@@ -1,0 +1,42 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# ── Node ──
+node_modules/
+frontend/dist/
+.vite/
+
+# ── Env ──
+.env
+.env.local
+.env.*.local
+
+# ── IDE ──
+.vscode/settings.json
+.idea/
+*.swp
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── Logs ──
+logs/*.log
+
+# ── ML Weights ──
+computer-vision/models/weights/*.pt
+computer-vision/models/weights/*.onnx
+!computer-vision/models/weights/.gitkeep
+
+# ── IoT Build ──
+iot/firmware/**/build/
+
+# ── Data ──
+data/
