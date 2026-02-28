@@ -1,19 +1,27 @@
 # app/cv/appliance.py
-"""
-Appliance state detection using brightness heuristics.
-"""
-
 import cv2
 
-def detect_appliance(frame, threshold=120):
+def detect_appliance(frame):
+    """
+    Detect artificial lighting using ceiling ROI + bright spot detection.
+    This avoids sunlight false positives.
+    """
 
-    # Convert to grayscale for brightness calculation
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    height, width, _ = frame.shape
 
-    # Calculate average brightness
+    # Assume ceiling lights are in upper 30% of frame
+    roi = frame[0:int(height * 0.3), :]
+
+    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+
+    # Detect bright spots (bulbs/tubes)
+    _, thresh = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY)
+    bright_pixels = cv2.countNonZero(thresh)
+
+    # Artificial light ON if many bright pixels
+    appliance_on = bright_pixels > 500
+
+    # Average brightness for display
     brightness = gray.mean()
-
-    # Determine appliance state
-    appliance_on = brightness > threshold
 
     return appliance_on, brightness
