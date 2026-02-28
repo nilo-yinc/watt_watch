@@ -1,85 +1,79 @@
 import { Users, MonitorSmartphone, Projector, Lightbulb, Clock } from 'lucide-react';
 import StatusBadge from './StatusBadge';
+import { GlareCard } from './ui/glare-card';
 
-/** Formats seconds into human-readable duration (e.g., "4m 05s"). */
 function formatDuration(seconds) {
     if (!seconds || seconds <= 0) return '—';
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    if (m > 60) {
-        const h = Math.floor(m / 60);
-        return `${h}h ${m % 60}m`;
-    }
+    if (m > 60) { const h = Math.floor(m / 60); return `${h}h ${m % 60}m`; }
     return m > 0 ? `${m}m ${String(s).padStart(2, '0')}s` : `${s}s`;
 }
 
 export default function RoomCard({ room }) {
     const { id, name, location, status, person_count, appliances, waste_detected, waste_duration } = room;
 
-    const borderColor = waste_detected
-        ? 'border-waste/40 shadow-waste/5'
-        : status === 'recently_vacated'
-            ? 'border-caution/30'
-            : 'border-surface-700/40';
-
     return (
-        <div
-            className={`glass p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl ${borderColor} ${waste_detected ? 'animate-glow shadow-waste/10' : ''
-                }`}
+        <GlareCard
+            className={`p-5 transition-all duration-300 ${waste_detected ? 'border-red-500/30' : ''}`}
             id={`room-card-${id}`}
         >
+            {/* Corner brackets */}
+            <span className={`absolute top-0 left-0 w-3 h-3 border-l border-t ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
+            <span className={`absolute top-0 right-0 w-3 h-3 border-r border-t ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
+            <span className={`absolute bottom-0 left-0 w-3 h-3 border-l border-b ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
+            <span className={`absolute bottom-0 right-0 w-3 h-3 border-r border-b ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
+
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <div>
-                    <h3 className="text-base font-semibold text-white">{name}</h3>
-                    <p className="text-xs text-surface-400 mt-0.5">{location}</p>
+                    <h3 className="text-sm font-semibold text-white tracking-wide">{name}</h3>
+                    <p className="text-[10px] font-mono text-slate-600 mt-0.5 tracking-wider uppercase">{location}</p>
                 </div>
                 <StatusBadge status={status} />
             </div>
 
-            {/* Metrics row */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
-                {/* Person count */}
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-surface-800/40">
-                    <Users size={16} className={person_count > 0 ? 'text-brand-400' : 'text-surface-500'} />
+            {/* Metrics */}
+            <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 border border-cyan-500/[0.06]">
+                    <Users size={14} className={person_count > 0 ? 'text-cyan-400' : 'text-slate-600'} />
                     <div>
-                        <p className="text-lg font-bold text-white leading-none">{person_count}</p>
-                        <p className="text-[10px] text-surface-500 mt-0.5">People</p>
+                        <p className="text-base font-bold text-white font-mono leading-none">{person_count}</p>
+                        <p className="text-[9px] font-mono text-slate-600 mt-0.5 tracking-wider">PEOPLE</p>
                     </div>
                 </div>
-
-                {/* Waste duration */}
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-surface-800/40">
-                    <Clock size={16} className={waste_detected ? 'text-waste' : 'text-surface-500'} />
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 border border-cyan-500/[0.06]">
+                    <Clock size={14} className={waste_detected ? 'text-red-400' : 'text-slate-600'} />
                     <div>
-                        <p className={`text-lg font-bold leading-none ${waste_detected ? 'text-waste' : 'text-white'}`}>
+                        <p className={`text-base font-bold font-mono leading-none ${waste_detected ? 'text-red-400' : 'text-white'}`}>
                             {formatDuration(waste_duration)}
                         </p>
-                        <p className="text-[10px] text-surface-500 mt-0.5">Waste Time</p>
+                        <p className="text-[9px] font-mono text-slate-600 mt-0.5 tracking-wider">WASTE</p>
                     </div>
                 </div>
             </div>
 
-            {/* Appliance status */}
-            <div className="flex items-center gap-2">
-                <ApplianceChip icon={Projector} label="Projector" on={appliances?.projector} />
+            {/* Appliances */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+                <ApplianceChip icon={Projector}        label="Projector" on={appliances?.projector} />
                 <ApplianceChip icon={MonitorSmartphone} label="Monitors" on={appliances?.monitors} />
-                <ApplianceChip icon={Lightbulb} label="Lights" on={appliances?.lights} />
+                <ApplianceChip icon={Lightbulb}         label="Lights"  on={appliances?.lights} />
             </div>
-        </div>
+        </GlareCard>
     );
 }
 
 function ApplianceChip({ icon: Icon, label, on }) {
     return (
         <span
-            className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-colors ${on
-                    ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20'
-                    : 'bg-surface-800/40 text-surface-500 border border-surface-700/20'
-                }`}
+            className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-mono font-medium tracking-wider transition-colors ${
+                on
+                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                    : 'bg-black/30 text-slate-600 border border-white/[0.04]'
+            }`}
             title={`${label}: ${on ? 'ON' : 'OFF'}`}
         >
-            <Icon size={12} />
+            <Icon size={11} />
             {on ? 'ON' : 'OFF'}
         </span>
     );
