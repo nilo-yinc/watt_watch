@@ -4,8 +4,8 @@ import { Spotlight } from '../components/ui/spotlight';
 import { BackgroundBeams } from '../components/ui/background-beams';
 
 export default function PrivacyCompliance() {
-    const cameraRooms = rooms.filter(r => r.monitoring === 'Camera');
-    const nonCameraRooms = rooms.filter(r => r.monitoring !== 'Camera');
+    const cctvRooms = rooms.filter(r => r.monitoring === 'CCTV' || r.monitoring?.includes('CCTV'));
+    const nonCctvRooms = rooms.filter(r => r.monitoring !== 'CCTV' && !r.monitoring?.includes('CCTV'));
 
     return (
         <Spotlight className="min-h-full">
@@ -37,10 +37,10 @@ export default function PrivacyCompliance() {
                 {/* Monitoring Breakdown */}
                 <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="hud-card p-5">
-                        <div className="hud-label mb-3">CAMERA MONITORING</div>
-                        <div className="text-3xl font-mono font-bold text-[var(--ww-text-1)] mb-3">{cameraRooms.length}</div>
+                        <div className="hud-label mb-3">CCTV MONITORING</div>
+                        <div className="text-3xl font-mono font-bold text-[var(--ww-text-1)] mb-3">{cctvRooms.length}</div>
                         <div className="space-y-1.5">
-                            {cameraRooms.map(room => (
+                            {cctvRooms.map(room => (
                                 <div key={room.id} className="flex items-center gap-2 py-1.5 px-2 bg-white/[0.01] rounded-md">
                                     <div className="w-1 h-1 rounded-full bg-purple-400" />
                                     <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{room.name}</span>
@@ -49,10 +49,10 @@ export default function PrivacyCompliance() {
                         </div>
                     </div>
                     <div className="hud-card p-5">
-                        <div className="hud-label mb-3">NON-CAMERA METHODS</div>
-                        <div className="text-3xl font-mono font-bold text-[var(--ww-text-1)] mb-3">{nonCameraRooms.length}</div>
+                        <div className="hud-label mb-3">NON-CCTV METHODS</div>
+                        <div className="text-3xl font-mono font-bold text-[var(--ww-text-1)] mb-3">{nonCctvRooms.length}</div>
                         <div className="space-y-1.5">
-                            {['Smart Plug Monitoring', 'Sensor-Based Detection', 'Schedule-Based Analysis'].map((s, i) => (
+                            {['Smart Plug Monitoring', 'Sensor-Based Detection', 'Current Detector', 'Schedule-Based Analysis'].map((s, i) => (
                                 <div key={i} className="flex items-center gap-2 py-1.5 px-2 bg-white/[0.01] rounded-md">
                                     <div className="w-1 h-1 rounded-full bg-emerald-400" />
                                     <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{s}</span>

@@ -9,6 +9,7 @@ import devicesRouter from "./routes/devices.routes.js";
 import energyRouter from "./routes/energy.routes.js";
 import roomsRouter from "./routes/rooms.routes.js";
 import { startMqtt, stopMqtt } from "./services/mqtt.service.js";
+import { startEmbeddedBroker, stopEmbeddedBroker } from "./services/embedded-broker.service.js";
 import { seedIfEmpty } from "./services/seed.service.js";
 import { getAlerts, getDevices, getRooms } from "./services/state.service.js";
 import { addClient, removeClient } from "./services/ws-hub.js";
@@ -57,6 +58,13 @@ server.on("upgrade", (req, socket, head) => {
 async function start() {
   await connectDb();
   await seedIfEmpty();
+  if (env.embedMqttBroker) {
+    try {
+      await startEmbeddedBroker(env.embedMqttPort);
+    } catch (error) {
+      console.warn(`[mqtt-embedded] not started: ${error.message}`);
+    }
+  }
   startMqtt();
   server.listen(env.port, () => {
     console.log(`[api] express server running on http://localhost:${env.port}`);
@@ -70,10 +78,12 @@ start().catch((error) => {
 
 process.on("SIGINT", () => {
   stopMqtt();
+  stopEmbeddedBroker();
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
   stopMqtt();
+  stopEmbeddedBroker();
   process.exit(0);
 });

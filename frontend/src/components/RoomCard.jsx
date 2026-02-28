@@ -1,4 +1,4 @@
-import { Users, MonitorSmartphone, Projector, Lightbulb, Clock } from 'lucide-react';
+import { Users, MonitorSmartphone, Projector, Lightbulb, Fan, Clock } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { GlareCard } from './ui/glare-card';
 
@@ -55,9 +55,10 @@ export default function RoomCard({ room }) {
 
             {/* Appliances */}
             <div className="flex items-center gap-1.5 flex-wrap">
-                <ApplianceChip icon={Projector}        label="Projector" on={appliances?.projector} />
+                <ApplianceChip icon={Projector} label="Projector" on={appliances?.projector} />
                 <ApplianceChip icon={MonitorSmartphone} label="Monitors" on={appliances?.monitors} />
-                <ApplianceChip icon={Lightbulb}         label="Lights"  on={appliances?.lights} />
+                <ApplianceChip icon={Fan} label="Fan" on={appliances?.fan} />
+                <ApplianceChip icon={Lightbulb} label="Lights" on={appliances?.lights} />
             </div>
         </GlareCard>
     );
@@ -66,11 +67,10 @@ export default function RoomCard({ room }) {
 function ApplianceChip({ icon: Icon, label, on }) {
     return (
         <span
-            className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-mono font-medium tracking-wider transition-colors ${
-                on
-                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                    : 'bg-[var(--ww-card-2)] text-[var(--ww-text-muted)] border border-[var(--ww-border)]'
-            }`}
+            className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-mono font-medium tracking-wider transition-colors ${on
+                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                : 'bg-[var(--ww-card-2)] text-[var(--ww-text-muted)] border border-[var(--ww-border)]'
+                }`}
             title={`${label}: ${on ? 'ON' : 'OFF'}`}
         >
             <Icon size={11} />

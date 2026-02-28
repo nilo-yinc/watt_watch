@@ -61,8 +61,12 @@ def main():
         appliance_on, brightness = detect_appliance(frame)
 
         # ===== Privacy =====
+        # `ghost_frame` is sent to dashboard: blur-only privacy frame (no debug overlays).
+        ghost_frame = frame.copy()
+        # `display_frame` is local debug window frame (may include boxes/text).
         display_frame = frame.copy()
         if PRIVACY_MODE == "blur":
+            ghost_frame = blur_people(ghost_frame, boxes)
             display_frame = blur_people(display_frame, boxes)
 
         # ===== Logic Engine =====
@@ -127,7 +131,7 @@ def main():
 
         if ENABLE_GHOST_STREAM and (time.time() - last_ghost_publish_ts) >= GHOST_STREAM_INTERVAL_SECONDS:
             ghost_param = [int(cv2.IMWRITE_JPEG_QUALITY), GHOST_STREAM_JPEG_QUALITY]
-            ok_enc, ghost_jpg = cv2.imencode(".jpg", display_frame, ghost_param)
+            ok_enc, ghost_jpg = cv2.imencode(".jpg", ghost_frame, ghost_param)
             if ok_enc:
                 mqtt.publish_json(
                     GHOST_FRAME_TOPIC,

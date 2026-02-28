@@ -80,6 +80,7 @@ export default function RoomDetail() {
                         <div className="grid grid-cols-3 gap-3">
                             {[
                                 { code: 'LT', label: 'Lights', on: room.appliances.lights },
+                                { code: 'FN', label: 'Fan', on: room.appliances.fan },
                                 { code: 'PJ', label: 'Projector', on: room.appliances.projector },
                                 { code: 'AC', label: 'Air Conditioning', on: room.appliances.ac },
                             ].map((a, i) => (
@@ -133,11 +134,11 @@ export default function RoomDetail() {
                 </div>
 
                 {/* Privacy notice */}
-                {room.monitoring === 'Camera' && (
+                {(room.monitoring === 'CCTV' || room.monitoring?.includes('CCTV')) && (
                     <div className="hud-card p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                            <span className="text-xs font-mono text-[var(--ww-text-2)]">Camera feed active · Privacy protocols enforced</span>
+                            <span className="text-xs font-mono text-[var(--ww-text-2)]">CCTV feed active · Privacy protocols enforced</span>
                         </div>
                         <Link to="/ghost-view" className="text-[10px] font-mono text-cyan-400 hover:underline tracking-wider">GHOST MODE →</Link>
                     </div>

@@ -9,6 +9,7 @@ import {
 import { broadcast } from "./ws-hub.js";
 
 let mqttClient = null;
+let lastMqttError = "";
 
 function parseTopic(topic) {
   const parts = topic.split("/");
@@ -32,6 +33,7 @@ export function startMqtt() {
     console.log(`[mqtt] connected to ${env.mqttBrokerUrl}`);
     mqttClient.subscribe(env.mqttTopicCv);
     mqttClient.subscribe(env.mqttTopicDeviceState);
+    mqttClient.subscribe(env.mqttTopicGhostFrame);
   });
 
   mqttClient.on("message", async (topic, messageBuffer) => {
@@ -74,6 +76,17 @@ export function startMqtt() {
           const room = await getRoom(parsed.roomId);
           if (room) broadcast({ type: "room_update", payload: room });
         }
+      } else if (topic.endsWith("/ghost/frame")) {
+        const payload = JSON.parse(message || "{}");
+        if (!payload?.image_b64) return;
+        broadcast({
+          type: "ghost_frame",
+          payload: {
+            room_id: payload.room_id || parsed.roomId,
+            timestamp: payload.timestamp || Date.now(),
+            image_b64: payload.image_b64,
+          },
+        });
       }
     } catch (error) {
       console.error("[mqtt] message handling failed", error);
@@ -81,7 +94,11 @@ export function startMqtt() {
   });
 
   mqttClient.on("error", (err) => {
-    console.error("[mqtt] error", err.message);
+    const msg = err?.message || "connection error";
+    if (msg !== lastMqttError) {
+      console.error("[mqtt] error", msg);
+      lastMqttError = msg;
+    }
   });
 }
 

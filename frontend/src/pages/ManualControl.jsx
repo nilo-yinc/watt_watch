@@ -92,6 +92,7 @@ export default function ManualControl() {
                         <div className="grid grid-cols-4 gap-3">
                             {[
                                 { code: 'LT', label: 'Lights', on: selectedRoomData.appliances.lights },
+                                { code: 'FN', label: 'Fan', on: selectedRoomData.appliances.fan },
                                 { code: 'PJ', label: 'Projector', on: selectedRoomData.appliances.projector },
                                 { code: 'AC', label: 'Air Conditioning', on: selectedRoomData.appliances.ac },
                                 ...(selectedRoomData.appliances.desktops > 0 ? [{ code: 'PC', label: `${selectedRoomData.appliances.desktops} Desktops`, on: true }] : []),
