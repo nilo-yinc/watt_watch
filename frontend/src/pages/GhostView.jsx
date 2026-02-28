@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Spotlight } from '../components/ui/spotlight';
 import { useRooms } from '../hooks/useRooms';
 import { useApp } from '../context/AppContext';
+import { rooms as mockRooms } from '../data/mockData';
 
 export default function GhostView() {
-    const { rooms } = useRooms();
-    const { ghostFrames, backendOnline } = useApp();
+    const { rooms: liveRooms } = useRooms();
+    const { devices, ghostFrames, backendOnline } = useApp();
     const [selectedRoom, setSelectedRoom] = useState('');
     const [ghostMode, setGhostMode] = useState(true);
     const [dataOnlyMode, setDataOnlyMode] = useState(false);
@@ -14,14 +15,34 @@ export default function GhostView() {
     const videoRef = useRef(null);
     const streamRef = useRef(null);
 
-    const cameraRooms = useMemo(() => rooms.filter((room) => room.camera_source), [rooms]);
+    // Merge live rooms + mockData rooms, deduplicate by id, all rooms included
+    const allRooms = useMemo(() => {
+        const map = new Map();
+        liveRooms.forEach(r => map.set(r.id, r));
+        mockRooms.forEach(r => {
+            if (!map.has(r.id)) {
+                // Map mockData format to match live format
+                map.set(r.id, {
+                    ...r,
+                    person_count: r.occupancy || 0,
+                    camera_source: r.monitoring?.includes('CCTV') ? `CCTV-${r.id}` : null,
+                    waste_detected: r.status === 'waste',
+                    waste_duration: 0,
+                    location: r.building,
+                    last_updated: Date.now(),
+                });
+            }
+        });
+        return Array.from(map.values());
+    }, [liveRooms]);
+
     const ghostFrameRoomIds = useMemo(() => Object.keys(ghostFrames || {}), [ghostFrames]);
 
     useEffect(() => {
-        if (!selectedRoom && cameraRooms.length) {
-            setSelectedRoom(cameraRooms[0].id);
+        if (!selectedRoom && allRooms.length) {
+            setSelectedRoom(allRooms[0].id);
         }
-    }, [cameraRooms, selectedRoom]);
+    }, [allRooms, selectedRoom]);
 
     useEffect(() => {
         const timer = setInterval(() => setTimeNow(Date.now()), 1000);
@@ -65,18 +86,93 @@ export default function GhostView() {
         };
     }, [dataOnlyMode]);
 
-    const selected = cameraRooms.find((room) => room.id === selectedRoom);
-    const activeGhostRoomId =
-        (selected?.id && ghostFrames[selected.id] ? selected.id : null) || ghostFrameRoomIds[0] || null;
-    const activeRoom = cameraRooms.find((room) => room.id === activeGhostRoomId) || selected;
-    const activeGhostFrame = activeGhostRoomId ? ghostFrames[activeGhostRoomId] : null;
+    const activeRoom = allRooms.find((room) => room.id === selectedRoom) || allRooms[0];
+    const activeGhostFrame = activeRoom ? ghostFrames[activeRoom.id] : null;
     const activeGhostSrc = activeGhostFrame?.image_b64
         ? `data:image/jpeg;base64,${activeGhostFrame.image_b64}`
         : '';
     const usingYoloStream = ghostMode && !!activeGhostSrc;
-    const isWaste = activeRoom?.waste_detected;
+    const isWaste = activeRoom?.waste_detected || activeRoom?.status === 'waste';
     const statusText = isWaste ? 'WASTE' : 'CLEAR';
     const statusClass = isWaste ? 'text-red-400' : 'text-emerald-400';
+
+    // Get devices for current room
+    const roomDevices = useMemo(() => {
+        return devices.filter(d => d.room_id === activeRoom?.id);
+    }, [devices, activeRoom]);
+
+    // Build detection summary
+    const detectionData = useMemo(() => {
+        if (!activeRoom) return [];
+
+        const app = activeRoom.appliances || {};
+        const items = [];
+
+        // People detected
+        const people = activeRoom.person_count ?? activeRoom.occupancy ?? 0;
+        items.push({ label: 'People Detected', value: people, on: people > 0 });
+
+        // Bulbs/Lights
+        if (roomDevices.length > 0) {
+            const bulbs = roomDevices.filter(d => d.type === 'light');
+            const bulbsOn = bulbs.filter(d => d.is_on).length;
+            items.push({ label: `Bulb ON`, value: `${bulbsOn} / ${bulbs.length}`, on: bulbsOn > 0 });
+        } else if (app.bulbs) {
+            // mockData rooms with explicit bulb count
+            const bulbsOn = app.lights ? app.bulbs : 0;
+            items.push({ label: 'Bulb ON', value: `${bulbsOn} / ${app.bulbs}`, on: bulbsOn > 0 });
+        } else {
+            items.push({ label: 'Lights', value: app.lights ? 'ON' : 'OFF', on: !!app.lights });
+        }
+
+        // Fan
+        if (roomDevices.length > 0) {
+            const fans = roomDevices.filter(d => d.type === 'fan');
+            const fansOn = fans.filter(d => d.is_on).length;
+            if (fans.length > 0) {
+                items.push({ label: `Fan ON`, value: `${fansOn} / ${fans.length}`, on: fansOn > 0 });
+            }
+        } else if (app.fan !== undefined) {
+            items.push({ label: 'Fan', value: app.fan ? 'ON' : 'OFF', on: !!app.fan });
+        }
+
+        // Projector
+        if (roomDevices.length > 0) {
+            const proj = roomDevices.filter(d => d.type === 'projector');
+            const projOn = proj.filter(d => d.is_on).length;
+            if (proj.length > 0) {
+                items.push({ label: `Projector ON`, value: `${projOn} / ${proj.length}`, on: projOn > 0 });
+            }
+        } else {
+            items.push({ label: 'Projector', value: app.projector ? 'ON' : 'OFF', on: !!app.projector });
+        }
+
+        // Desktop / Monitors
+        if (roomDevices.length > 0) {
+            const monitors = roomDevices.filter(d => d.type === 'monitor');
+            const monitorsOn = monitors.filter(d => d.is_on).length;
+            if (monitors.length > 0) {
+                items.push({ label: `Desktop ON`, value: `${monitorsOn} / ${monitors.length}`, on: monitorsOn > 0 });
+            }
+        } else if (app.desktops > 0) {
+            items.push({ label: 'Desktops', value: `${app.desktops}`, on: true });
+        } else if (app.monitors !== undefined) {
+            items.push({ label: 'Monitors', value: app.monitors ? 'ON' : 'OFF', on: !!app.monitors });
+        }
+
+        // AC
+        items.push({ label: 'AC', value: app.ac ? 'ON' : 'OFF', on: !!app.ac });
+
+        return items;
+    }, [activeRoom, roomDevices]);
+
+    // Total power being drawn
+    const totalPower = useMemo(() => {
+        if (roomDevices.length > 0) {
+            return roomDevices.filter(d => d.is_on).reduce((sum, d) => sum + d.power_watts, 0);
+        }
+        return activeRoom?.energyUsage ? Math.round(activeRoom.energyUsage * 1000) : 0;
+    }, [roomDevices, activeRoom]);
 
     return (
         <Spotlight className="min-h-full">
@@ -88,7 +184,7 @@ export default function GhostView() {
                     </div>
                     <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Ghost View</h1>
                     <p className="text-xs font-mono text-[var(--ww-text-3)]">
-                        Anonymized surveillance feed · No PII stored
+                        Anonymized surveillance feed - No PII stored
                     </p>
                 </div>
 
@@ -101,9 +197,9 @@ export default function GhostView() {
                                 onChange={(e) => setSelectedRoom(e.target.value)}
                                 className="w-full px-3 py-2 bg-transparent border border-[var(--ww-border)] rounded-md text-[var(--ww-text-2)] text-xs font-mono focus:border-cyan-500/30 focus:outline-none"
                             >
-                                {cameraRooms.map((room) => (
+                                {allRooms.map((room) => (
                                     <option key={room.id} value={room.id} className="bg-slate-900">
-                                        {room.name}
+                                        {room.name} ({room.location || room.building})
                                     </option>
                                 ))}
                             </select>
@@ -135,6 +231,7 @@ export default function GhostView() {
 
                 {activeRoom && (
                     <div className="grid grid-cols-3 gap-4">
+                        {/* ── Video Feed ─────────────────────────── */}
                         <div className="col-span-2">
                             <div className="hud-card overflow-hidden" style={{ minHeight: '420px' }}>
                                 <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.03]">
@@ -153,8 +250,9 @@ export default function GhostView() {
                                 {dataOnlyMode ? (
                                     <div className="flex items-center justify-center p-12" style={{ minHeight: '360px' }}>
                                         <div className="text-center">
-                                            <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">◉</div>
-                                            <p className="text-xs font-mono text-[var(--ww-text-3)] mb-6">VISUAL FEED DISABLED</p>
+                                            <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">[X]</div>
+                                            <p className="text-xs font-mono text-[var(--ww-text-3)] mb-2">VISUAL FEED DISABLED</p>
+                                            <p className="text-[10px] font-mono text-[var(--ww-text-muted)]">Data-only mode active. Check side panel for live metrics.</p>
                                         </div>
                                     </div>
                                 ) : (
@@ -169,7 +267,7 @@ export default function GhostView() {
                                                         Ghost Mode needs YOLO stream.
                                                     </div>
                                                     <div className="text-xs font-mono text-[var(--ww-text-3)] mt-1">
-                                                        Start `computer_vision` service for person-only blur.
+                                                        Start computer_vision service for person-only blur.
                                                     </div>
                                                 </div>
                                             </div>
@@ -190,7 +288,9 @@ export default function GhostView() {
                                                 {ghostMode ? 'GHOST MODE' : 'LIVE MODE'}
                                             </div>
                                             <div className="text-xs font-mono text-[var(--ww-text-1)] mt-1">
-                                                {usingYoloStream ? `${activeRoom.person_count} detected` : 'N/A (CV stream required)'}
+                                                {usingYoloStream
+                                                    ? `${activeRoom.person_count ?? activeRoom.occupancy ?? 0} detected`
+                                                    : 'N/A (CV stream required)'}
                                             </div>
                                         </div>
                                         <div className="absolute bottom-4 left-4 right-4">
@@ -212,13 +312,30 @@ export default function GhostView() {
                             </div>
                         </div>
 
+                        {/* ── Side Panel ─────────────────────────── */}
                         <div className="space-y-4">
+                            {/* Detection Data */}
+                            <div className="hud-card p-4">
+                                <div className="hud-label mb-3">DETECTION DATA</div>
+                                {detectionData.map((item, i) => (
+                                    <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0">
+                                        <span className="text-[10px] font-mono text-[var(--ww-text-3)]">{item.label}</span>
+                                        <span className={`text-xs font-mono font-bold tracking-wider ${item.on ? 'text-amber-400' : 'text-[var(--ww-text-muted)]'}`}>
+                                            {item.value}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Feed Status */}
                             <div className="hud-card p-4">
                                 <div className="hud-label mb-3">FEED STATUS</div>
                                 {[
-                                    { label: 'Occupancy', val: usingYoloStream ? `${activeRoom.person_count}` : 'N/A' },
-                                    { label: 'Power Draw', val: activeRoom.waste_detected ? 'High' : 'Normal' },
+                                    { label: 'Room', val: activeRoom.name },
+                                    { label: 'Monitoring', val: activeRoom.monitoring || 'CCTV' },
+                                    { label: 'Power Draw', val: `${totalPower}W`, accent: totalPower > 0 ? 'text-amber-400' : '' },
                                     { label: 'Status', val: statusText, accent: statusClass },
+                                    { label: 'Backend', val: backendOnline ? 'ONLINE' : 'OFFLINE', accent: backendOnline ? 'text-emerald-400' : 'text-red-400' },
                                 ].map((s, i) => (
                                     <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0">
                                         <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{s.label}</span>
@@ -227,30 +344,13 @@ export default function GhostView() {
                                 ))}
                             </div>
 
+                            {/* Privacy Layer */}
                             <div className="hud-card p-4">
                                 <div className="hud-label mb-3">PRIVACY LAYER</div>
                                 {['No raw video stored', 'Local processing only', 'Face/body blur in Ghost Mode', 'Audit-logged access'].map((s, i) => (
                                     <div key={i} className="flex items-center gap-2 py-1.5">
                                         <div className="w-1 h-1 rounded-full bg-emerald-400" />
                                         <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{s}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="hud-card p-4">
-                                <div className="hud-label mb-3">APPLIANCES</div>
-                                {[
-                                    { l: 'Lights', on: activeRoom.appliances?.lights },
-                                    { l: 'Fan', on: activeRoom.appliances?.fan },
-                                    { l: 'Projector', on: activeRoom.appliances?.projector },
-                                    { l: 'AC', on: activeRoom.appliances?.ac },
-                                    { l: 'Monitors', on: activeRoom.appliances?.monitors },
-                                ].map((a, i) => (
-                                    <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/[0.03] last:border-0">
-                                        <span className="text-[10px] font-mono text-[var(--ww-text-3)]">{a.l}</span>
-                                        <span className={`text-[9px] font-mono font-bold tracking-wider ${a.on ? 'text-amber-400' : 'text-[var(--ww-text-muted)]'}`}>
-                                            {a.on ? 'ON' : 'OFF'}
-                                        </span>
                                     </div>
                                 ))}
                             </div>

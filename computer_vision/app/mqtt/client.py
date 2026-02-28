@@ -1,8 +1,7 @@
 # app/mqtt/client.py
+import json
 import paho.mqtt.publish as publish
-
-BROKER = "localhost"
-PORT = 1883
+from app.config import MQTT_BROKER, MQTT_PORT
 
 
 class MQTTClient:
@@ -13,7 +12,7 @@ class MQTTClient:
     def _publish(self, topic, message):
         """Internal publish with duplicate filtering."""
         if self.last_messages.get(topic) != message:
-            publish.single(topic, message, hostname=BROKER, port=PORT)
+            publish.single(topic, message, hostname=MQTT_BROKER, port=MQTT_PORT)
             print(f"📡 MQTT → {topic}: {message}")
             self.last_messages[topic] = message
 
@@ -26,3 +25,7 @@ class MQTTClient:
     def publish_command(self, topic, message):
         """Publish device command (for ESP)."""
         self._publish(topic, message)
+
+    def publish_json(self, topic, payload):
+        """Publish JSON payload."""
+        self._publish(topic, json.dumps(payload, separators=(",", ":")))
