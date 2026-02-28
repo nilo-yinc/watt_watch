@@ -19,6 +19,8 @@ export const env = {
     process.env.MQTT_TOPIC_DEVICE_STATE || "wattwatch/+/+/state",
   mqttTopicGhostFrame:
     process.env.MQTT_TOPIC_GHOST_FRAME || "wattwatch/+/ghost/frame",
+  embedMqttBroker: process.env.EMBED_MQTT_BROKER === "1",
+  embedMqttPort: Number(process.env.EMBED_MQTT_PORT || 1883),
   corsOrigins: (process.env.CORS_ORIGINS || "*")
     .split(",")
     .map((origin) => origin.trim())

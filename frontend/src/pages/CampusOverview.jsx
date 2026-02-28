@@ -165,6 +165,7 @@ export default function CampusOverview() {
                                                 <div className="flex gap-2">
                                                     {[
                                                         { l: 'LT', on: room.appliances.lights },
+                                                        { l: 'FN', on: room.appliances.fan },
                                                         { l: 'PJ', on: room.appliances.projector },
                                                         { l: 'AC', on: room.appliances.ac },
                                                         ...(room.appliances.desktops > 0 ? [{ l: `${room.appliances.desktops}PC`, on: true }] : []),

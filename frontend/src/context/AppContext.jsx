@@ -6,6 +6,12 @@ import energyService from '../services/energyService';
 // ── Mock Data ─────────────────────────────────────────────────────
 const MOCK_ROOMS = [
     {
+        id: 'test-room', name: 'Test Room T-001', location: 'Test Block',
+        status: 'secure', person_count: 0, camera_source: 'CCTV-TEST',
+        appliances: { lights: false, fan: false, projector: false, monitors: false },
+        waste_detected: false, waste_duration: 0, last_updated: Date.now(),
+    },
+    {
         id: 'room-101', name: 'Lecture Hall A', location: 'Block A, Floor 1',
         status: 'secure', person_count: 12, camera_source: 'CCTV-01',
         appliances: { projector: true, monitors: false, lights: true },
@@ -44,6 +50,11 @@ const MOCK_ROOMS = [
 ];
 
 const MOCK_DEVICES = [
+    { id: 'dt1', room_id: 'test-room', name: 'Bulb 1', type: 'light', is_on: false, power_watts: 60, controllable: true },
+    { id: 'dt2', room_id: 'test-room', name: 'Bulb 2', type: 'light', is_on: false, power_watts: 60, controllable: true },
+    { id: 'dt3', room_id: 'test-room', name: 'Fan', type: 'fan', is_on: false, power_watts: 75, controllable: true },
+    { id: 'dt4', room_id: 'test-room', name: 'Projector', type: 'projector', is_on: false, power_watts: 300, controllable: true },
+    { id: 'dt5', room_id: 'test-room', name: 'Desktop', type: 'monitor', is_on: false, power_watts: 150, controllable: true },
     { id: 'd1', room_id: 'room-101', name: 'Ceiling Lights', type: 'light', is_on: true, power_watts: 120, controllable: true },
     { id: 'd2', room_id: 'room-101', name: 'Projector', type: 'projector', is_on: true, power_watts: 300, controllable: true },
     { id: 'd3', room_id: 'room-102', name: 'Lab Monitors (x12)', type: 'monitor', is_on: true, power_watts: 600, controllable: true },
@@ -57,6 +68,7 @@ const MOCK_DEVICES = [
 ];
 
 const MOCK_ALERTS = [
+    { id: 0, room_id: 'test-room', room_name: 'Test Room T-001', message: 'Test Room initialized — 2 Bulbs, 1 Fan, 1 Projector, 1 Desktop. All OFF. Monitoring: CCTV + Current Detector.', severity: 'low', timestamp: Date.now() },
     { id: 1, room_id: 'room-102', room_name: 'Computer Lab B', message: 'Energy waste detected — all appliances ON, room empty for 4 min', severity: 'high', timestamp: Date.now() - 60000 },
     { id: 2, room_id: 'room-202', room_name: 'Library Reading Hall', message: 'Lights left ON — room empty for 30 min', severity: 'high', timestamp: Date.now() - 120000 },
     { id: 3, room_id: 'room-103', room_name: 'Seminar Room C', message: 'Room recently vacated — monitoring appliances', severity: 'medium', timestamp: Date.now() - 300000 },
@@ -78,6 +90,7 @@ const initialState = {
     rooms: MOCK_ROOMS,
     devices: MOCK_DEVICES,
     alerts: MOCK_ALERTS,
+    ghostFrames: {},
     config: MOCK_CONFIG,
     loading: false,
     backendOnline: false,
@@ -110,6 +123,14 @@ function reducer(state, action) {
             return { ...state, alerts: action.payload };
         case 'ADD_ALERT':
             return { ...state, alerts: [action.payload, ...state.alerts].slice(0, 50) };
+        case 'SET_GHOST_FRAME':
+            return {
+                ...state,
+                ghostFrames: {
+                    ...state.ghostFrames,
+                    [action.payload.room_id]: action.payload,
+                },
+            };
         case 'SET_CONFIG':
             return { ...state, config: { ...state.config, ...action.payload } };
         case 'SET_LOADING':
@@ -145,14 +166,16 @@ export function AppProvider({ children }) {
 
                 dispatch({ type: 'SET_ROOMS', payload: rooms });
                 dispatch({ type: 'SET_DEVICES', payload: devices });
-                dispatch({ type: 'SET_ALERTS', payload: logs.filter(l => l.event === 'cv_update' && l.waste_detected).slice(0, 30).map((l, i) => ({
-                    id: `boot-${i}`,
-                    room_id: l.room_id,
-                    room_name: l.room_id,
-                    message: 'Waste event recovered from backend history',
-                    severity: 'medium',
-                    timestamp: l.timestamp * 1000,
-                })) });
+                dispatch({
+                    type: 'SET_ALERTS', payload: logs.filter(l => l.event === 'cv_update' && l.waste_detected).slice(0, 30).map((l, i) => ({
+                        id: `boot-${i}`,
+                        room_id: l.room_id,
+                        room_name: l.room_id,
+                        message: 'Waste event recovered from backend history',
+                        severity: 'medium',
+                        timestamp: l.timestamp * 1000,
+                    }))
+                });
                 dispatch({ type: 'SET_BACKEND_ONLINE', payload: true });
             } catch {
                 if (!mounted) return;

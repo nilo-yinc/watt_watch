@@ -72,6 +72,7 @@ export default function RuleConfiguration() {
                     <div className="grid grid-cols-4 gap-3">
                         {[
                             { code: 'LT', label: 'Lights', key: 'lights' },
+                            { code: 'FN', label: 'Fan', key: 'fan' },
                             { code: 'PJ', label: 'Projector', key: 'projector' },
                             { code: 'PC', label: 'Desktop', key: 'desktop' },
                             { code: 'AC', label: 'Air Conditioning', key: 'ac' },
