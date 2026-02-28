@@ -67,5 +67,12 @@ export default {
             },
         },
     },
-    plugins: [],
+    plugins: [
+        function ({ addUtilities }) {
+            addUtilities({
+                '.transform-3d': { 'transform-style': 'preserve-3d' },
+                '.backface-hidden': { 'backface-visibility': 'hidden' },
+            });
+        },
+    ],
 };

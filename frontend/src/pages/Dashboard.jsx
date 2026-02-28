@@ -8,6 +8,8 @@ import RoomCard from '../components/RoomCard';
 import EnergyChart from '../components/EnergyChart';
 import { GlareCard } from '../components/ui/glare-card';
 import { Tabs } from '../components/ui/tabs';
+import { CanvasText } from '../components/ui/canvas-text';
+import GlowingEffectDemo from '../components/GlowingEffectDemo';
 
 export default function Dashboard() {
     const { rooms, secureCount, wasteCount, totalPeople } = useRooms();
@@ -15,7 +17,7 @@ export default function Dashboard() {
     const { alerts } = useApp();
 
     const wasteMins = Math.floor(totalWasteDuration / 60);
-    const wasteHrs  = Math.floor(wasteMins / 60);
+    const wasteHrs = Math.floor(wasteMins / 60);
     const wasteTimeStr = wasteHrs > 0 ? `${wasteHrs}h ${wasteMins % 60}m` : `${wasteMins}m`;
 
     const analyticsTabs = [
@@ -50,17 +52,30 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            {/* ── Page header ───────────────────────────────────── */}
+            {/* ── Hero heading with animated text ─────────────── */}
             <div className="flex items-center justify-between">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <div className="w-1 h-5 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-                        <h1 className="brand-wordmark text-xl text-white tracking-wide">
-                            Overview
+                        <div className="w-1.5 h-6 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.7)]" />
+                        <h1 className="font-display text-2xl text-white tracking-wide">
+                            <CanvasText
+                                text="WATT·WATCH"
+                                backgroundClassName="bg-[#000408]"
+                                colors={[
+                                    "rgba(34, 211, 238, 1)",
+                                    "rgba(34, 211, 238, 0.8)",
+                                    "rgba(14, 165, 233, 1)",
+                                    "rgba(14, 165, 233, 0.7)",
+                                    "rgba(56, 189, 248, 0.9)",
+                                    "rgba(125, 211, 252, 0.6)",
+                                ]}
+                                lineGap={3}
+                                animationDuration={12}
+                            />
                         </h1>
                     </div>
-                    <p className="text-[11px] font-mono text-slate-600 tracking-[0.2em] uppercase ml-3">
-                        Real-time campus energy monitoring
+                    <p className="text-[11px] font-mono text-slate-600 tracking-[0.2em] uppercase ml-3.5">
+                        Real-time campus energy surveillance
                     </p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/10 bg-cyan-500/5">
@@ -102,6 +117,14 @@ export default function Dashboard() {
                         accent="#fbbf24"
                     />
                 </GlareCard>
+            </div>
+
+            {/* ── Glowing-effect feature cards ───────────────────── */}
+            <div>
+                <SectionHeader label="System Capabilities" />
+                <div className="mt-3">
+                    <GlowingEffectDemo />
+                </div>
             </div>
 
             {/* ── Analytics tabs ────────────────────────────────── */}
@@ -184,13 +207,12 @@ function AlertList({ alerts }) {
             {alerts.slice(0, 8).map(alert => (
                 <div
                     key={alert.id}
-                    className={`px-3 py-2.5 rounded-lg text-xs transition-colors hover:bg-white/[0.02] ${
-                        alert.severity === 'high'
+                    className={`px-3 py-2.5 rounded-lg text-xs transition-colors hover:bg-white/[0.02] ${alert.severity === 'high'
                             ? 'border-l-2 border-red-500/40 bg-red-500/5'
                             : alert.severity === 'medium'
                                 ? 'border-l-2 border-amber-500/30 bg-amber-500/5'
                                 : 'border-l-2 border-cyan-500/15'
-                    }`}
+                        }`}
                 >
                     <div className="flex items-center justify-between mb-0.5">
                         <span className="font-mono font-medium text-slate-200">{alert.room_name}</span>
@@ -204,4 +226,3 @@ function AlertList({ alerts }) {
         </div>
     );
 }
-

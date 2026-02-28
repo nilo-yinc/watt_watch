@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ── Base ─────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;600;700;900&display=swap');
 
 * {
   scrollbar-width: thin;
@@ -41,9 +42,9 @@ body {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background-image: radial-gradient(rgba(14, 165, 233, 0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
-  opacity: 0.5;
+  background-image: radial-gradient(rgba(14, 165, 233, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.6;
 }
 
 /* Horizontal scan-lines overlay (CRT effect) */
@@ -53,13 +54,11 @@ body {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.08) 2px,
-    rgba(0, 0, 0, 0.08) 4px
-  );
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 4px);
 }
 
 /* Main sweep scanline */
@@ -68,11 +67,26 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(34, 211, 238, 0.25) 50%, transparent 100%);
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(34, 211, 238, 0.35) 50%, transparent 100%);
   z-index: 2;
   pointer-events: none;
-  animation: scanDown 10s linear infinite;
+  animation: scanDown 8s linear infinite;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+}
+
+/* Secondary sweep scanline (slower, dimmer) */
+.scanline-secondary {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.2), transparent);
+  z-index: 2;
+  pointer-events: none;
+  animation: scanDown 14s linear infinite;
+  animation-delay: 4s;
 }
 
 /* Legacy alias */
@@ -82,74 +96,86 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.2), transparent);
   z-index: 2;
   pointer-events: none;
   animation: scanDown 10s linear infinite;
 }
 
 @keyframes scanDown {
-  0%   { top: -2px; }
-  100% { top: 100vh; }
+  0% {
+    top: -2px;
+  }
+
+  100% {
+    top: 100vh;
+  }
 }
 
 /* Per-panel feed scanline */
 @keyframes feedScan {
-  0%   { top: -1px; }
-  100% { top: 100%; }
+  0% {
+    top: -1px;
+  }
+
+  100% {
+    top: 100%;
+  }
 }
 
 /* ── Glass card utility — cleaner, darker ────────────────── */
 @layer components {
   .glass {
-    background: rgba(2, 6, 14, 0.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(34, 211, 238, 0.07);
-    border-radius: 10px;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.5), inset 0 1px 0 rgba(34,211,238,0.04);
+    background: rgba(2, 6, 14, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(34, 211, 238, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(34, 211, 238, 0.05), 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   .glass-light {
     @apply bg-black/40 backdrop-blur-sm rounded-lg;
-    border: 1px solid rgba(34, 211, 238, 0.05);
+    border: 1px solid rgba(34, 211, 238, 0.06);
   }
 
   /* HUD card — signature surveillance look */
   .hud-card {
     position: relative;
-    background: rgba(2, 6, 14, 0.85);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(34, 211, 238, 0.08);
-    border-radius: 8px;
+    background: rgba(2, 6, 14, 0.88);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(34, 211, 238, 0.1);
+    border-radius: 10px;
     overflow: hidden;
     box-shadow:
-      inset 0 1px 0 rgba(34, 211, 238, 0.05),
-      0 4px 24px rgba(0,0,0,0.6);
+      inset 0 1px 0 rgba(34, 211, 238, 0.06),
+      0 4px 32px rgba(0, 0, 0, 0.6);
   }
 
   .hud-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.25), transparent);
   }
 
   /* Glare metric card — used for dashboard stats */
   .metric-glare {
     position: relative;
-    background: rgba(2, 6, 14, 0.85);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(34, 211, 238, 0.08);
-    border-radius: 10px;
+    background: rgba(2, 6, 14, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(34, 211, 238, 0.1);
+    border-radius: 12px;
     overflow: hidden;
     transition: border-color 0.3s, box-shadow 0.3s;
     padding: 1rem 1.25rem;
   }
 
   .metric-glare:hover {
-    border-color: rgba(34, 211, 238, 0.18);
-    box-shadow: 0 0 24px rgba(34,211,238,0.06), inset 0 0 16px rgba(34,211,238,0.02);
+    border-color: rgba(34, 211, 238, 0.22);
+    box-shadow: 0 0 32px rgba(34, 211, 238, 0.08), inset 0 0 20px rgba(34, 211, 238, 0.03);
   }
 
   /* Status dots */
@@ -159,18 +185,18 @@ body {
 
   .status-dot-secure {
     background-color: #34d399;
-    box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+    box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
   }
 
   .status-dot-waste {
     background-color: #f87171;
-    box-shadow: 0 0 6px rgba(248, 113, 113, 0.6);
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   .status-dot-caution {
     background-color: #fbbf24;
-    box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
   }
 
   /* Metric card */
@@ -184,15 +210,15 @@ body {
   }
 
   .nav-link:hover {
-    background: rgba(34, 211, 238, 0.04);
+    background: rgba(34, 211, 238, 0.05);
     color: #94a3b8;
   }
 
   .nav-link-active {
-    background: rgba(34, 211, 238, 0.07);
+    background: rgba(34, 211, 238, 0.08);
     color: #22d3ee;
-    border: 1px solid rgba(34, 211, 238, 0.12);
-    box-shadow: inset 2px 0 0 rgba(34, 211, 238, 0.4);
+    border: 1px solid rgba(34, 211, 238, 0.15);
+    box-shadow: inset 2px 0 0 rgba(34, 211, 238, 0.5);
   }
 
   /* HUD label */
@@ -201,13 +227,13 @@ body {
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.25em;
-    color: #334e68;
+    color: #486581;
   }
 
   /* HUD value */
   .hud-value {
     font-size: 1.6rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Orbitron', 'JetBrains Mono', monospace;
     font-weight: 700;
     color: white;
     line-height: 1.1;
@@ -221,33 +247,37 @@ body {
   }
 
   .corner-bracket-tl {
-    top: 0; left: 0;
-    border-left: 1px solid rgba(34, 211, 238, 0.25);
-    border-top: 1px solid rgba(34, 211, 238, 0.25);
+    top: 0;
+    left: 0;
+    border-left: 1px solid rgba(34, 211, 238, 0.3);
+    border-top: 1px solid rgba(34, 211, 238, 0.3);
   }
 
   .corner-bracket-tr {
-    top: 0; right: 0;
-    border-right: 1px solid rgba(34, 211, 238, 0.25);
-    border-top: 1px solid rgba(34, 211, 238, 0.25);
+    top: 0;
+    right: 0;
+    border-right: 1px solid rgba(34, 211, 238, 0.3);
+    border-top: 1px solid rgba(34, 211, 238, 0.3);
   }
 
   .corner-bracket-bl {
-    bottom: 0; left: 0;
-    border-left: 1px solid rgba(34, 211, 238, 0.25);
-    border-bottom: 1px solid rgba(34, 211, 238, 0.25);
+    bottom: 0;
+    left: 0;
+    border-left: 1px solid rgba(34, 211, 238, 0.3);
+    border-bottom: 1px solid rgba(34, 211, 238, 0.3);
   }
 
   .corner-bracket-br {
-    bottom: 0; right: 0;
-    border-right: 1px solid rgba(34, 211, 238, 0.25);
-    border-bottom: 1px solid rgba(34, 211, 238, 0.25);
+    bottom: 0;
+    right: 0;
+    border-right: 1px solid rgba(34, 211, 238, 0.3);
+    border-bottom: 1px solid rgba(34, 211, 238, 0.3);
   }
 
   /* Section divider */
   .hud-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34,211,238,0.12), transparent);
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.15), transparent);
   }
 
   /* Orbitron wordmark */
@@ -259,26 +289,83 @@ body {
   }
 }
 
+/* ── Glowing-effect required CSS ─────────────────────────── */
+.glow {
+  --black: #000;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.glow::before,
+.glow::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--glowingeffect-border-width));
+  border: var(--glowingeffect-border-width) solid transparent;
+  border-radius: inherit;
+  background: var(--gradient);
+  background-attachment: fixed;
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+}
+
+.glow::before {
+  mask-image: linear-gradient(#0000, #0000),
+    conic-gradient(from calc((var(--start) - var(--spread)) * 1deg),
+      #00000000 0deg,
+      #fff,
+      #00000000 calc(var(--spread) * 2deg));
+  opacity: var(--active);
+  transition: opacity 0.3s;
+}
+
+.glow::after {
+  mask-image: linear-gradient(#0000, #0000),
+    conic-gradient(from calc((var(--start) - var(--spread)) * 1deg),
+      #00000000 0deg,
+      #fff,
+      #00000000 calc(var(--spread) * 2deg));
+  opacity: var(--active);
+  transition: opacity 0.3s;
+  filter: blur(var(--blur));
+}
+
 /* ── Animations ──────────────────────────────────────────── */
 @keyframes shimmer {
-  from { background-position: 200% center; }
-  to   { background-position: -200% center; }
+  from {
+    background-position: 200% center;
+  }
+
+  to {
+    background-position: -200% center;
+  }
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(34,211,238,0.04) 50%, transparent 75%);
+  background: linear-gradient(90deg, transparent 25%, rgba(34, 211, 238, 0.04) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: shimmer 4s infinite;
 }
 
 @keyframes animate-shimmer {
-  from { background-position: 0 0; }
-  to   { background-position: -200% 0; }
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @keyframes scan {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .animate-scan {
@@ -286,34 +373,76 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideRight {
-  from { opacity: 0; transform: translateX(-8px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes glow {
-  from { box-shadow: 0 0 4px rgba(34,211,238,0.15); }
-  to   { box-shadow: 0 0 18px rgba(34,211,238,0.3); }
+  from {
+    box-shadow: 0 0 4px rgba(34, 211, 238, 0.15);
+  }
+
+  to {
+    box-shadow: 0 0 18px rgba(34, 211, 238, 0.3);
+  }
 }
 
 @keyframes borderPulse {
-  0%, 100% { border-color: rgba(34,211,238,0.08); }
-  50%       { border-color: rgba(34,211,238,0.22); }
+
+  0%,
+  100% {
+    border-color: rgba(34, 211, 238, 0.08);
+  }
+
+  50% {
+    border-color: rgba(34, 211, 238, 0.22);
+  }
 }
 
-.animate-fade-in   { animation: fadeIn 0.5s ease-out; }
-.animate-slide-up  { animation: slideUp 0.4s ease-out; }
-.animate-glow      { animation: glow 2s ease-in-out infinite alternate; }
-.animate-shimmer   { animation: animate-shimmer 2s linear infinite; }
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.animate-shimmer {
+  animation: animate-shimmer 2s linear infinite;
+}
 
 /* Noise grain overlay on cards */
 .noise-overlay::after {
