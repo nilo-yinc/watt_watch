@@ -32,8 +32,17 @@ export function WebSocketProvider({ children }) {
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.type === 'room_update') {
+                    if (data.type === 'snapshot') {
+                        if (data.payload?.rooms) {
+                            dispatch({ type: 'SET_ROOMS', payload: data.payload.rooms });
+                        }
+                        if (data.payload?.devices) {
+                            dispatch({ type: 'SET_DEVICES', payload: data.payload.devices });
+                        }
+                    } else if (data.type === 'room_update') {
                         dispatch({ type: 'UPDATE_ROOM', payload: data.payload });
+                    } else if (data.type === 'device_update') {
+                        dispatch({ type: 'UPDATE_DEVICE', payload: data.payload });
                     } else if (data.type === 'alert') {
                         dispatch({ type: 'ADD_ALERT', payload: data.payload });
                     }

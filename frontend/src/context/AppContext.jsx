@@ -1,4 +1,7 @@
-import { createContext, useContext, useReducer, useCallback } from 'react';
+import { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import roomService from '../services/roomService';
+import deviceService from '../services/deviceService';
+import energyService from '../services/energyService';
 
 // ── Mock Data ─────────────────────────────────────────────────────
 const MOCK_ROOMS = [
@@ -77,6 +80,7 @@ const initialState = {
     alerts: MOCK_ALERTS,
     config: MOCK_CONFIG,
     loading: false,
+    backendOnline: false,
     sidebarOpen: true,
 };
 
@@ -91,18 +95,27 @@ function reducer(state, action) {
             };
         case 'SET_DEVICES':
             return { ...state, devices: action.payload };
+        case 'UPDATE_DEVICE':
+            return {
+                ...state,
+                devices: state.devices.map(d => d.id === action.payload.id ? { ...d, ...action.payload } : d),
+            };
         case 'TOGGLE_DEVICE': {
             const devices = state.devices.map(d =>
                 d.id === action.payload ? { ...d, is_on: !d.is_on } : d
             );
             return { ...state, devices };
         }
+        case 'SET_ALERTS':
+            return { ...state, alerts: action.payload };
         case 'ADD_ALERT':
             return { ...state, alerts: [action.payload, ...state.alerts].slice(0, 50) };
         case 'SET_CONFIG':
             return { ...state, config: { ...state.config, ...action.payload } };
         case 'SET_LOADING':
             return { ...state, loading: action.payload };
+        case 'SET_BACKEND_ONLINE':
+            return { ...state, backendOnline: action.payload };
         case 'TOGGLE_SIDEBAR':
             return { ...state, sidebarOpen: !state.sidebarOpen };
         default:
@@ -116,13 +129,66 @@ const AppContext = createContext(null);
 export function AppProvider({ children }) {
     const [state, dispatch] = useReducer(reducer, initialState);
 
-    const toggleDevice = useCallback((deviceId) => {
-        dispatch({ type: 'TOGGLE_DEVICE', payload: deviceId });
+    useEffect(() => {
+        let mounted = true;
+
+        const loadData = async () => {
+            dispatch({ type: 'SET_LOADING', payload: true });
+            try {
+                const [rooms, devices, logs] = await Promise.all([
+                    roomService.getRooms(),
+                    deviceService.getDevices(),
+                    energyService.getLogs(),
+                ]);
+
+                if (!mounted) return;
+
+                dispatch({ type: 'SET_ROOMS', payload: rooms });
+                dispatch({ type: 'SET_DEVICES', payload: devices });
+                dispatch({ type: 'SET_ALERTS', payload: logs.filter(l => l.event === 'cv_update' && l.waste_detected).slice(0, 30).map((l, i) => ({
+                    id: `boot-${i}`,
+                    room_id: l.room_id,
+                    room_name: l.room_id,
+                    message: 'Waste event recovered from backend history',
+                    severity: 'medium',
+                    timestamp: l.timestamp * 1000,
+                })) });
+                dispatch({ type: 'SET_BACKEND_ONLINE', payload: true });
+            } catch {
+                if (!mounted) return;
+                dispatch({ type: 'SET_BACKEND_ONLINE', payload: false });
+            } finally {
+                if (mounted) {
+                    dispatch({ type: 'SET_LOADING', payload: false });
+                }
+            }
+        };
+
+        loadData();
+        return () => {
+            mounted = false;
+        };
     }, []);
 
-    const updateConfig = useCallback((updates) => {
-        dispatch({ type: 'SET_CONFIG', payload: updates });
+    const toggleDevice = useCallback(async (deviceId) => {
+        dispatch({ type: 'TOGGLE_DEVICE', payload: deviceId });
+        try {
+            const updated = await deviceService.toggleDevice(deviceId);
+            dispatch({ type: 'UPDATE_DEVICE', payload: updated });
+        } catch {
+            // Roll back optimistic update.
+            dispatch({ type: 'TOGGLE_DEVICE', payload: deviceId });
+        }
     }, []);
+
+    const updateConfig = useCallback(async (updates) => {
+        dispatch({ type: 'SET_CONFIG', payload: updates });
+        try {
+            await Promise.all(state.rooms.map(room => roomService.updateConfig(room.id, updates)));
+        } catch {
+            // Local UI config still updates in fallback mode.
+        }
+    }, [state.rooms]);
 
     const toggleSidebar = useCallback(() => {
         dispatch({ type: 'TOGGLE_SIDEBAR' });

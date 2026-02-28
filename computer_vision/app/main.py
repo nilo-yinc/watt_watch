@@ -7,14 +7,22 @@ from app.cv.appliance import detect_appliance
 from app.cv.privacy import blur_people
 from app.logic.engine import WasteDetector
 from app.mqtt.client import MQTTClient
-from app.config import FRAME_WIDTH, FRAME_HEIGHT
-from app.config import JPEG_QUALITY
-from app.metrics.evaluator import Evaluator 
+from app.config import (
+    FRAME_WIDTH,
+    FRAME_HEIGHT,
+    JPEG_QUALITY,
+    MQTT_CV_TOPIC,
+    PRIVACY_MODE,
+    PUBLISH_INTERVAL_SECONDS,
+    ROOM_ID,
+    WASTE_DELAY_SECONDS,
+)
+from app.metrics.evaluator import Evaluator
 
 # Initialize logic engine with delay (seconds)
-logic = WasteDetector(delay_seconds=5)
-mqtt=MQTTClient()
-evaluator=Evaluator()
+logic = WasteDetector(delay_seconds=WASTE_DELAY_SECONDS)
+mqtt = MQTTClient()
+evaluator = Evaluator()
 
 def draw_boxes(frame, boxes):
     """Draw bounding boxes around detected people."""
@@ -25,16 +33,19 @@ def draw_boxes(frame, boxes):
 
 def main():
     cap = get_camera()
+    last_publish_ts = 0.0
+    last_signature = None
 
     while True:
         ret, frame = cap.read()
         start_time = time.time()
-        frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
-        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), JPEG_QUALITY]
-        _, encimg = cv2.imencode('.jpg', frame, encode_param)
-        frame = cv2.imdecode(encimg, 1)
         if not ret:
             break
+
+        frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), JPEG_QUALITY]
+        _, encimg = cv2.imencode(".jpg", frame, encode_param)
+        frame = cv2.imdecode(encimg, 1)
 
         # Mirror view
         frame = cv2.flip(frame, 1)
@@ -44,7 +55,8 @@ def main():
         appliance_on, brightness = detect_appliance(frame)
 
         # ===== Privacy =====
-        frame = blur_people(frame, boxes)
+        if PRIVACY_MODE == "blur":
+            frame = blur_people(frame, boxes)
 
         # ===== Logic Engine =====
         waste_detected = logic.update(person_count, appliance_on)
@@ -66,9 +78,22 @@ def main():
             evaluator.update(ground_truth, int(waste_detected))
         print("Metrics:", evaluator.compute())
 
-        ## Publish mqtt event on state change 
-        mqtt.publish_command("wattwatch/room101/lights/cmd",
-                     "OFF" if waste_detected else "ON")
+        payload = {
+            "timestamp": int(time.time()),
+            "room_id": ROOM_ID,
+            "person_count": person_count,
+            "appliance_on": bool(appliance_on),
+            "brightness": round(float(brightness), 2),
+            "waste_detected": bool(waste_detected),
+            "latency_ms": int(latency * 1000),
+            "privacy_mode": PRIVACY_MODE,
+        }
+        signature = (payload["person_count"], payload["appliance_on"], payload["waste_detected"])
+        now = time.time()
+        if signature != last_signature or (now - last_publish_ts) >= PUBLISH_INTERVAL_SECONDS:
+            mqtt.publish_json(MQTT_CV_TOPIC, payload)
+            last_publish_ts = now
+            last_signature = signature
 
         # Draw boxes
         draw_boxes(frame, boxes)
