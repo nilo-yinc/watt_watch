@@ -1,6 +1,5 @@
 import { Users, MonitorSmartphone, Projector, Lightbulb, Clock } from 'lucide-react';
 import StatusBadge from './StatusBadge';
-import { GlareCard } from './ui/glare-card';
 
 function formatDuration(seconds) {
     if (!seconds || seconds <= 0) return '—';
@@ -14,66 +13,75 @@ export default function RoomCard({ room }) {
     const { id, name, location, status, person_count, appliances, waste_detected, waste_duration } = room;
 
     return (
-        <GlareCard
-            className={`p-5 transition-all duration-300 ${waste_detected ? 'border-red-500/30' : ''}`}
+        <div
+            className="card"
             id={`room-card-${id}`}
+            style={{
+                padding: '1.125rem',
+                borderLeftWidth: waste_detected ? '3px' : '1px',
+                borderLeftColor: waste_detected ? 'var(--red)' : 'var(--border)',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+            }}
         >
-            {/* Corner brackets */}
-            <span className={`absolute top-0 left-0 w-3 h-3 border-l border-t ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
-            <span className={`absolute top-0 right-0 w-3 h-3 border-r border-t ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
-            <span className={`absolute bottom-0 left-0 w-3 h-3 border-l border-b ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
-            <span className={`absolute bottom-0 right-0 w-3 h-3 border-r border-b ${waste_detected ? 'border-red-500/40' : 'border-cyan-500/30'}`} />
-
             {/* Header */}
-            <div className="flex items-start justify-between mb-4">
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '0.875rem' }}>
                 <div>
-                    <h3 className="text-sm font-semibold text-[var(--ww-text-1)] tracking-wide">{name}</h3>
-                    <p className="text-[10px] font-mono text-[var(--ww-text-muted)] mt-0.5 tracking-wider uppercase">{location}</p>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-1)', lineHeight: 1.2 }}>{name}</h3>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--text-4)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{location}</p>
                 </div>
                 <StatusBadge status={status} />
             </div>
 
             {/* Metrics */}
-            <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--ww-card-2)] border border-[var(--ww-border)]">
-                    <Users size={14} className={person_count > 0 ? 'text-cyan-400' : 'text-[var(--ww-text-muted)]'} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                <div style={{ padding: '0.5rem 0.625rem', borderRadius: '8px', background: 'var(--surface-2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Users size={13} style={{ color: person_count > 0 ? 'var(--accent)' : 'var(--text-4)', flexShrink: 0 }} />
                     <div>
-                        <p className="text-base font-bold text-[var(--ww-text-1)] font-mono leading-none">{person_count}</p>
-                        <p className="text-[9px] font-mono text-[var(--ww-text-muted)] mt-0.5 tracking-wider">PEOPLE</p>
+                        <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-1)', lineHeight: 1, fontFamily: '"Plus Jakarta Sans", sans-serif' }}>{person_count}</p>
+                        <p style={{ fontSize: '0.6rem', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '1px' }}>People</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--ww-card-2)] border border-[var(--ww-border)]">
-                    <Clock size={14} className={waste_detected ? 'text-red-400' : 'text-[var(--ww-text-muted)]'} />
+                <div style={{ padding: '0.5rem 0.625rem', borderRadius: '8px', background: 'var(--surface-2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Clock size={13} style={{ color: waste_detected ? 'var(--red)' : 'var(--text-4)', flexShrink: 0 }} />
                     <div>
-                        <p className={`text-base font-bold font-mono leading-none ${waste_detected ? 'text-red-400' : 'text-[var(--ww-text-1)]'}`}>
+                        <p style={{ fontSize: '1rem', fontWeight: 700, color: waste_detected ? 'var(--red)' : 'var(--text-1)', lineHeight: 1, fontFamily: '"Plus Jakarta Sans", sans-serif' }}>
                             {formatDuration(waste_duration)}
                         </p>
-                        <p className="text-[9px] font-mono text-[var(--ww-text-muted)] mt-0.5 tracking-wider">WASTE</p>
+                        <p style={{ fontSize: '0.6rem', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '1px' }}>Waste</p>
                     </div>
                 </div>
             </div>
 
-            {/* Appliances */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-                <ApplianceChip icon={Projector}        label="Projector" on={appliances?.projector} />
+            {/* Appliance chips */}
+            <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                <ApplianceChip icon={Projector} label="Projector" on={appliances?.projector} />
                 <ApplianceChip icon={MonitorSmartphone} label="Monitors" on={appliances?.monitors} />
-                <ApplianceChip icon={Lightbulb}         label="Lights"  on={appliances?.lights} />
+                <ApplianceChip icon={Lightbulb} label="Lights" on={appliances?.lights} />
             </div>
-        </GlareCard>
+        </div>
     );
 }
 
 function ApplianceChip({ icon: Icon, label, on }) {
     return (
         <span
-            className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-mono font-medium tracking-wider transition-colors ${
-                on
-                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                    : 'bg-[var(--ww-card-2)] text-[var(--ww-text-muted)] border border-[var(--ww-border)]'
-            }`}
+            style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                padding: '0.2rem 0.5rem',
+                borderRadius: '6px',
+                fontSize: '0.6875rem',
+                fontWeight: 600,
+                letterSpacing: '0.03em',
+                background: on ? 'var(--accent-dim)' : 'var(--surface-3)',
+                color: on ? 'var(--accent)' : 'var(--text-4)',
+                border: `1px solid ${on ? 'rgba(79,110,247,0.2)' : 'var(--border)'}`,
+            }}
             title={`${label}: ${on ? 'ON' : 'OFF'}`}
         >
-            <Icon size={11} />
+            <Icon size={10} />
             {on ? 'ON' : 'OFF'}
         </span>
     );

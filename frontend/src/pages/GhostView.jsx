@@ -85,8 +85,8 @@ export default function GhostView() {
                         <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
                         <span className="hud-label">PRIVACY MODE</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Ghost View</h1>
-                    <p className="text-xs font-mono text-[var(--ww-text-3)]">Anonymized surveillance feed · No PII stored</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-1)] tracking-tight mb-1">Ghost View</h1>
+                    <p className="text-xs font-mono text-[var(--text-3)]">Anonymized surveillance feed · No PII stored</p>
                 </div>
 
                 <div className="hud-card p-4 mb-6">
@@ -96,7 +96,7 @@ export default function GhostView() {
                             <select
                                 value={selectedRoom}
                                 onChange={(e) => setSelectedRoom(e.target.value)}
-                                className="w-full px-3 py-2 bg-transparent border border-[var(--ww-border)] rounded-md text-[var(--ww-text-2)] text-xs font-mono focus:border-cyan-500/30 focus:outline-none"
+                                className="w-full px-3 py-2 bg-transparent border border-[var(--border)] rounded-md text-[var(--text-2)] text-xs font-mono focus:border-cyan-500/30 focus:outline-none"
                             >
                                 {cameraRooms.map((room) => (
                                     <option key={room.id} value={room.id} className="bg-slate-900">{room.name}</option>
@@ -104,25 +104,25 @@ export default function GhostView() {
                             </select>
                         </div>
                         <div className="flex items-end">
-                            <label className="flex items-center gap-2 px-3 py-2 border border-[var(--ww-border)] rounded-md cursor-pointer hover:border-purple-500/20 transition-colors w-full">
+                            <label className="flex items-center gap-2 px-3 py-2 border border-[var(--border)] rounded-md cursor-pointer hover:border-purple-500/20 transition-colors w-full">
                                 <input
                                     type="checkbox"
                                     checked={ghostMode}
                                     onChange={(e) => setGhostMode(e.target.checked)}
                                     className="w-3.5 h-3.5 accent-purple-400"
                                 />
-                                <span className="text-xs font-mono text-[var(--ww-text-2)]">GHOST MODE</span>
+                                <span className="text-xs font-mono text-[var(--text-2)]">GHOST MODE</span>
                             </label>
                         </div>
                         <div className="flex items-end">
-                            <label className="flex items-center gap-2 px-3 py-2 border border-[var(--ww-border)] rounded-md cursor-pointer hover:border-cyan-500/20 transition-colors w-full">
+                            <label className="flex items-center gap-2 px-3 py-2 border border-[var(--border)] rounded-md cursor-pointer hover:border-cyan-500/20 transition-colors w-full">
                                 <input
                                     type="checkbox"
                                     checked={dataOnlyMode}
                                     onChange={(e) => setDataOnlyMode(e.target.checked)}
                                     className="w-3.5 h-3.5 accent-cyan-400"
                                 />
-                                <span className="text-xs font-mono text-[var(--ww-text-2)]">DATA ONLY</span>
+                                <span className="text-xs font-mono text-[var(--text-2)]">DATA ONLY</span>
                             </label>
                         </div>
                     </div>
@@ -137,17 +137,17 @@ export default function GhostView() {
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
                                         <span className="text-[9px] font-mono text-red-400 tracking-wider">REC</span>
                                     </div>
-                                    <span className="text-[9px] font-mono text-[var(--ww-text-muted)]">
+                                    <span className="text-[9px] font-mono text-[var(--text-4)]">
                                         {new Date(timeNow).toLocaleTimeString('en-US', { hour12: false })}
                                     </span>
-                                    <span className="text-[9px] font-mono text-[var(--ww-text-muted)]">{currentRoom.name.toUpperCase()}</span>
+                                    <span className="text-[9px] font-mono text-[var(--text-4)]">{currentRoom.name.toUpperCase()}</span>
                                 </div>
 
                                 {dataOnlyMode ? (
                                     <div className="flex items-center justify-center p-12" style={{ minHeight: '360px' }}>
                                         <div className="text-center">
-                                            <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">◉</div>
-                                            <p className="text-xs font-mono text-[var(--ww-text-3)] mb-6">VISUAL FEED DISABLED</p>
+                                            <div className="text-[var(--text-4)] text-5xl font-mono mb-4">◉</div>
+                                            <p className="text-xs font-mono text-[var(--text-3)] mb-6">VISUAL FEED DISABLED</p>
                                             <div className="grid grid-cols-3 gap-4">
                                                 {[
                                                     { label: 'PEOPLE', val: currentRoom.person_count, accent: 'text-cyan-400' },
@@ -155,7 +155,7 @@ export default function GhostView() {
                                                     { label: 'WASTE', val: currentRoom.waste_duration ? `${Math.floor(currentRoom.waste_duration / 60)}m` : '0m', accent: 'text-amber-400' },
                                                 ].map((s, i) => (
                                                     <div key={i} className="bg-white/[0.02] rounded-md p-3">
-                                                        <div className="text-[8px] font-mono text-[var(--ww-text-muted)] mb-1">{s.label}</div>
+                                                        <div className="text-[8px] font-mono text-[var(--text-4)] mb-1">{s.label}</div>
                                                         <div className={`text-lg font-mono font-bold ${s.accent}`}>{s.val}</div>
                                                     </div>
                                                 ))}
@@ -178,13 +178,13 @@ export default function GhostView() {
                                             <div className="text-[9px] font-mono text-purple-400 tracking-wider">
                                                 {ghostMode ? 'GHOST MODE' : 'LIVE MODE'}
                                             </div>
-                                            <div className="text-xs font-mono text-[var(--ww-text-1)] mt-1">{currentRoom.person_count} detected</div>
+                                            <div className="text-xs font-mono text-[var(--text-1)] mt-1">{currentRoom.person_count} detected</div>
                                         </div>
                                         <div className="absolute bottom-4 left-4 right-4">
                                             <div className="h-px bg-gradient-to-r from-purple-500/20 via-transparent to-transparent mb-2" />
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1 h-1 rounded-full bg-purple-400" />
-                                                <span className="text-[8px] font-mono text-[var(--ww-text-3)]">
+                                                <span className="text-[8px] font-mono text-[var(--text-3)]">
                                                     {feedError || 'Anonymized preview · No raw video stored · Local processing'}
                                                 </span>
                                             </div>
@@ -207,8 +207,8 @@ export default function GhostView() {
                                     { label: 'Status', val: statusText, accent: statusClass },
                                 ].map((s, i) => (
                                     <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0">
-                                        <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{s.label}</span>
-                                        <span className={`text-xs font-mono font-bold ${s.accent || 'text-[var(--ww-text-1)]'}`}>{s.val}</span>
+                                        <span className="text-[10px] font-mono text-[var(--text-4)]">{s.label}</span>
+                                        <span className={`text-xs font-mono font-bold ${s.accent || 'text-[var(--text-1)]'}`}>{s.val}</span>
                                     </div>
                                 ))}
                             </div>
@@ -218,7 +218,7 @@ export default function GhostView() {
                                 {['No raw video stored', 'Local processing only', 'Face/body blur in Ghost Mode', 'Audit-logged access'].map((s, i) => (
                                     <div key={i} className="flex items-center gap-2 py-1.5">
                                         <div className="w-1 h-1 rounded-full bg-emerald-400" />
-                                        <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{s}</span>
+                                        <span className="text-[10px] font-mono text-[var(--text-2)]">{s}</span>
                                     </div>
                                 ))}
                             </div>
@@ -231,8 +231,8 @@ export default function GhostView() {
                                     { l: 'Monitors', on: currentRoom.appliances?.monitors },
                                 ].map((a, i) => (
                                     <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/[0.03] last:border-0">
-                                        <span className="text-[10px] font-mono text-[var(--ww-text-3)]">{a.l}</span>
-                                        <span className={`text-[9px] font-mono font-bold tracking-wider ${a.on ? 'text-amber-400' : 'text-[var(--ww-text-muted)]'}`}>
+                                        <span className="text-[10px] font-mono text-[var(--text-3)]">{a.l}</span>
+                                        <span className={`text-[9px] font-mono font-bold tracking-wider ${a.on ? 'text-amber-400' : 'text-[var(--text-4)]'}`}>
                                             {a.on ? 'ON' : 'OFF'}
                                         </span>
                                     </div>

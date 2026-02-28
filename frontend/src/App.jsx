@@ -21,7 +21,7 @@ import PrivacyCompliance from './pages/PrivacyCompliance';
 
 export default function App() {
     return (
-        <div className="flex h-screen overflow-hidden bg-[var(--ww-bg)] cctv-bg">
+        <div className="flex h-screen overflow-hidden cctv-bg" style={{ background: 'var(--bg)' }}>
             <CCTVBackground />
 
             {/* Sidebar */}

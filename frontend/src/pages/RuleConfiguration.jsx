@@ -20,8 +20,8 @@ export default function RuleConfiguration() {
                             <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
                             <span className="hud-label">CONFIGURATION</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Rule Engine</h1>
-                        <p className="text-xs font-mono text-[var(--ww-text-3)]">System behavior and threshold parameters</p>
+                        <h1 className="text-2xl font-bold text-[var(--text-1)] tracking-tight mb-1">Rule Engine</h1>
+                        <p className="text-xs font-mono text-[var(--text-3)]">System behavior and threshold parameters</p>
                     </div>
                     {saved && (
                         <div className="flex items-center gap-2 px-3 py-2 hud-card border-emerald-500/20">
@@ -36,11 +36,11 @@ export default function RuleConfiguration() {
                     <div className="hud-card p-5">
                         <div className="hud-label mb-4">EMPTY ROOM DETECTION</div>
                         <label className="block">
-                            <span className="text-[10px] font-mono text-[var(--ww-text-2)] block mb-2">Threshold (minutes)</span>
+                            <span className="text-[10px] font-mono text-[var(--text-2)] block mb-2">Threshold (minutes)</span>
                             <input type="number" value={rules.emptyRoomThreshold} onChange={(e) => updateRule('emptyRoomThreshold', parseInt(e.target.value))} min="5" max="120"
-                                className="w-full px-3 py-2.5 bg-transparent border border-[var(--ww-border)] rounded-md text-lg font-mono font-bold text-[var(--ww-text-1)] focus:border-cyan-500/30 focus:outline-none text-center" />
+                                className="w-full px-3 py-2.5 bg-transparent border border-[var(--border)] rounded-md text-lg font-mono font-bold text-[var(--text-1)] focus:border-cyan-500/30 focus:outline-none text-center" />
                         </label>
-                        <div className="text-[9px] font-mono text-[var(--ww-text-muted)] mt-2">Time before room flagged as empty</div>
+                        <div className="text-[9px] font-mono text-[var(--text-4)] mt-2">Time before room flagged as empty</div>
                     </div>
 
                     {/* Automation */}
@@ -53,8 +53,8 @@ export default function RuleConfiguration() {
                             ].map((toggle, i) => (
                                 <label key={i} className="flex items-center justify-between p-3 bg-white/[0.01] border border-white/[0.03] rounded-md cursor-pointer hover:bg-white/[0.02] transition-colors">
                                     <div>
-                                        <div className="text-xs font-mono text-[var(--ww-text-1)] mb-0.5">{toggle.label}</div>
-                                        <div className="text-[9px] font-mono text-[var(--ww-text-muted)]">{toggle.desc}</div>
+                                        <div className="text-xs font-mono text-[var(--text-1)] mb-0.5">{toggle.label}</div>
+                                        <div className="text-[9px] font-mono text-[var(--text-4)]">{toggle.desc}</div>
                                     </div>
                                     <div className="relative">
                                         <input type="checkbox" checked={toggle.checked} onChange={(e) => updateRule(toggle.key, e.target.checked)} className="sr-only peer" />
@@ -78,13 +78,13 @@ export default function RuleConfiguration() {
                         ].map(({ code, label, key }) => (
                             <div key={key} className="bg-white/[0.01] border border-white/[0.03] rounded-md p-3">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-xs font-mono font-bold text-[var(--ww-text-1)]">{code}</span>
-                                    <span className="text-[9px] font-mono text-[var(--ww-text-muted)]">{label}</span>
+                                    <span className="text-xs font-mono font-bold text-[var(--text-1)]">{code}</span>
+                                    <span className="text-[9px] font-mono text-[var(--text-4)]">{label}</span>
                                 </div>
                                 <div className="relative">
                                     <input type="number" step="0.01" value={rules.appliances[key]} onChange={(e) => updateAppliance(key, e.target.value)}
-                                        className="w-full px-3 py-2 pr-12 bg-transparent border border-[var(--ww-border)] rounded-md text-sm font-mono font-bold text-[var(--ww-text-1)] focus:border-cyan-500/30 focus:outline-none" />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-mono text-[var(--ww-text-muted)]">kWh</span>
+                                        className="w-full px-3 py-2 pr-12 bg-transparent border border-[var(--border)] rounded-md text-sm font-mono font-bold text-[var(--text-1)] focus:border-cyan-500/30 focus:outline-none" />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-mono text-[var(--text-4)]">kWh</span>
                                 </div>
                             </div>
                         ))}
@@ -97,10 +97,10 @@ export default function RuleConfiguration() {
                     <div className="grid grid-cols-2 gap-4">
                         {[{ label: 'START', key: 'start' }, { label: 'END', key: 'end' }].map(({ label, key }) => (
                             <div key={key}>
-                                <span className="text-[10px] font-mono text-[var(--ww-text-3)] block mb-2">{label}</span>
+                                <span className="text-[10px] font-mono text-[var(--text-3)] block mb-2">{label}</span>
                                 <input type="time" value={rules.operatingHours[key]}
                                     onChange={(e) => setRules(prev => ({ ...prev, operatingHours: { ...prev.operatingHours, [key]: e.target.value } }))}
-                                    className="w-full px-3 py-2.5 bg-transparent border border-[var(--ww-border)] rounded-md text-lg font-mono font-bold text-[var(--ww-text-1)] focus:border-cyan-500/30 focus:outline-none" />
+                                    className="w-full px-3 py-2.5 bg-transparent border border-[var(--border)] rounded-md text-lg font-mono font-bold text-[var(--text-1)] focus:border-cyan-500/30 focus:outline-none" />
                             </div>
                         ))}
                     </div>
@@ -108,7 +108,7 @@ export default function RuleConfiguration() {
 
                 {/* Actions */}
                 <div className="flex gap-3">
-                    <button className="flex-1 py-3 text-xs font-mono text-[var(--ww-text-3)] border border-[var(--ww-border)] rounded-md hover:bg-white/[0.02] transition-colors">
+                    <button className="flex-1 py-3 text-xs font-mono text-[var(--text-3)] border border-[var(--border)] rounded-md hover:bg-white/[0.02] transition-colors">
                         RESET DEFAULTS
                     </button>
                     <button onClick={handleSave} className="flex-1 py-3 text-xs font-mono font-bold text-cyan-400 border border-cyan-500/20 bg-cyan-500/[0.06] rounded-md hover:bg-cyan-500/[0.1] transition-colors">

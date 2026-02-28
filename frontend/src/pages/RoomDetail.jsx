@@ -13,8 +13,8 @@ export default function RoomDetail() {
         return (
             <div className="min-h-full flex items-center justify-center">
                 <div className="text-center">
-                    <div className="text-[var(--ww-text-muted)] text-6xl font-mono mb-4">404</div>
-                    <p className="text-[var(--ww-text-3)] text-sm font-mono mb-6">FEED NOT FOUND</p>
+                    <div className="text-[var(--text-4)] text-6xl font-mono mb-4">404</div>
+                    <p className="text-[var(--text-3)] text-sm font-mono mb-6">FEED NOT FOUND</p>
                     <Link to="/campus" className="text-cyan-400 text-xs font-mono hover:underline">← RETURN TO CAMPUS</Link>
                 </div>
             </div>
@@ -26,7 +26,7 @@ export default function RoomDetail() {
             case 'efficient': return { dot: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]', label: 'CLEAR', text: 'text-emerald-400' };
             case 'waste': return { dot: 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.6)] animate-pulse', label: 'ALERT', text: 'text-red-400' };
             case 'review': return { dot: 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]', label: 'REVIEW', text: 'text-amber-400' };
-            default: return { dot: 'bg-slate-400', label: 'UNKNOWN', text: 'text-[var(--ww-text-2)]' };
+            default: return { dot: 'bg-slate-400', label: 'UNKNOWN', text: 'text-[var(--text-2)]' };
         }
     };
 
@@ -39,8 +39,8 @@ export default function RoomDetail() {
             <div className="relative z-10 max-w-[1200px] mx-auto">
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-2 mb-6">
-                    <Link to="/campus" className="text-[var(--ww-text-muted)] text-xs font-mono hover:text-cyan-400 transition-colors">CAMPUS</Link>
-                    <span className="text-[var(--ww-text-muted)] text-xs">/</span>
+                    <Link to="/campus" className="text-[var(--text-4)] text-xs font-mono hover:text-cyan-400 transition-colors">CAMPUS</Link>
+                    <span className="text-[var(--text-4)] text-xs">/</span>
                     <span className="text-cyan-400 text-xs font-mono">{room.name.toUpperCase()}</span>
                 </div>
 
@@ -51,8 +51,8 @@ export default function RoomDetail() {
                             <div className={`w-2.5 h-2.5 rounded-full ${status.dot}`} />
                             <span className={`text-xs font-mono font-bold ${status.text} tracking-[0.15em]`}>{status.label}</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">{room.name}</h1>
-                        <p className="text-[var(--ww-text-3)] text-xs font-mono">{room.type} · {room.building} · {room.monitoring}</p>
+                        <h1 className="text-2xl font-bold text-[var(--text-1)] tracking-tight mb-1">{room.name}</h1>
+                        <p className="text-[var(--text-3)] text-xs font-mono">{room.type} · {room.building} · {room.monitoring}</p>
                     </div>
                 </div>
 
@@ -61,7 +61,7 @@ export default function RoomDetail() {
                     {[
                         { label: 'OCCUPANCY', value: `${room.occupancy}/${room.capacity}`, accent: 'text-cyan-400' },
                         { label: 'POWER DRAW', value: `${room.energyUsage} kWh`, accent: 'text-amber-400' },
-                        { label: 'UTILIZATION', value: `${((room.occupancy / room.capacity) * 100).toFixed(0)}%`, accent: 'text-[var(--ww-text-1)]' },
+                        { label: 'UTILIZATION', value: `${((room.occupancy / room.capacity) * 100).toFixed(0)}%`, accent: 'text-[var(--text-1)]' },
                         { label: 'MONITORING', value: room.monitoring, accent: 'text-emerald-400' },
                     ].map((s, i) => (
                         <motion.div key={i} className="hud-card p-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -83,21 +83,21 @@ export default function RoomDetail() {
                                 { code: 'PJ', label: 'Projector', on: room.appliances.projector },
                                 { code: 'AC', label: 'Air Conditioning', on: room.appliances.ac },
                             ].map((a, i) => (
-                                <div key={i} className={`p-3 rounded-lg border ${a.on ? 'border-amber-500/15 bg-amber-500/[0.03]' : 'border-[var(--ww-border)] bg-white/[0.01]'}`}>
+                                <div key={i} className={`p-3 rounded-lg border ${a.on ? 'border-amber-500/15 bg-amber-500/[0.03]' : 'border-[var(--border)] bg-white/[0.01]'}`}>
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-mono font-bold text-[var(--ww-text-1)]">{a.code}</span>
+                                        <span className="text-xs font-mono font-bold text-[var(--text-1)]">{a.code}</span>
                                         <div className={`w-2 h-2 rounded-full ${a.on ? 'bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.5)]' : 'bg-slate-700'}`} />
                                     </div>
-                                    <div className="text-[10px] font-mono text-[var(--ww-text-3)]">{a.label}</div>
-                                    <div className={`text-[9px] font-mono font-bold mt-1 tracking-wider ${a.on ? 'text-amber-400' : 'text-[var(--ww-text-muted)]'}`}>{a.on ? 'ACTIVE' : 'INACTIVE'}</div>
+                                    <div className="text-[10px] font-mono text-[var(--text-3)]">{a.label}</div>
+                                    <div className={`text-[9px] font-mono font-bold mt-1 tracking-wider ${a.on ? 'text-amber-400' : 'text-[var(--text-4)]'}`}>{a.on ? 'ACTIVE' : 'INACTIVE'}</div>
                                 </div>
                             ))}
                             {room.appliances.desktops > 0 && (
                                 <div className="p-3 rounded-lg border border-cyan-500/15 bg-cyan-500/[0.03] col-span-3">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <span className="text-xs font-mono font-bold text-[var(--ww-text-1)]">DESKTOP ARRAY</span>
-                                            <div className="text-[10px] font-mono text-[var(--ww-text-3)] mt-0.5">{room.appliances.desktops} units active</div>
+                                            <span className="text-xs font-mono font-bold text-[var(--text-1)]">DESKTOP ARRAY</span>
+                                            <div className="text-[10px] font-mono text-[var(--text-3)] mt-0.5">{room.appliances.desktops} units active</div>
                                         </div>
                                         <div className="text-right">
                                             {room.desktopDetails && (
@@ -121,12 +121,12 @@ export default function RoomDetail() {
                                     initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.08 }}>
                                     <span className="text-sm mt-0.5">{event.icon}</span>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-xs text-[var(--ww-text-2)] truncate">{event.message}</p>
-                                        <p className="text-[9px] font-mono text-[var(--ww-text-muted)]">{formatTime(event.time)}</p>
+                                        <p className="text-xs text-[var(--text-2)] truncate">{event.message}</p>
+                                        <p className="text-[9px] font-mono text-[var(--text-4)]">{formatTime(event.time)}</p>
                                     </div>
                                 </motion.div>
                             )) : (
-                                <p className="text-xs text-[var(--ww-text-muted)] font-mono text-center py-4">NO RECENT ACTIVITY</p>
+                                <p className="text-xs text-[var(--text-4)] font-mono text-center py-4">NO RECENT ACTIVITY</p>
                             )}
                         </div>
                     </div>
@@ -137,7 +137,7 @@ export default function RoomDetail() {
                     <div className="hud-card p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                            <span className="text-xs font-mono text-[var(--ww-text-2)]">Camera feed active · Privacy protocols enforced</span>
+                            <span className="text-xs font-mono text-[var(--text-2)]">Camera feed active · Privacy protocols enforced</span>
                         </div>
                         <Link to="/ghost-view" className="text-[10px] font-mono text-cyan-400 hover:underline tracking-wider">GHOST MODE →</Link>
                     </div>

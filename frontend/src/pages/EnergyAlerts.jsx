@@ -21,7 +21,7 @@ export default function EnergyAlerts() {
             case 'high': return { dot: 'bg-red-400 animate-pulse', text: 'text-red-400', border: 'border-red-500/15', label: 'HIGH' };
             case 'medium': return { dot: 'bg-amber-400', text: 'text-amber-400', border: 'border-amber-500/15', label: 'MED' };
             case 'low': return { dot: 'bg-blue-400', text: 'text-blue-400', border: 'border-blue-500/15', label: 'LOW' };
-            default: return { dot: 'bg-slate-400', text: 'text-[var(--ww-text-2)]', border: 'border-[var(--ww-border)]', label: '—' };
+            default: return { dot: 'bg-slate-400', text: 'text-[var(--text-2)]', border: 'border-[var(--border)]', label: '—' };
         }
     };
 
@@ -43,17 +43,17 @@ export default function EnergyAlerts() {
                             <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
                             <span className="hud-label">ACTIVE ALERTS</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Energy Alerts</h1>
-                        <p className="text-xs font-mono text-[var(--ww-text-3)]">Waste detection feed · {filteredAlerts.length} active</p>
+                        <h1 className="text-2xl font-bold text-[var(--text-1)] tracking-tight mb-1">Energy Alerts</h1>
+                        <p className="text-xs font-mono text-[var(--text-3)]">Waste detection feed · {filteredAlerts.length} active</p>
                     </div>
                     <div className="flex gap-3">
                         <div className="hud-card px-4 py-3 text-center">
                             <div className="text-xl font-mono font-bold text-red-400">{filteredAlerts.length}</div>
-                            <div className="text-[8px] font-mono text-[var(--ww-text-muted)]">ALERTS</div>
+                            <div className="text-[8px] font-mono text-[var(--text-4)]">ALERTS</div>
                         </div>
                         <div className="hud-card px-4 py-3 text-center">
                             <div className="text-xl font-mono font-bold text-amber-400">{totalWaste.toFixed(1)}</div>
-                            <div className="text-[8px] font-mono text-[var(--ww-text-muted)]">kWh WASTE</div>
+                            <div className="text-[8px] font-mono text-[var(--text-4)]">kWh WASTE</div>
                         </div>
                     </div>
                 </div>
@@ -62,11 +62,11 @@ export default function EnergyAlerts() {
                 <div className="hud-card p-3 flex items-center gap-4 mb-6">
                     <span className="hud-label">FILTER</span>
                     <select value={filterBuilding} onChange={(e) => setFilterBuilding(e.target.value)}
-                        className="px-3 py-1.5 bg-transparent border border-[var(--ww-border)] rounded-md text-xs font-mono text-[var(--ww-text-2)] focus:border-cyan-500/30 focus:outline-none">
+                        className="px-3 py-1.5 bg-transparent border border-[var(--border)] rounded-md text-xs font-mono text-[var(--text-2)] focus:border-cyan-500/30 focus:outline-none">
                         {buildings.map(b => <option key={b} value={b} className="bg-slate-900">{b === 'all' ? 'All Buildings' : b}</option>)}
                     </select>
                     <select value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)}
-                        className="px-3 py-1.5 bg-transparent border border-[var(--ww-border)] rounded-md text-xs font-mono text-[var(--ww-text-2)] focus:border-cyan-500/30 focus:outline-none">
+                        className="px-3 py-1.5 bg-transparent border border-[var(--border)] rounded-md text-xs font-mono text-[var(--text-2)] focus:border-cyan-500/30 focus:outline-none">
                         <option value="all" className="bg-slate-900">All Severity</option>
                         <option value="high" className="bg-slate-900">High</option>
                         <option value="medium" className="bg-slate-900">Medium</option>
@@ -78,8 +78,8 @@ export default function EnergyAlerts() {
                 <div className="space-y-3">
                     {filteredAlerts.length === 0 ? (
                         <div className="hud-card p-12 text-center">
-                            <div className="text-2xl text-[var(--ww-text-muted)] mb-2">◉</div>
-                            <span className="text-xs font-mono text-[var(--ww-text-muted)]">NO ALERTS MATCHING CRITERIA</span>
+                            <div className="text-2xl text-[var(--text-4)] mb-2">◉</div>
+                            <span className="text-xs font-mono text-[var(--text-4)]">NO ALERTS MATCHING CRITERIA</span>
                         </div>
                     ) : filteredAlerts.map((alert, i) => {
                         const sev = getSeverity(alert.severity);
@@ -90,13 +90,13 @@ export default function EnergyAlerts() {
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center gap-2.5">
                                             <div className={`w-2 h-2 rounded-full ${sev.dot}`} />
-                                            <span className="text-sm font-semibold text-[var(--ww-text-1)]">{alert.roomName}</span>
+                                            <span className="text-sm font-semibold text-[var(--text-1)]">{alert.roomName}</span>
                                             <span className={`text-[9px] font-mono font-bold ${sev.text} tracking-wider`}>{sev.label}</span>
                                         </div>
-                                        <span className="text-[9px] font-mono text-[var(--ww-text-muted)]">{formatTime(alert.timestamp)}</span>
+                                        <span className="text-[9px] font-mono text-[var(--text-4)]">{formatTime(alert.timestamp)}</span>
                                     </div>
 
-                                    <p className="text-xs font-mono text-[var(--ww-text-2)] mb-3 leading-relaxed">{alert.issue}</p>
+                                    <p className="text-xs font-mono text-[var(--text-2)] mb-3 leading-relaxed">{alert.issue}</p>
 
                                     <div className="flex items-center gap-4 mb-3">
                                         {[
@@ -106,8 +106,8 @@ export default function EnergyAlerts() {
                                             { l: 'Building', v: alert.building },
                                         ].map((m, j) => (
                                             <div key={j} className="flex items-center gap-1.5">
-                                                <span className="text-[8px] font-mono text-[var(--ww-text-muted)]">{m.l}:</span>
-                                                <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{m.v}</span>
+                                                <span className="text-[8px] font-mono text-[var(--text-4)]">{m.l}:</span>
+                                                <span className="text-[10px] font-mono text-[var(--text-2)]">{m.v}</span>
                                             </div>
                                         ))}
                                     </div>

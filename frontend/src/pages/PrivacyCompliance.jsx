@@ -17,8 +17,8 @@ export default function PrivacyCompliance() {
                         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="hud-label">COMPLIANCE</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Privacy & Data Governance</h1>
-                    <p className="text-xs font-mono text-[var(--ww-text-3)]">Transparent data practices · Privacy-by-design architecture</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-1)] tracking-tight mb-1">Privacy & Data Governance</h1>
+                    <p className="text-xs font-mono text-[var(--text-3)]">Transparent data practices · Privacy-by-design architecture</p>
                 </div>
 
                 {/* Mission */}
@@ -27,9 +27,9 @@ export default function PrivacyCompliance() {
                         <div className="w-6 h-6 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                             <span className="text-xs text-emerald-400">✓</span>
                         </div>
-                        <span className="text-sm font-semibold text-[var(--ww-text-1)]">Privacy-First Approach</span>
+                        <span className="text-sm font-semibold text-[var(--text-1)]">Privacy-First Approach</span>
                     </div>
-                    <p className="text-xs font-mono text-[var(--ww-text-2)] leading-relaxed">
+                    <p className="text-xs font-mono text-[var(--text-2)] leading-relaxed">
                         Watt-Watch collects only minimum data necessary for energy monitoring. No identifiable information is stored. All video processing happens locally and is immediately discarded.
                     </p>
                 </div>
@@ -38,24 +38,24 @@ export default function PrivacyCompliance() {
                 <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="hud-card p-5">
                         <div className="hud-label mb-3">CAMERA MONITORING</div>
-                        <div className="text-3xl font-mono font-bold text-[var(--ww-text-1)] mb-3">{cameraRooms.length}</div>
+                        <div className="text-3xl font-mono font-bold text-[var(--text-1)] mb-3">{cameraRooms.length}</div>
                         <div className="space-y-1.5">
                             {cameraRooms.map(room => (
                                 <div key={room.id} className="flex items-center gap-2 py-1.5 px-2 bg-white/[0.01] rounded-md">
                                     <div className="w-1 h-1 rounded-full bg-purple-400" />
-                                    <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{room.name}</span>
+                                    <span className="text-[10px] font-mono text-[var(--text-2)]">{room.name}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                     <div className="hud-card p-5">
                         <div className="hud-label mb-3">NON-CAMERA METHODS</div>
-                        <div className="text-3xl font-mono font-bold text-[var(--ww-text-1)] mb-3">{nonCameraRooms.length}</div>
+                        <div className="text-3xl font-mono font-bold text-[var(--text-1)] mb-3">{nonCameraRooms.length}</div>
                         <div className="space-y-1.5">
                             {['Smart Plug Monitoring', 'Sensor-Based Detection', 'Schedule-Based Analysis'].map((s, i) => (
                                 <div key={i} className="flex items-center gap-2 py-1.5 px-2 bg-white/[0.01] rounded-md">
                                     <div className="w-1 h-1 rounded-full bg-emerald-400" />
-                                    <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{s}</span>
+                                    <span className="text-[10px] font-mono text-[var(--text-2)]">{s}</span>
                                 </div>
                             ))}
                         </div>
@@ -72,7 +72,7 @@ export default function PrivacyCompliance() {
                         {['Anonymous occupancy count', 'Room temperature & light levels', 'Appliance power consumption', 'Entry/exit timestamps (no ID)', 'Aggregate energy metrics'].map((item, i) => (
                             <motion.div key={i} className="flex items-center gap-2 py-1.5" initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.05 }}>
                                 <div className="w-1 h-1 rounded-full bg-emerald-400" />
-                                <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{item}</span>
+                                <span className="text-[10px] font-mono text-[var(--text-2)]">{item}</span>
                             </motion.div>
                         ))}
                     </div>
@@ -84,7 +84,7 @@ export default function PrivacyCompliance() {
                         {['Facial recognition or biometrics', 'Individual identity data', 'Video recordings or images', 'Personal device tracking', 'Audio recordings'].map((item, i) => (
                             <motion.div key={i} className="flex items-center gap-2 py-1.5" initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.05 }}>
                                 <div className="w-1 h-1 rounded-full bg-red-400" />
-                                <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{item}</span>
+                                <span className="text-[10px] font-mono text-[var(--text-2)]">{item}</span>
                             </motion.div>
                         ))}
                     </div>
@@ -106,9 +106,9 @@ export default function PrivacyCompliance() {
                                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="text-[9px] font-mono text-cyan-400">{p.n}</span>
-                                    <span className="text-xs font-semibold text-[var(--ww-text-1)]">{p.title}</span>
+                                    <span className="text-xs font-semibold text-[var(--text-1)]">{p.title}</span>
                                 </div>
-                                <p className="text-[10px] font-mono text-[var(--ww-text-muted)] leading-relaxed">{p.desc}</p>
+                                <p className="text-[10px] font-mono text-[var(--text-4)] leading-relaxed">{p.desc}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -124,7 +124,7 @@ export default function PrivacyCompliance() {
                     ].map((std, i) => (
                         <div key={i} className="hud-card p-4 text-center">
                             <div className="text-sm font-mono font-bold text-emerald-400 mb-1">{std.t}</div>
-                            <div className="text-[9px] font-mono text-[var(--ww-text-muted)]">{std.s}</div>
+                            <div className="text-[9px] font-mono text-[var(--text-4)]">{std.s}</div>
                             <div className="corner-bracket corner-bracket-tl" />
                             <div className="corner-bracket corner-bracket-br" />
                         </div>
@@ -133,8 +133,8 @@ export default function PrivacyCompliance() {
 
                 {/* Contact */}
                 <div className="hud-card p-5 text-center">
-                    <div className="text-sm font-semibold text-[var(--ww-text-1)] mb-2">Privacy Team Available</div>
-                    <p className="text-[10px] font-mono text-[var(--ww-text-3)] mb-3">Questions about data handling or compliance?</p>
+                    <div className="text-sm font-semibold text-[var(--text-1)] mb-2">Privacy Team Available</div>
+                    <p className="text-[10px] font-mono text-[var(--text-3)] mb-3">Questions about data handling or compliance?</p>
                     <button className="text-[10px] font-mono text-cyan-400 px-4 py-2 border border-cyan-500/20 rounded-md hover:bg-cyan-500/[0.04] transition-colors">
                         CONTACT PRIVACY TEAM
                     </button>

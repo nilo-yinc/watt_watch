@@ -4,76 +4,67 @@ import {
 } from 'recharts';
 import { useTheme } from '../context/ThemeContext';
 
-const CHART_COLORS = {
-    waste: '#ef4444',
-    saved: '#22c55e',
-    occupancy: '#3b82f6',
-};
-
-/** Custom tooltip with glassmorphism styling. */
-function CustomTooltip({ active, payload, label }) {
-    if (!active || !payload?.length) return null;
-    return (
-        <div className="glass px-4 py-3 text-xs shadow-xl">
-            <p className="font-medium text-[var(--ww-text-1)] mb-1.5">{label}</p>
-            {payload.map((entry, i) => (
-                <p key={i} style={{ color: entry.color }} className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ background: entry.color }} />
-                    {entry.name}: <span className="font-semibold">{entry.value} Wh</span>
-                </p>
-            ))}
-        </div>
-    );
-}
-
-/**
- * Energy chart component — supports 'area' and 'bar' variants.
- * @param {{ data: object[], variant?: 'area' | 'bar', title?: string }} props
- */
-export default function EnergyChart({ data, variant = 'area', title }) {
+export default function EnergyChart({ data = [], variant = 'area', title }) {
     const { isDark } = useTheme();
-    const xKey = data?.[0]?.hour !== undefined ? 'hour' : 'day';
 
-    const gridColor = isDark ? '#1e2330' : '#d8e4f0';
-    const tickColor = isDark ? '#8694ab' : '#64748b';
+    const grid = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(14,26,48,0.06)';
+    const tick = isDark ? '#6879a0' : '#96a5c4';
+    const tooltip = {
+        contentStyle: {
+            background: isDark ? '#111827' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#e2e7f5'}`,
+            borderRadius: '10px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+            fontSize: '0.8125rem',
+            color: isDark ? '#e8eeff' : '#0e1a30',
+        },
+        cursor: { fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' },
+    };
+
+    const fmt = (v) => `${v} Wh`;
 
     return (
-        <div className="glass p-5">
-            {title && <h3 className="text-sm font-semibold text-[var(--ww-text-1)] mb-4">{title}</h3>}
-
-            <ResponsiveContainer width="100%" height={260}>
-                {variant === 'area' ? (
-                    <AreaChart data={data} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}>
-                        <defs>
-                            <linearGradient id="wasteGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={CHART_COLORS.waste} stopOpacity={0.3} />
-                                <stop offset="95%" stopColor={CHART_COLORS.waste} stopOpacity={0} />
-                            </linearGradient>
-                            <linearGradient id="savedGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={CHART_COLORS.saved} stopOpacity={0.3} />
-                                <stop offset="95%" stopColor={CHART_COLORS.saved} stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                        <XAxis dataKey={xKey} tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend wrapperStyle={{ fontSize: 12, color: tickColor }} />
-                        <Area type="monotone" dataKey="waste" name="Wasted" stroke={CHART_COLORS.waste} fill="url(#wasteGrad)" strokeWidth={2} />
-                        <Area type="monotone" dataKey="saved" name="Saved" stroke={CHART_COLORS.saved} fill="url(#savedGrad)" strokeWidth={2} />
-                    </AreaChart>
-                ) : (
-                    <BarChart data={data} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                        <XAxis dataKey={xKey} tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fontSize: 11, fill: tickColor }} axisLine={false} tickLine={false} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend wrapperStyle={{ fontSize: 12, color: tickColor }} />
-                        <Bar dataKey="waste" name="Wasted" fill={CHART_COLORS.waste} radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="saved" name="Saved" fill={CHART_COLORS.saved} radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                )}
-            </ResponsiveContainer>
+        <div style={{ width: '100%' }}>
+            {title && (
+                <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-1)', marginBottom: '0.875rem' }}>
+                    {title}
+                </p>
+            )}
+            <div style={{ width: '100%', height: 220 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    {variant === 'area' ? (
+                        <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                            <defs>
+                                <linearGradient id="wasteGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.22} />
+                                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                                </linearGradient>
+                                <linearGradient id="savedGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.22} />
+                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="4 4" stroke={grid} vertical={false} />
+                            <XAxis dataKey="hour" stroke="none" tick={{ fill: tick, fontSize: 11 }} tickLine={false} />
+                            <YAxis stroke="none" tick={{ fill: tick, fontSize: 11 }} tickLine={false} tickFormatter={fmt} />
+                            <Tooltip {...tooltip} formatter={fmt} />
+                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '0.75rem', paddingTop: '0.5rem' }} />
+                            <Area type="monotone" dataKey="waste" name="Wasted" stroke="#ef4444" strokeWidth={2} fill="url(#wasteGrad)" dot={false} />
+                            <Area type="monotone" dataKey="saved" name="Saved" stroke="#10b981" strokeWidth={2} fill="url(#savedGrad)" dot={false} />
+                        </AreaChart>
+                    ) : (
+                        <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="4 4" stroke={grid} vertical={false} />
+                            <XAxis dataKey={data[0]?.hour !== undefined ? 'hour' : 'name'} stroke="none" tick={{ fill: tick, fontSize: 11 }} tickLine={false} />
+                            <YAxis stroke="none" tick={{ fill: tick, fontSize: 11 }} tickLine={false} />
+                            <Tooltip {...tooltip} />
+                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '0.75rem', paddingTop: '0.5rem' }} />
+                            <Bar dataKey="waste" name="Wasted" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="saved" name="Saved" fill="#10b981" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    )}
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 }
