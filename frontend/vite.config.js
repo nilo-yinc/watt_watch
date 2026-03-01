@@ -12,6 +12,11 @@ export default defineConfig({
     server: {
         port: 5173,
         proxy: {
+            '/esp32': {
+                target: 'http://10.20.79.174',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/esp32/, ''),
+            },
             '/api': {
                 target: 'http://localhost:8000',
                 changeOrigin: true,
