@@ -26,6 +26,8 @@ def draw_boxes(frame, boxes):
 
 def main():
     cap = get_camera()
+    prev_light_state = None
+    prev_fan_state = None
 
     while True:
         ret, frame = cap.read()
@@ -71,9 +73,19 @@ def main():
             end=""
         )
 
-        ## Publish mqtt event on state change 
-        mqtt.publish_command("wattwatch/room101/lights/cmd",
-                     "OFF" if waste_detected else "ON")
+        # ===== Device Control with State Tracking =====
+
+        light_state = "OFF" if waste_detected else "ON"
+        fan_state   = "OFF" if waste_detected else "ON"
+
+        # Publish only when state changes
+        if light_state != prev_light_state:
+            mqtt.publish_command("wattwatch/room101/lights/cmd", light_state)
+            prev_light_state = light_state
+
+        if fan_state != prev_fan_state:
+            mqtt.publish_command("wattwatch/room101/fan/cmd", fan_state)
+            prev_fan_state = fan_state
 
         # Draw boxes
         draw_boxes(frame, boxes)
