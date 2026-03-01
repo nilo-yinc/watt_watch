@@ -1,4 +1,7 @@
-ultralytics
+fastapi
+uvicorn
 opencv-python
+numpy
 paho-mqtt
-requests
+pydantic
+ultralytics
