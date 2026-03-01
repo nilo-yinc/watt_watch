@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { rooms } from '../data/mockData';
 import { Spotlight } from '../components/ui/spotlight';
+import { useESP32 } from '../hooks/useESP32';
 
 export default function ManualControl() {
     const [selectedRoom, setSelectedRoom] = useState('');
@@ -9,6 +10,8 @@ export default function ManualControl() {
 
     const selectedRoomData = rooms.find(r => r.id === selectedRoom);
     const canTakeAction = selectedRoomData && selectedRoomData.occupancy === 0;
+    const isTestRoom = selectedRoom === 'test-room';
+    const esp32 = useESP32(isTestRoom);
 
     const handleAction = (action) => { setActionType(action); setShowModal(true); };
 
@@ -105,6 +108,71 @@ export default function ManualControl() {
                                     <div className="text-[10px] font-mono text-[var(--text-3)]">{a.label}</div>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* ESP32 IoT Control — test-room only */}
+                {isTestRoom && (
+                    <div className="hud-card p-5 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="hud-label">IOT DEVICE CONTROL</div>
+                            <span className={`text-[9px] font-mono font-bold tracking-wider px-2 py-1 rounded ${esp32.connectionStatus === 'connected'
+                                    ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
+                                    : esp32.connectionStatus === 'disconnected'
+                                        ? 'text-red-400 bg-red-500/10 border border-red-500/20'
+                                        : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'
+                                }`}>
+                                {esp32.connectionStatus === 'connected' ? 'ESP32 ONLINE' : esp32.connectionStatus === 'disconnected' ? 'ESP32 OFFLINE' : 'CONNECTING'}
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Lights */}
+                            <div className={`p-4 rounded-md border ${esp32.ledState ? 'border-amber-500/15 bg-amber-500/[0.03]' : 'border-[var(--border)]'}`}>
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="text-xs font-mono font-bold text-[var(--text-1)]">LT</span>
+                                    <div className={`w-2 h-2 rounded-full ${esp32.ledState ? 'bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.5)]' : 'bg-slate-700'}`} />
+                                </div>
+                                <div className="text-[10px] font-mono text-[var(--text-3)] mb-1">Lights</div>
+                                <div className={`text-[9px] font-mono font-bold mb-3 tracking-wider ${esp32.ledState ? 'text-amber-400' : 'text-[var(--text-4)]'}`}>
+                                    {esp32.ledState ? 'ACTIVE' : 'INACTIVE'}
+                                </div>
+                                <div className="flex gap-1.5">
+                                    <button onClick={() => esp32.controlLED('on')} disabled={esp32.isLoading}
+                                        className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border bg-emerald-500/[0.06] text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/[0.12] disabled:opacity-40 transition-colors">ON</button>
+                                    <button onClick={() => esp32.controlLED('off')} disabled={esp32.isLoading}
+                                        className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border bg-red-500/[0.06] text-red-400 border-red-500/20 hover:bg-red-500/[0.12] disabled:opacity-40 transition-colors">OFF</button>
+                                    <button onClick={() => esp32.controlLED('toggle')} disabled={esp32.isLoading}
+                                        className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border bg-cyan-500/[0.06] text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/[0.12] disabled:opacity-40 transition-colors">TOGGLE</button>
+                                </div>
+                            </div>
+                            {/* Fan */}
+                            <div className={`p-4 rounded-md border ${esp32.fanState ? 'border-amber-500/15 bg-amber-500/[0.03]' : 'border-[var(--border)]'}`}>
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="text-xs font-mono font-bold text-[var(--text-1)]">FN</span>
+                                    <div className={`w-2 h-2 rounded-full ${esp32.fanState ? 'bg-amber-400 shadow-[0_0_4px_rgba(251,191,36,0.5)]' : 'bg-slate-700'}`} />
+                                </div>
+                                <div className="text-[10px] font-mono text-[var(--text-3)] mb-1">Fan</div>
+                                <div className={`text-[9px] font-mono font-bold mb-3 tracking-wider ${esp32.fanState ? 'text-amber-400' : 'text-[var(--text-4)]'}`}>
+                                    {esp32.fanState ? 'ACTIVE' : 'INACTIVE'}
+                                </div>
+                                <div className="flex gap-1.5">
+                                    <button onClick={() => esp32.controlFan('on')} disabled={esp32.isLoading}
+                                        className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border bg-emerald-500/[0.06] text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/[0.12] disabled:opacity-40 transition-colors">ON</button>
+                                    <button onClick={() => esp32.controlFan('off')} disabled={esp32.isLoading}
+                                        className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border bg-red-500/[0.06] text-red-400 border-red-500/20 hover:bg-red-500/[0.12] disabled:opacity-40 transition-colors">OFF</button>
+                                    <button onClick={() => esp32.controlFan('toggle')} disabled={esp32.isLoading}
+                                        className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border bg-cyan-500/[0.06] text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/[0.12] disabled:opacity-40 transition-colors">TOGGLE</button>
+                                </div>
+                            </div>
+                        </div>
+                        {esp32.lastMessage && (
+                            <div className={`mt-3 text-[9px] font-mono px-2 py-1.5 rounded ${esp32.lastMessage.includes('Failed') ? 'text-red-400 bg-red-500/10' : 'text-cyan-400 bg-cyan-500/10'}`}>
+                                {esp32.lastMessage}
+                            </div>
+                        )}
+                        <div className="mt-3 text-[8px] font-mono text-[var(--text-4)]">
+                            ESP32 IP: {esp32.espIp} · Auto-refresh: 5s
                         </div>
                     </div>
                 )}

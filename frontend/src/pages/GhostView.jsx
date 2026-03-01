@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Spotlight } from '../components/ui/spotlight';
 import { useRooms } from '../hooks/useRooms';
 import { useApp } from '../context/AppContext';
+import { useESP32 } from '../hooks/useESP32';
 import { rooms as mockRooms } from '../data/mockData';
 
 export default function GhostView() {
@@ -14,6 +15,10 @@ export default function GhostView() {
     const [timeNow, setTimeNow] = useState(Date.now());
     const videoRef = useRef(null);
     const streamRef = useRef(null);
+
+    // ESP32 IoT — only enabled when test-room is selected
+    const isTestRoom = selectedRoom === 'test-room';
+    const esp32 = useESP32(isTestRoom);
 
     // Merge live rooms + mockData rooms, deduplicate by id, all rooms included
     const allRooms = useMemo(() => {
@@ -190,13 +195,7 @@ export default function GhostView() {
                         <span className="hud-label">PRIVACY MODE</span>
                     </div>
                     <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Ghost View</h1>
-<<<<<<< HEAD
-                    <p className="text-xs font-mono text-[var(--ww-text-3)]">
-                        Anonymized surveillance feed - No PII stored
-                    </p>
-=======
-                    <p className="text-xs font-mono text-[var(--ww-text-3)]">Anonymized surveillance feed · No PII stored</p>
->>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
+                    <p className="text-xs font-mono text-[var(--ww-text-3)]">Anonymized surveillance feed - No PII stored</p>
                 </div>
 
                 <div className="hud-card p-4 mb-6">
@@ -261,12 +260,7 @@ export default function GhostView() {
                                 {dataOnlyMode ? (
                                     <div className="flex items-center justify-center p-12" style={{ minHeight: '360px' }}>
                                         <div className="text-center">
-<<<<<<< HEAD
                                             <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">[X]</div>
-                                            <p className="text-xs font-mono text-[var(--ww-text-3)] mb-2">VISUAL FEED DISABLED</p>
-                                            <p className="text-[10px] font-mono text-[var(--ww-text-muted)]">Data-only mode active. Check side panel for live metrics.</p>
-=======
-                                            <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">◉</div>
                                             <p className="text-xs font-mono text-[var(--ww-text-3)] mb-6">VISUAL FEED DISABLED</p>
                                             <div className="grid grid-cols-3 gap-4">
                                                 {[
@@ -284,7 +278,6 @@ export default function GhostView() {
                                                     </div>
                                                 ))}
                                             </div>
->>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
                                         </div>
                                     </div>
                                 ) : (
@@ -365,18 +358,11 @@ export default function GhostView() {
                                     { label: 'Monitoring', val: activeRoom.monitoring || 'CCTV' },
                                     { label: 'Power Draw', val: `${totalPower}W`, accent: totalPower > 0 ? 'text-amber-400' : '' },
                                     { label: 'Status', val: statusText, accent: statusClass },
-<<<<<<< HEAD
                                     { label: 'Backend', val: backendOnline ? 'ONLINE' : 'OFFLINE', accent: backendOnline ? 'text-emerald-400' : 'text-red-400' },
-                                ].map((s, i) => (
-                                    <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0">
-                                        <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{s.label}</span>
-                                        <span className={`text-xs font-mono font-bold ${s.accent || 'text-[var(--ww-text-1)]'}`}>{s.val}</span>
-=======
                                 ].map((stat, index) => (
                                     <div key={index} className="flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0">
                                         <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{stat.label}</span>
                                         <span className={`text-xs font-mono font-bold ${stat.accent || 'text-[var(--ww-text-1)]'}`}>{stat.val}</span>
->>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
                                     </div>
                                 ))}
                             </div>
@@ -391,14 +377,12 @@ export default function GhostView() {
                                     </div>
                                 ))}
                             </div>
-<<<<<<< HEAD
-=======
 
                             <div className="hud-card p-4">
                                 <div className="hud-label mb-3">APPLIANCES</div>
                                 {[
-                                    { label: 'Lights', on: activeRoom.appliances?.lights },
-                                    { label: 'Fan', on: activeRoom.appliances?.fan },
+                                    { label: 'Lights', on: isTestRoom ? esp32.ledState : activeRoom.appliances?.lights },
+                                    { label: 'Fan', on: isTestRoom ? esp32.fanState : activeRoom.appliances?.fan },
                                     { label: 'Projector', on: activeRoom.appliances?.projector },
                                     { label: 'AC', on: activeRoom.appliances?.ac },
                                     { label: 'Monitors', on: activeRoom.appliances?.monitors },
@@ -411,7 +395,87 @@ export default function GhostView() {
                                     </div>
                                 ))}
                             </div>
->>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
+
+                            {/* IoT Device Control — test-room only */}
+                            {isTestRoom && (
+                                <div className="hud-card p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="hud-label">IOT CONTROL</div>
+                                        <span className={`text-[8px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded ${esp32.connectionStatus === 'connected'
+                                                ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
+                                                : esp32.connectionStatus === 'disconnected'
+                                                    ? 'text-red-400 bg-red-500/10 border border-red-500/20'
+                                                    : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'
+                                            }`}>
+                                            {esp32.connectionStatus === 'connected' ? 'ESP32 ONLINE' : esp32.connectionStatus === 'disconnected' ? 'ESP32 OFFLINE' : 'CONNECTING'}
+                                        </span>
+                                    </div>
+
+                                    {/* Lights */}
+                                    <div className="mb-3">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-[10px] font-mono text-[var(--ww-text-2)]">Lights</span>
+                                            <span className={`text-[9px] font-mono font-bold ${esp32.ledState ? 'text-amber-400' : 'text-[var(--ww-text-muted)]'}`}>
+                                                {esp32.ledState ? 'ON' : 'OFF'}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-1.5">
+                                            <button
+                                                onClick={() => esp32.controlLED('on')}
+                                                disabled={esp32.isLoading}
+                                                className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border transition-colors bg-emerald-500/[0.06] text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/[0.12] disabled:opacity-40"
+                                            >ON</button>
+                                            <button
+                                                onClick={() => esp32.controlLED('off')}
+                                                disabled={esp32.isLoading}
+                                                className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border transition-colors bg-red-500/[0.06] text-red-400 border-red-500/20 hover:bg-red-500/[0.12] disabled:opacity-40"
+                                            >OFF</button>
+                                            <button
+                                                onClick={() => esp32.controlLED('toggle')}
+                                                disabled={esp32.isLoading}
+                                                className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border transition-colors bg-cyan-500/[0.06] text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/[0.12] disabled:opacity-40"
+                                            >TOGGLE</button>
+                                        </div>
+                                    </div>
+
+                                    {/* Fan */}
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-[10px] font-mono text-[var(--ww-text-2)]">Fan</span>
+                                            <span className={`text-[9px] font-mono font-bold ${esp32.fanState ? 'text-amber-400' : 'text-[var(--ww-text-muted)]'}`}>
+                                                {esp32.fanState ? 'ON' : 'OFF'}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-1.5">
+                                            <button
+                                                onClick={() => esp32.controlFan('on')}
+                                                disabled={esp32.isLoading}
+                                                className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border transition-colors bg-emerald-500/[0.06] text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/[0.12] disabled:opacity-40"
+                                            >ON</button>
+                                            <button
+                                                onClick={() => esp32.controlFan('off')}
+                                                disabled={esp32.isLoading}
+                                                className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border transition-colors bg-red-500/[0.06] text-red-400 border-red-500/20 hover:bg-red-500/[0.12] disabled:opacity-40"
+                                            >OFF</button>
+                                            <button
+                                                onClick={() => esp32.controlFan('toggle')}
+                                                disabled={esp32.isLoading}
+                                                className="flex-1 py-1.5 text-[9px] font-mono font-bold rounded border transition-colors bg-cyan-500/[0.06] text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/[0.12] disabled:opacity-40"
+                                            >TOGGLE</button>
+                                        </div>
+                                    </div>
+
+                                    {esp32.lastMessage && (
+                                        <div className={`mt-2 text-[8px] font-mono px-2 py-1 rounded ${esp32.lastMessage.includes('Failed') ? 'text-red-400 bg-red-500/10' : 'text-cyan-400 bg-cyan-500/10'}`}>
+                                            {esp32.lastMessage}
+                                        </div>
+                                    )}
+
+                                    <div className="mt-2 text-[8px] font-mono text-[var(--ww-text-muted)]">
+                                        ESP32 IP: {esp32.espIp}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
