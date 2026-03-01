@@ -1,0 +1,63 @@
+# ========================
+# Watt-Watch Backend .gitignore
+# ========================
+
+# --- Python bytecode ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+.Python
+
+# --- Distribution / Packaging ---
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+*.tar.gz
+
+# --- Environment variables ---
+.env
+.env.local
+.env.*.local
+
+# --- Testing / Coverage ---
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# --- MyPy / Type checking ---
+.mypy_cache/
+.dmypy.json
+
+# --- Ruff / Linting ---
+.ruff_cache/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Database ---
+*.db
+*.sqlite3
