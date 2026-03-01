@@ -9,6 +9,7 @@ from app.logic.engine import WasteDetector
 from app.mqtt.client import MQTTClient
 from app.config import FRAME_WIDTH, FRAME_HEIGHT
 from app.config import JPEG_QUALITY
+from app.cv.face_detector import detect_faces
 from app.metrics.evaluator import Evaluator 
 
 # Initialize logic engine with delay (seconds)
@@ -42,29 +43,33 @@ def main():
         # ===== Detection =====
         person_count, boxes = detect_people(frame)
         appliance_on, brightness = detect_appliance(frame)
+        face_count, face_boxes = detect_faces(frame)
 
+        ## ====Occupancy Logic====
+        occupied = (person_count > 0) or (face_count > 0)
+        effective_person_count = 1 if occupied else 0    
         # ===== Privacy =====
         frame = blur_people(frame, boxes)
 
         # ===== Logic Engine =====
-        waste_detected = logic.update(person_count, appliance_on)
+        waste_detected = logic.update(effective_person_count, appliance_on)
         latency = time.time() - start_time
+        # ===== Auto Ground Truth for Real-Time Metrics =====
+        # Define expected correct behavior
+        ground_truth = 1 if (not occupied and appliance_on) else 0
 
-        # Temporary manual ground truth input
-        key = cv2.waitKey(1) & 0xFF
+        # Update evaluator every frame
+        evaluator.update(ground_truth, int(waste_detected))
 
-        # Press W = waste scenario
-        # Press S = secure scenario
-        ground_truth = None
-
-        if key == ord('w'): 
-            ground_truth = 1
-        elif key == ord('s'):
-            ground_truth = 0
-
-        if ground_truth is not None:
-            evaluator.update(ground_truth, int(waste_detected))
-        print("Metrics:", evaluator.compute())
+        # Compute metrics
+        metrics = evaluator.compute()
+        print(
+            f"\rF1: {metrics['F1 Score']:.2f} | "
+            f"Precision: {metrics['Precision']:.2f} | "
+            f"Recall: {metrics['Recall']:.2f} | "
+            f"False Trig: {metrics['False Trigger Rate']:.2f}",
+            end=""
+        )
 
         ## Publish mqtt event on state change 
         mqtt.publish_command("wattwatch/room101/lights/cmd",
@@ -85,6 +90,15 @@ def main():
         
         cv2.putText(frame, f"Latency: {latency:.2f}s", (10, 220),
             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,255), 2)
+        
+        cv2.putText(frame, f"Light ROI Active: {appliance_on}", (10, 160),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,0), 2)
+        
+        cv2.putText(frame, f"F1: {metrics['F1 Score']:.2f}", (10, 190),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,0), 2)
+        
+        cv2.putText(frame, f"Faces: {face_count}", (10, 120),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,0), 2)
 
         # Waste status
         status_text = "WASTE DETECTED" if waste_detected else "SECURE"
