@@ -11,6 +11,7 @@ from app.config import FRAME_WIDTH, FRAME_HEIGHT
 from app.config import JPEG_QUALITY
 from app.cv.face_detector import detect_faces
 from app.metrics.evaluator import Evaluator 
+from app.api.state import latest_state,latest_metrics
 
 # Initialize logic engine with delay (seconds)
 logic = WasteDetector(delay_seconds=5)
@@ -26,6 +27,8 @@ def draw_boxes(frame, boxes):
 
 def main():
     cap = get_camera()
+    prev_light_state = None
+    prev_fan_state = None
 
     while True:
         ret, frame = cap.read()
@@ -44,16 +47,18 @@ def main():
         person_count, boxes = detect_people(frame)
         appliance_on, brightness = detect_appliance(frame)
         face_count, face_boxes = detect_faces(frame)
-
+        
         ## ====Occupancy Logic====
         occupied = (person_count > 0) or (face_count > 0)
         effective_person_count = 1 if occupied else 0    
+        
         # ===== Privacy =====
         frame = blur_people(frame, boxes)
 
         # ===== Logic Engine =====
         waste_detected = logic.update(effective_person_count, appliance_on)
         latency = time.time() - start_time
+        
         # ===== Auto Ground Truth for Real-Time Metrics =====
         # Define expected correct behavior
         ground_truth = 1 if (not occupied and appliance_on) else 0
@@ -63,6 +68,24 @@ def main():
 
         # Compute metrics
         metrics = evaluator.compute()
+        
+        # Update shared state for API
+        latest_state.update({
+            "people": person_count,
+            "faces": face_count,
+            "occupied": occupied,
+            "appliance_on": appliance_on,
+            "waste_detected": waste_detected,
+            "brightness": int(brightness),
+            "latency": latency
+        })
+
+        latest_metrics.update({
+            "precision": metrics["Precision"],
+            "recall": metrics["Recall"],
+            "f1_score": metrics["F1 Score"],
+            "false_trigger_rate": metrics["False Trigger Rate"]
+        })
         print(
             f"\rF1: {metrics['F1 Score']:.2f} | "
             f"Precision: {metrics['Precision']:.2f} | "
@@ -71,9 +94,19 @@ def main():
             end=""
         )
 
-        ## Publish mqtt event on state change 
-        mqtt.publish_command("wattwatch/room101/lights/cmd",
-                     "OFF" if waste_detected else "ON")
+        # ===== Device Control with State Tracking =====
+
+        light_state = "OFF" if waste_detected else "ON"
+        fan_state   = "OFF" if waste_detected else "ON"
+
+        # Publish only when state changes
+        if light_state != prev_light_state:
+            mqtt.publish_command("wattwatch/room101/lights/cmd", light_state)
+            prev_light_state = light_state
+
+        if fan_state != prev_fan_state:
+            mqtt.publish_command("wattwatch/room101/fan/cmd", fan_state)
+            prev_fan_state = fan_state
 
         # Draw boxes
         draw_boxes(frame, boxes)
