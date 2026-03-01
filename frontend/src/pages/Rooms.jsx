@@ -120,7 +120,7 @@ export default function Rooms() {
                                 <div className="space-y-2">
                                     <ApplianceRow icon={Projector} label="Projector" on={detail.appliances?.projector} />
                                     <ApplianceRow icon={MonitorSmartphone} label="Monitors" on={detail.appliances?.monitors} />
-                                    <ApplianceRow icon={Lightbulb} label="Lights" on={detail.appliances?.lights} />
+                                    <ApplianceRow icon={Lightbulb} label="Lights & Fans" on={detail.appliances?.lights} />
                                 </div>
                             </div>
 

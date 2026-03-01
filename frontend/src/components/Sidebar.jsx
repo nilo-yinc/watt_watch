@@ -88,10 +88,10 @@ export default function Sidebar() {
                 </div>
                 {sidebarOpen && (
                     <div className="animate-fade-in overflow-hidden">
-                        <p className="brand-wordmark text-[13px] text-white leading-none tracking-[0.18em]">
+                        <p className="brand-wordmark text-base text-white leading-none tracking-[0.18em]">
                             WATT·WATCH
                         </p>
-                        <p className="text-[8px] font-mono text-cyan-500/40 tracking-[0.3em] uppercase mt-1">
+                        <p className="text-[10px] font-mono text-cyan-500/40 tracking-[0.3em] uppercase mt-1">
                             Energy Surveillance
                         </p>
                     </div>
@@ -103,7 +103,7 @@ export default function Sidebar() {
                 {sections.map((section) => (
                     <div key={section.title}>
                         {sidebarOpen && (
-                            <p className="px-3 mb-1.5 text-[8px] font-mono font-bold text-cyan-900/80 tracking-[0.28em] uppercase">
+                            <p className="px-3 mb-1.5 text-[10px] font-mono font-bold text-cyan-900/80 tracking-[0.28em] uppercase">
                                 {section.title}
                             </p>
                         )}
@@ -119,9 +119,9 @@ export default function Sidebar() {
                                     }
                                     title={!sidebarOpen ? label : undefined}
                                 >
-                                    <Icon size={15} strokeWidth={1.5} />
+                                    <Icon size={16} strokeWidth={1.5} />
                                     {sidebarOpen && (
-                                        <span className="animate-fade-in text-[11px] font-medium tracking-wide">
+                                        <span className="animate-fade-in text-sm font-medium tracking-wide">
                                             {label}
                                         </span>
                                     )}
@@ -146,7 +146,7 @@ export default function Sidebar() {
                 <div className="flex items-center gap-2 justify-center">
                     <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)] animate-pulse" />
                     {sidebarOpen && (
-                        <p className="text-[8px] font-mono text-cyan-500/50 tracking-[0.22em] uppercase">
+                        <p className="text-[10px] font-mono text-cyan-500/50 tracking-[0.22em] uppercase">
                             SYSTEM ONLINE
                         </p>
                     )}
