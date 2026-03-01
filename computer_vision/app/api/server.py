@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.state import latest_state, latest_metrics
 from app.api.schemas import StatusResponse, MetricsResponse
+from app.api.server import app
 
 app = FastAPI(title="Watt-Watch API", version="1.0")
 
