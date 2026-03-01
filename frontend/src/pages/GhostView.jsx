@@ -190,9 +190,13 @@ export default function GhostView() {
                         <span className="hud-label">PRIVACY MODE</span>
                     </div>
                     <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Ghost View</h1>
+<<<<<<< HEAD
                     <p className="text-xs font-mono text-[var(--ww-text-3)]">
                         Anonymized surveillance feed - No PII stored
                     </p>
+=======
+                    <p className="text-xs font-mono text-[var(--ww-text-3)]">Anonymized surveillance feed · No PII stored</p>
+>>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
                 </div>
 
                 <div className="hud-card p-4 mb-6">
@@ -257,9 +261,30 @@ export default function GhostView() {
                                 {dataOnlyMode ? (
                                     <div className="flex items-center justify-center p-12" style={{ minHeight: '360px' }}>
                                         <div className="text-center">
+<<<<<<< HEAD
                                             <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">[X]</div>
                                             <p className="text-xs font-mono text-[var(--ww-text-3)] mb-2">VISUAL FEED DISABLED</p>
                                             <p className="text-[10px] font-mono text-[var(--ww-text-muted)]">Data-only mode active. Check side panel for live metrics.</p>
+=======
+                                            <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">◉</div>
+                                            <p className="text-xs font-mono text-[var(--ww-text-3)] mb-6">VISUAL FEED DISABLED</p>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                {[
+                                                    { label: 'PEOPLE', val: activeRoom.person_count, accent: 'text-cyan-400' },
+                                                    { label: 'STATUS', val: statusText, accent: statusClass },
+                                                    {
+                                                        label: 'WASTE',
+                                                        val: activeRoom.waste_duration ? `${Math.floor(activeRoom.waste_duration / 60)}m` : '0m',
+                                                        accent: 'text-amber-400',
+                                                    },
+                                                ].map((stat, index) => (
+                                                    <div key={index} className="bg-white/[0.02] rounded-md p-3">
+                                                        <div className="text-[8px] font-mono text-[var(--ww-text-muted)] mb-1">{stat.label}</div>
+                                                        <div className={`text-lg font-mono font-bold ${stat.accent}`}>{stat.val}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+>>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
                                         </div>
                                     </div>
                                 ) : (
@@ -270,9 +295,7 @@ export default function GhostView() {
                                             <div className="w-full h-[360px] flex items-center justify-center text-center bg-black/80 px-6">
                                                 <div>
                                                     <div className="text-sm font-mono text-red-400 mb-2">PRIVACY LOCK</div>
-                                                    <div className="text-xs font-mono text-[var(--ww-text-3)]">
-                                                        Ghost Mode needs YOLO stream.
-                                                    </div>
+                                                    <div className="text-xs font-mono text-[var(--ww-text-3)]">Ghost Mode needs YOLO stream.</div>
                                                     <div className="text-xs font-mono text-[var(--ww-text-3)] mt-1">
                                                         Start computer_vision service for person-only blur.
                                                     </div>
@@ -342,11 +365,18 @@ export default function GhostView() {
                                     { label: 'Monitoring', val: activeRoom.monitoring || 'CCTV' },
                                     { label: 'Power Draw', val: `${totalPower}W`, accent: totalPower > 0 ? 'text-amber-400' : '' },
                                     { label: 'Status', val: statusText, accent: statusClass },
+<<<<<<< HEAD
                                     { label: 'Backend', val: backendOnline ? 'ONLINE' : 'OFFLINE', accent: backendOnline ? 'text-emerald-400' : 'text-red-400' },
                                 ].map((s, i) => (
                                     <div key={i} className="flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0">
                                         <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{s.label}</span>
                                         <span className={`text-xs font-mono font-bold ${s.accent || 'text-[var(--ww-text-1)]'}`}>{s.val}</span>
+=======
+                                ].map((stat, index) => (
+                                    <div key={index} className="flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0">
+                                        <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{stat.label}</span>
+                                        <span className={`text-xs font-mono font-bold ${stat.accent || 'text-[var(--ww-text-1)]'}`}>{stat.val}</span>
+>>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
                                     </div>
                                 ))}
                             </div>
@@ -354,13 +384,34 @@ export default function GhostView() {
                             {/* Privacy Layer */}
                             <div className="hud-card p-4">
                                 <div className="hud-label mb-3">PRIVACY LAYER</div>
-                                {['No raw video stored', 'Local processing only', 'Face/body blur in Ghost Mode', 'Audit-logged access'].map((s, i) => (
-                                    <div key={i} className="flex items-center gap-2 py-1.5">
+                                {['No raw video stored', 'Local processing only', 'Face/body blur in Ghost Mode', 'Audit-logged access'].map((item, index) => (
+                                    <div key={index} className="flex items-center gap-2 py-1.5">
                                         <div className="w-1 h-1 rounded-full bg-emerald-400" />
-                                        <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{s}</span>
+                                        <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{item}</span>
                                     </div>
                                 ))}
                             </div>
+<<<<<<< HEAD
+=======
+
+                            <div className="hud-card p-4">
+                                <div className="hud-label mb-3">APPLIANCES</div>
+                                {[
+                                    { label: 'Lights', on: activeRoom.appliances?.lights },
+                                    { label: 'Fan', on: activeRoom.appliances?.fan },
+                                    { label: 'Projector', on: activeRoom.appliances?.projector },
+                                    { label: 'AC', on: activeRoom.appliances?.ac },
+                                    { label: 'Monitors', on: activeRoom.appliances?.monitors },
+                                ].map((appliance, index) => (
+                                    <div key={index} className="flex items-center justify-between py-1.5 border-b border-white/[0.03] last:border-0">
+                                        <span className="text-[10px] font-mono text-[var(--ww-text-3)]">{appliance.label}</span>
+                                        <span className={`text-[9px] font-mono font-bold tracking-wider ${appliance.on ? 'text-amber-400' : 'text-[var(--ww-text-muted)]'}`}>
+                                            {appliance.on ? 'ON' : 'OFF'}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+>>>>>>> 26f58244579c86fe0bf85f307710c52b013d94a3
                         </div>
                     </div>
                 )}

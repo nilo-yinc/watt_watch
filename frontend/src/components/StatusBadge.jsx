@@ -1,23 +1,17 @@
-/**
- * Color-coded status badge.
- *   Green  → Secure / Occupied
- *   Red    → Waste Detected
- *   Yellow → Recently Vacated / Monitoring
- */
 export default function StatusBadge({ status }) {
     const config = {
-        secure: { label: 'Secure', dot: 'status-dot-secure', bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' },
-        occupied: { label: 'Occupied', dot: 'status-dot-secure', bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' },
-        waste: { label: 'Waste Detected', dot: 'status-dot-waste', bg: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' },
-        recently_vacated: { label: 'Monitoring', dot: 'status-dot-caution', bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' },
-        empty: { label: 'Empty', dot: 'status-dot-secure', bg: 'bg-[var(--ww-card-2)] text-[var(--ww-text-3)] border-[var(--ww-border)]' },
+        secure: { label: 'Secure', dotClass: 'status-dot-secure', className: 'badge badge-green' },
+        occupied: { label: 'Occupied', dotClass: 'status-dot-secure', className: 'badge badge-green' },
+        waste: { label: 'Energy Waste', dotClass: 'status-dot-waste', className: 'badge badge-red' },
+        recently_vacated: { label: 'Monitoring', dotClass: 'status-dot-caution', className: 'badge badge-amber' },
+        empty: { label: 'Empty', dotClass: 'status-dot-secure', className: 'badge badge-muted' },
     };
 
     const c = config[status] || config.empty;
 
     return (
-        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${c.bg}`}>
-            <span className={`status-dot ${c.dot}`} />
+        <span className={c.className}>
+            <span className={`status-dot ${c.dotClass}`} />
             {c.label}
         </span>
     );

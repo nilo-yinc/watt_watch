@@ -38,13 +38,13 @@ export default function HeatmapView() {
                             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                             <span className="hud-label">THERMAL MAP</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-[var(--ww-text-1)] tracking-tight mb-1">Campus Heatmap</h1>
-                        <p className="text-xs font-mono text-[var(--ww-text-3)]">Energy efficiency visualization by building</p>
+                        <h1 className="text-2xl font-bold text-[var(--text-1)] tracking-tight mb-1">Campus Heatmap</h1>
+                        <p className="text-xs font-mono text-[var(--text-3)]">Energy efficiency visualization by building</p>
                     </div>
                     <div className="flex gap-1">
                         {['today', 'week'].map(f => (
                             <button key={f} onClick={() => setTimeFilter(f)}
-                                className={`px-3 py-1.5 rounded-md text-xs font-mono transition-all ${timeFilter === f ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-[var(--ww-text-muted)] hover:text-[var(--ww-text-2)]'}`}>
+                                className={`px-3 py-1.5 rounded-md text-xs font-mono transition-all ${timeFilter === f ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-[var(--text-4)] hover:text-[var(--text-2)]'}`}>
                                 {f.toUpperCase()}
                             </button>
                         ))}
@@ -60,7 +60,7 @@ export default function HeatmapView() {
                     ].map((l, i) => (
                         <div key={i} className="flex items-center gap-2">
                             <div className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
-                            <span className="text-[10px] font-mono text-[var(--ww-text-2)]">{l.label}</span>
+                            <span className="text-[10px] font-mono text-[var(--text-2)]">{l.label}</span>
                         </div>
                     ))}
                 </div>
@@ -70,8 +70,8 @@ export default function HeatmapView() {
                     {Object.entries(buildings).map(([building, buildingRooms]) => (
                         <div key={building}>
                             <div className="flex items-center justify-between mb-3">
-                                <h2 className="text-sm font-semibold text-[var(--ww-text-1)] tracking-wide">{building}</h2>
-                                <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{buildingRooms.length} feeds</span>
+                                <h2 className="text-sm font-semibold text-[var(--text-1)] tracking-wide">{building}</h2>
+                                <span className="text-[10px] font-mono text-[var(--text-4)]">{buildingRooms.length} feeds</span>
                             </div>
                             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
                                 {buildingRooms.map((room, i) => {
@@ -85,18 +85,18 @@ export default function HeatmapView() {
                                                 transition={{ delay: i * 0.04 }}
                                             >
                                                 <div>
-                                                    <div className="text-[10px] font-mono font-bold text-[var(--ww-text-1)] truncate">{room.name.split(' ').slice(-1)[0]}</div>
+                                                    <div className="text-[10px] font-mono font-bold text-[var(--text-1)] truncate">{room.name.split(' ').slice(-1)[0]}</div>
                                                 </div>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-[8px] font-mono text-[var(--ww-text-2)]">{room.occupancy}/{room.capacity}</span>
+                                                    <span className="text-[8px] font-mono text-[var(--text-2)]">{room.occupancy}/{room.capacity}</span>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
                                                 </div>
 
                                                 {/* Hover tooltip */}
                                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
                                                     <div className="bg-[#0a1018] border border-white/10 rounded-lg p-3 min-w-[160px] shadow-xl">
-                                                        <div className="text-xs font-semibold text-[var(--ww-text-1)] mb-1">{room.name}</div>
-                                                        <div className="text-[9px] font-mono text-[var(--ww-text-2)] space-y-0.5">
+                                                        <div className="text-xs font-semibold text-[var(--text-1)] mb-1">{room.name}</div>
+                                                        <div className="text-[9px] font-mono text-[var(--text-2)] space-y-0.5">
                                                             <div>Occupancy: {room.occupancy}/{room.capacity}</div>
                                                             <div>Power: {room.energyUsage} kWh</div>
                                                             <div>Type: {room.type}</div>

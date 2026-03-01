@@ -33,7 +33,7 @@ export default function CampusOverview() {
             case 'efficient': return { dot: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]', text: 'text-emerald-400', border: 'border-emerald-500/20', label: 'CLEAR' };
             case 'waste': return { dot: 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.6)] animate-pulse', text: 'text-red-400', border: 'border-red-500/20', label: 'ALERT' };
             case 'review': return { dot: 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]', text: 'text-amber-400', border: 'border-amber-500/20', label: 'REVIEW' };
-            default: return { dot: 'bg-slate-400', text: 'text-[var(--ww-text-2)]', border: 'border-slate-500/20', label: 'UNKNOWN' };
+            default: return { dot: 'bg-slate-400', text: 'text-[var(--text-2)]', border: 'border-slate-500/20', label: 'UNKNOWN' };
         }
     };
 
@@ -51,10 +51,10 @@ export default function CampusOverview() {
                         </div>
                         <TextGenerateEffect
                             words="Campus Energy Surveillance"
-                            className="text-3xl font-bold text-[var(--ww-text-1)] tracking-tight"
+                            className="text-3xl font-bold text-[var(--text-1)] tracking-tight"
                             duration={0.3}
                         />
-                        <p className="text-[var(--ww-text-3)] text-sm mt-2 font-mono">
+                        <p className="text-[var(--text-3)] text-sm mt-2 font-mono">
                             {stats.totalRooms} feeds active · {currentTime.toLocaleTimeString('en-US', { hour12: false })}
                         </p>
                     </div>
@@ -78,7 +78,7 @@ export default function CampusOverview() {
                         <div key={i} className="hud-card p-4">
                             <div className="hud-label mb-2">{s.label}</div>
                             <div className={`text-2xl font-mono font-bold ${s.accent}`}>{s.value}</div>
-                            <div className="text-[10px] font-mono text-[var(--ww-text-muted)] mt-1">{s.sub}</div>
+                            <div className="text-[10px] font-mono text-[var(--text-4)] mt-1">{s.sub}</div>
                             {/* Corner brackets */}
                             <div className="corner-bracket corner-bracket-tl" />
                             <div className="corner-bracket corner-bracket-br" />
@@ -91,7 +91,7 @@ export default function CampusOverview() {
                     <div className="flex items-center gap-3">
                         <span className="hud-label">FILTER</span>
                         <select value={filterType} onChange={(e) => setFilterType(e.target.value)}
-                            className="px-3 py-1.5 bg-transparent border border-[var(--ww-border)] rounded-md text-[var(--ww-text-2)] text-xs font-mono focus:border-cyan-500/30 focus:outline-none cursor-pointer">
+                            className="px-3 py-1.5 bg-transparent border border-[var(--border)] rounded-md text-[var(--text-2)] text-xs font-mono focus:border-cyan-500/30 focus:outline-none cursor-pointer">
                             <option value="all" className="bg-slate-900">All Types</option>
                             <option value="Classroom" className="bg-slate-900">Classrooms</option>
                             <option value="Computer Lab" className="bg-slate-900">Computer Labs</option>
@@ -99,12 +99,12 @@ export default function CampusOverview() {
                             <option value="Office" className="bg-slate-900">Offices</option>
                             <option value="Hostel" className="bg-slate-900">Hostels</option>
                         </select>
-                        <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{filteredRooms.length} results</span>
+                        <span className="text-[10px] font-mono text-[var(--text-4)]">{filteredRooms.length} results</span>
                     </div>
                     <div className="flex gap-1">
                         {['grid', 'list'].map(m => (
                             <button key={m} onClick={() => setViewMode(m)}
-                                className={`px-3 py-1.5 rounded-md font-mono text-xs transition-all ${viewMode === m ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-[var(--ww-text-muted)] hover:text-[var(--ww-text-2)]'}`}>
+                                className={`px-3 py-1.5 rounded-md font-mono text-xs transition-all ${viewMode === m ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-[var(--text-4)] hover:text-[var(--text-2)]'}`}>
                                 {m === 'grid' ? '▦ GRID' : '☰ LIST'}
                             </button>
                         ))}
@@ -130,7 +130,7 @@ export default function CampusOverview() {
                                             <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.03]">
                                                 <div className="flex items-center gap-2.5">
                                                     <div className={`w-2 h-2 rounded-full ${status.dot}`} />
-                                                    <span className="text-[var(--ww-text-1)] text-sm font-medium tracking-wide">{room.name}</span>
+                                                    <span className="text-[var(--text-1)] text-sm font-medium tracking-wide">{room.name}</span>
                                                 </div>
                                                 <span className={`text-[9px] font-mono font-bold ${status.text} tracking-[0.15em]`}>{status.label}</span>
                                             </div>
@@ -138,26 +138,26 @@ export default function CampusOverview() {
                                             {/* Body */}
                                             <div className="px-4 py-3">
                                                 <div className="flex items-center gap-4 mb-3">
-                                                    <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{room.type}</span>
-                                                    <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">·</span>
-                                                    <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{room.building}</span>
-                                                    <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">·</span>
-                                                    <span className="text-[10px] font-mono text-[var(--ww-text-muted)]">{room.monitoring}</span>
+                                                    <span className="text-[10px] font-mono text-[var(--text-4)]">{room.type}</span>
+                                                    <span className="text-[10px] font-mono text-[var(--text-4)]">·</span>
+                                                    <span className="text-[10px] font-mono text-[var(--text-4)]">{room.building}</span>
+                                                    <span className="text-[10px] font-mono text-[var(--text-4)]">·</span>
+                                                    <span className="text-[10px] font-mono text-[var(--text-4)]">{room.monitoring}</span>
                                                 </div>
 
                                                 {/* Metrics Row */}
                                                 <div className="grid grid-cols-3 gap-2 mb-3">
                                                     <div className="bg-white/[0.02] rounded-md px-2.5 py-2">
-                                                        <div className="text-[9px] font-mono text-[var(--ww-text-muted)] mb-0.5">OCCUPANCY</div>
-                                                        <div className="text-sm font-mono font-bold text-[var(--ww-text-1)]">{room.occupancy}<span className="text-[var(--ww-text-muted)]">/{room.capacity}</span></div>
+                                                        <div className="text-[9px] font-mono text-[var(--text-4)] mb-0.5">OCCUPANCY</div>
+                                                        <div className="text-sm font-mono font-bold text-[var(--text-1)]">{room.occupancy}<span className="text-[var(--text-4)]">/{room.capacity}</span></div>
                                                     </div>
                                                     <div className="bg-white/[0.02] rounded-md px-2.5 py-2">
-                                                        <div className="text-[9px] font-mono text-[var(--ww-text-muted)] mb-0.5">POWER</div>
-                                                        <div className="text-sm font-mono font-bold text-[var(--ww-text-1)]">{room.energyUsage}<span className="text-[var(--ww-text-muted)]"> kWh</span></div>
+                                                        <div className="text-[9px] font-mono text-[var(--text-4)] mb-0.5">POWER</div>
+                                                        <div className="text-sm font-mono font-bold text-[var(--text-1)]">{room.energyUsage}<span className="text-[var(--text-4)]"> kWh</span></div>
                                                     </div>
                                                     <div className="bg-white/[0.02] rounded-md px-2.5 py-2">
-                                                        <div className="text-[9px] font-mono text-[var(--ww-text-muted)] mb-0.5">UTIL</div>
-                                                        <div className="text-sm font-mono font-bold text-[var(--ww-text-1)]">{((room.occupancy / room.capacity) * 100).toFixed(0)}<span className="text-[var(--ww-text-muted)]">%</span></div>
+                                                        <div className="text-[9px] font-mono text-[var(--text-4)] mb-0.5">UTIL</div>
+                                                        <div className="text-sm font-mono font-bold text-[var(--text-1)]">{((room.occupancy / room.capacity) * 100).toFixed(0)}<span className="text-[var(--text-4)]">%</span></div>
                                                     </div>
                                                 </div>
 
@@ -171,7 +171,7 @@ export default function CampusOverview() {
                                                         ...(room.appliances.desktops > 0 ? [{ l: `${room.appliances.desktops}PC`, on: true }] : []),
                                                     ].map((a, j) => (
                                                         <div key={j}
-                                                            className={`px-2 py-1 rounded text-[9px] font-mono font-bold tracking-wider ${a.on ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-white/[0.02] text-[var(--ww-text-muted)] border border-white/[0.03]'
+                                                            className={`px-2 py-1 rounded text-[9px] font-mono font-bold tracking-wider ${a.on ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-white/[0.02] text-[var(--text-4)] border border-white/[0.03]'
                                                                 }`}>
                                                             {a.l}
                                                         </div>
