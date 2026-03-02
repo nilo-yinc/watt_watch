@@ -4,7 +4,7 @@ from ultralytics import YOLO
 from app.config import CONFIDENCE_THRESHOLD
 
 # Load model
-model = YOLO("yolov8m.pt")  # using medium model
+model = YOLO("yolov11m.pt")  # using medium model
 
 
 def detect_people(frame):
