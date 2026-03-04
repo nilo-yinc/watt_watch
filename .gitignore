@@ -71,6 +71,8 @@ docker-compose.override.yml
 data/
 *.db
 *.sqlite3
+!frontend/src/data/
+!frontend/src/data/**
 
 # ── Misc ─────────────────────────────────────
 *.bak
