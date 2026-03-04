@@ -1,42 +1,77 @@
-# ── Python ──
+# =============================================
+#  Watt-Watch  ·  Root .gitignore
+# =============================================
+
+# ── Python ───────────────────────────────────
 __pycache__/
 *.py[cod]
+*$py.class
+*.egg
 *.egg-info/
 dist/
 build/
+*.whl
 .venv/
 venv/
 env/
+.Python
 
-# ── Node ──
+# ── Node / Frontend ──────────────────────────
 node_modules/
 frontend/dist/
+frontend/build/
 .vite/
+*.tsbuildinfo
 
-# ── Env ──
+# ── Environment Variables ────────────────────
 .env
 .env.local
 .env.*.local
 
-# ── IDE ──
+# ── IDE / Editor ─────────────────────────────
 .vscode/settings.json
+.vscode/launch.json
 .idea/
 *.swp
+*.swo
+*~
 
-# ── OS ──
+# ── OS ───────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# ── Logs ──
+# ── Logs ─────────────────────────────────────
 logs/*.log
+*.log
 
-# ── ML Weights ──
-computer-vision/models/weights/*.pt
-computer-vision/models/weights/*.onnx
-!computer-vision/models/weights/.gitkeep
+# ── Testing / Coverage ──────────────────────
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# ── IoT Build ──
+# ── ML / YOLO Weights ───────────────────────
+computer_vision/models/weights/*.pt
+computer_vision/models/weights/*.onnx
+computer_vision/models/weights/*.engine
+computer_vision/*.pt
+!computer_vision/models/weights/.gitkeep
+
+# ── IoT Build Artifacts ─────────────────────
 iot/firmware/**/build/
+iot/firmware/**/.pio/
 
-# ── Data ──
+# ── Docker ───────────────────────────────────
+docker-compose.override.yml
+
+# ── Database / Data ──────────────────────────
 data/
+*.db
+*.sqlite3
+
+# ── Misc ─────────────────────────────────────
+*.bak
+*.tmp

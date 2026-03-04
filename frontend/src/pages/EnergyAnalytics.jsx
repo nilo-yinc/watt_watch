@@ -18,8 +18,8 @@ export default function EnergyAnalytics() {
                         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="hud-label">ENERGY TELEMETRY</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Energy Analytics</h1>
-                    <p className="text-xs font-mono text-slate-500">Performance metrics and consumption trends</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-1)] tracking-tight mb-1">Energy Analytics</h1>
+                    <p className="text-xs font-mono text-[var(--text-3)]">Performance metrics and consumption trends</p>
                 </div>
 
                 {/* KPI Row */}
@@ -32,7 +32,7 @@ export default function EnergyAnalytics() {
                         <motion.div key={i} className="hud-card p-5" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
                             <div className="hud-label mb-2">{kpi.label}</div>
                             <div className={`text-3xl font-mono font-bold ${kpi.accent}`}>{kpi.value}</div>
-                            <div className="text-[10px] font-mono text-slate-600 mt-1">{kpi.unit}</div>
+                            <div className="text-[10px] font-mono text-[var(--text-4)] mt-1">{kpi.unit}</div>
                             <div className="corner-bracket corner-bracket-tl" />
                             <div className="corner-bracket corner-bracket-br" />
                         </motion.div>
@@ -45,7 +45,7 @@ export default function EnergyAnalytics() {
                         <div className="hud-label">DAILY SAVINGS</div>
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-sm bg-emerald-400/60" />
-                            <span className="text-[9px] font-mono text-slate-600">kWh saved</span>
+                            <span className="text-[9px] font-mono text-[var(--text-4)]">kWh saved</span>
                         </div>
                     </div>
                     <div className="flex items-end gap-1.5 h-48">
@@ -67,7 +67,7 @@ export default function EnergyAnalytics() {
                                             </div>
                                         </motion.div>
                                     </div>
-                                    <span className="text-[8px] font-mono text-slate-700 -rotate-45 origin-top-left whitespace-nowrap">
+                                    <span className="text-[8px] font-mono text-[var(--text-4)] -rotate-45 origin-top-left whitespace-nowrap">
                                         {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                     </span>
                                 </div>
@@ -85,8 +85,8 @@ export default function EnergyAnalytics() {
                             return (
                                 <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.04 }}>
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="text-[10px] font-mono text-slate-400">{data.room}</span>
-                                        <span className="text-xs font-mono font-bold text-white">{data.waste} <span className="text-slate-600">kWh</span></span>
+                                        <span className="text-[10px] font-mono text-[var(--text-2)]">{data.room}</span>
+                                        <span className="text-xs font-mono font-bold text-[var(--text-1)]">{data.waste} <span className="text-[var(--text-4)]">kWh</span></span>
                                     </div>
                                     <div className="h-1.5 bg-white/[0.03] rounded-full overflow-hidden">
                                         <motion.div
@@ -112,7 +112,7 @@ export default function EnergyAnalytics() {
                         <div key={i} className="hud-card p-4">
                             <div className="hud-label mb-2">{insight.label}</div>
                             <div className={`text-xs font-mono ${insight.accent} mb-1 font-bold`}>⬤ Insight</div>
-                            <p className="text-[10px] font-mono text-slate-500 leading-relaxed">{insight.desc}</p>
+                            <p className="text-[10px] font-mono text-[var(--text-3)] leading-relaxed">{insight.desc}</p>
                         </div>
                     ))}
                 </div>

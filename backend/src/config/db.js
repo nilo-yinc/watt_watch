@@ -1,0 +1,9 @@
+import mongoose from "mongoose";
+import { env } from "./env.js";
+
+export async function connectDb() {
+  await mongoose.connect(env.mongoUri, {
+    dbName: env.mongoDbName,
+  });
+  console.log(`[db] connected to ${env.mongoDbName}`);
+}

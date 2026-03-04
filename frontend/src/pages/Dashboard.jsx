@@ -1,5 +1,5 @@
 import {
-    Zap, Users, AlertTriangle, Shield, TrendingDown, Clock, Activity,
+    Zap, Users, AlertTriangle, Shield, TrendingDown, Clock,
 } from 'lucide-react';
 import { useRooms } from '../hooks/useRooms';
 import { useEnergy } from '../hooks/useEnergy';
@@ -7,7 +7,6 @@ import { useApp } from '../context/AppContext';
 import RoomCard from '../components/RoomCard';
 import EnergyChart from '../components/EnergyChart';
 import { GlareCard } from '../components/ui/glare-card';
-import { Tabs } from '../components/ui/tabs';
 
 export default function Dashboard() {
     const { rooms, secureCount, wasteCount, totalPeople } = useRooms();
@@ -15,193 +14,138 @@ export default function Dashboard() {
     const { alerts } = useApp();
 
     const wasteMins = Math.floor(totalWasteDuration / 60);
-    const wasteHrs  = Math.floor(wasteMins / 60);
+    const wasteHrs = Math.floor(wasteMins / 60);
     const wasteTimeStr = wasteHrs > 0 ? `${wasteHrs}h ${wasteMins % 60}m` : `${wasteMins}m`;
 
-    const analyticsTabs = [
-        {
-            title: 'Energy Trend',
-            value: 'energy',
-            content: (
-                <div className="w-full h-full rounded-xl overflow-hidden">
-                    <EnergyChart data={hourlyData} variant="area" title="Energy Trend — Last 24 Hours" />
-                </div>
-            ),
-        },
-        {
-            title: 'Alerts',
-            value: 'alerts',
-            content: (
-                <div className="w-full h-full glass p-5 rounded-xl overflow-y-auto">
-                    <AlertList alerts={alerts} />
-                </div>
-            ),
-        },
-        {
-            title: 'Bar Chart',
-            value: 'bar',
-            content: (
-                <div className="w-full h-full rounded-xl overflow-hidden">
-                    <EnergyChart data={hourlyData} variant="bar" title="Hourly Energy Breakdown" />
-                </div>
-            ),
-        },
-    ];
-
     return (
-        <div className="space-y-6 animate-fade-in">
-            {/* ── Page header ───────────────────────────────────── */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <div className="w-1 h-5 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-                        <h1 className="brand-wordmark text-xl text-white tracking-wide">
-                            Overview
-                        </h1>
-                    </div>
-                    <p className="text-[11px] font-mono text-slate-600 tracking-[0.2em] uppercase ml-3">
-                        Real-time campus energy monitoring
+        <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+            {/* ── Summary stats ───────────────────────────────── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <StatCard
+                    icon={Shield} iconColor="var(--green)" iconBg="var(--green-dim)"
+                    label="Secure Rooms" value={secureCount} sub={`of ${rooms.length} total`}
+                    accent="var(--green)"
+                />
+                <StatCard
+                    icon={AlertTriangle} iconColor="var(--red)" iconBg="var(--red-dim)"
+                    label="Waste Detected" value={wasteCount} sub={wasteCount > 0 ? 'Action needed' : 'All clear'}
+                    pulse={wasteCount > 0} accent="var(--red)"
+                />
+                <StatCard
+                    icon={Users} iconColor="var(--accent)" iconBg="var(--accent-dim)"
+                    label="Occupancy" value={totalPeople} sub="People on campus"
+                    accent="var(--accent)"
+                />
+                <StatCard
+                    icon={Zap} iconColor="var(--amber)" iconBg="var(--amber-dim)"
+                    label="Energy Wasted" value={`${energyWasted} Wh`} sub={`≈ ₹${costWasted}`}
+                    accent="var(--amber)"
+                />
+            </div>
+
+            {/* ── Charts + Recent alerts ────────────────────────── */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1rem' }}>
+                <div className="card" style={{ padding: '1.25rem' }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-1)', marginBottom: '1rem' }}>
+                        Energy Trend — Last 24 Hours
                     </p>
+                    <EnergyChart data={hourlyData} variant="area" />
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/10 bg-cyan-500/5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
-                    <span className="text-[10px] font-mono text-cyan-600 tracking-widest">SYSTEM ACTIVE</span>
+
+                <div className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-1)' }}>Recent Alerts</p>
+                        <span className="badge badge-muted">{alerts.length}</span>
+                    </div>
+                    {alerts.length === 0 ? (
+                        <p style={{ color: 'var(--text-4)', fontSize: '0.8125rem', textAlign: 'center', paddingTop: '2rem' }}>No active alerts</p>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', overflowY: 'auto', maxHeight: '280px' }}>
+                            {alerts.slice(0, 8).map(alert => (
+                                <div
+                                    key={alert.id}
+                                    style={{
+                                        padding: '0.5rem 0.75rem',
+                                        borderRadius: '8px',
+                                        background: 'var(--surface-2)',
+                                        borderLeft: `3px solid ${alert.severity === 'high' ? 'var(--red)' : 'var(--amber)'}`,
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-1)' }}>{alert.room_name}</p>
+                                        <p style={{ fontSize: '0.6875rem', color: 'var(--text-4)' }}>{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                                    </div>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-3)', marginTop: '2px' }}>{alert.message}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* ── Metric cards (GlareCard) ──────────────────────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <GlareCard className="p-5">
-                    <MetricInner
-                        icon={Shield} iconColor="text-emerald-400" iconBg="bg-emerald-500/10"
-                        label="Secure Rooms" value={secureCount} sub={`of ${rooms.length} total`}
-                        accent="#34d399"
-                    />
-                </GlareCard>
-                <GlareCard className="p-5">
-                    <MetricInner
-                        icon={AlertTriangle} iconColor="text-red-400" iconBg="bg-red-500/10"
-                        label="Waste Detected" value={wasteCount}
-                        sub={wasteCount > 0 ? 'Action needed' : 'All clear'}
-                        pulse={wasteCount > 0}
-                        accent="#f87171"
-                    />
-                </GlareCard>
-                <GlareCard className="p-5">
-                    <MetricInner
-                        icon={Users} iconColor="text-cyan-400" iconBg="bg-cyan-500/10"
-                        label="Occupancy" value={totalPeople} sub="People on campus"
-                        accent="#22d3ee"
-                    />
-                </GlareCard>
-                <GlareCard className="p-5">
-                    <MetricInner
-                        icon={Zap} iconColor="text-amber-400" iconBg="bg-amber-500/10"
-                        label="Energy Wasted" value={`${energyWasted} Wh`}
-                        sub={`≈ ₹${costWasted}`}
-                        accent="#fbbf24"
-                    />
-                </GlareCard>
+            {/* ── Quick stats row ───────────────────────────────── */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="card" style={{ padding: '1.25rem' }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-1)', marginBottom: '1rem' }}>Hourly Breakdown</p>
+                    <EnergyChart data={hourlyData} variant="bar" />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <MiniStat icon={TrendingDown} value={`${energyWasted} Wh`} label="Wasted Today" color="var(--red)" />
+                    <MiniStat icon={Zap} value={`₹${costWasted}`} label="Cost Impact" color="var(--amber)" />
+                    <MiniStat icon={Clock} value={wasteTimeStr} label="Total Waste Time" color="var(--accent)" />
+                    <MiniStat icon={Shield} value={`${rooms.length - wasteCount}`} label="Clean Rooms" color="var(--green)" />
+                </div>
             </div>
 
-            {/* ── Analytics tabs ────────────────────────────────── */}
+            {/* ── Room Status ────────────────────────────────────── */}
             <div>
-                <SectionHeader label="Analytics" />
-                <div className="h-[22rem] [perspective:1000px] relative flex flex-col w-full items-start justify-start mt-3">
-                    <Tabs tabs={analyticsTabs} contentClassName="mt-28" />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-1)' }}>Room Status</p>
+                    <span className="badge badge-muted">{rooms.length} Total</span>
                 </div>
-            </div>
-
-            {/* ── Room status grid ──────────────────────────────── */}
-            <div className="mt-4">
-                <SectionHeader label="Room Status" count={rooms.length} />
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-3">
-                    {rooms.map(room => (
-                        <RoomCard key={room.id} room={room} />
-                    ))}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                    {rooms.map(room => <RoomCard key={room.id} room={room} />)}
                 </div>
             </div>
         </div>
     );
 }
 
-/** Section header with accent bar */
-function SectionHeader({ label, count }) {
+function StatCard({ icon: Icon, iconColor, iconBg, label, value, sub, pulse, accent }) {
     return (
-        <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-                <div className="w-0.5 h-4 bg-cyan-500/50 rounded-full" />
-                <h2 className="text-sm font-semibold text-slate-300 tracking-wide">{label}</h2>
-                {count != null && (
-                    <span className="text-[9px] font-mono text-cyan-700 tracking-widest px-1.5 py-0.5 rounded border border-cyan-500/15">
-                        {count} UNITS
-                    </span>
-                )}
-            </div>
-            <div className="flex-1 hud-divider" />
-        </div>
-    );
-}
-
-/** Inner content of each GlareCard metric */
-function MetricInner({ icon: Icon, iconColor, iconBg, label, value, sub, pulse, accent }) {
-    return (
-        <div className="flex flex-col gap-3">
-            {/* Corner bracket decorations */}
-            <span className="absolute top-0 left-0 w-3 h-3 border-l border-t" style={{ borderColor: `${accent}40` }} />
-            <span className="absolute top-0 right-0 w-3 h-3 border-r border-t" style={{ borderColor: `${accent}40` }} />
-            <span className="absolute bottom-0 left-0 w-3 h-3 border-l border-b" style={{ borderColor: `${accent}40` }} />
-            <span className="absolute bottom-0 right-0 w-3 h-3 border-r border-b" style={{ borderColor: `${accent}40` }} />
-
-            <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg} flex-shrink-0`}>
-                    <Icon size={18} className={iconColor} />
+        <div
+            className="card"
+            style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', position: 'relative', overflow: 'hidden' }}
+        >
+            {/* accent top bar */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: accent, opacity: 0.7, borderRadius: '14px 14px 0 0' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                <div style={{
+                    width: '40px', height: '40px', borderRadius: '10px',
+                    background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                    <Icon size={18} style={{ color: iconColor }} />
                 </div>
                 <div>
-                    <p className="hud-label">{label}</p>
-                    <p className={`hud-value ${pulse ? 'text-red-400' : 'text-white'}`}>
+                    <p style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>{label}</p>
+                    <p style={{ fontSize: '1.5rem', fontWeight: 700, color: pulse ? 'var(--red)' : 'var(--text-1)', lineHeight: 1, fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.02em' }}>
                         {value}
                     </p>
                 </div>
             </div>
-            {sub && (
-                <p className="text-[10px] font-mono text-slate-600 tracking-wide">{sub}</p>
-            )}
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-3)' }}>{sub}</p>
         </div>
     );
 }
 
-/** Alert list for the alerts tab */
-function AlertList({ alerts }) {
+function MiniStat({ icon: Icon, value, label, color }) {
     return (
-        <div className="space-y-2">
-            <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle size={13} className="text-amber-400" />
-                <span className="text-[10px] font-mono text-slate-500 tracking-widest uppercase">
-                    Recent Alerts — {alerts.length} total
-                </span>
-            </div>
-            {alerts.slice(0, 8).map(alert => (
-                <div
-                    key={alert.id}
-                    className={`px-3 py-2.5 rounded-lg text-xs transition-colors hover:bg-white/[0.02] ${
-                        alert.severity === 'high'
-                            ? 'border-l-2 border-red-500/40 bg-red-500/5'
-                            : alert.severity === 'medium'
-                                ? 'border-l-2 border-amber-500/30 bg-amber-500/5'
-                                : 'border-l-2 border-cyan-500/15'
-                    }`}
-                >
-                    <div className="flex items-center justify-between mb-0.5">
-                        <span className="font-mono font-medium text-slate-200">{alert.room_name}</span>
-                        <span className="text-[9px] font-mono text-slate-600">
-                            {new Date(alert.timestamp).toLocaleTimeString()}
-                        </span>
-                    </div>
-                    <p className="text-[10px] font-mono text-slate-500 leading-snug">{alert.message}</p>
-                </div>
-            ))}
+        <div className="card" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <Icon size={16} style={{ color }} />
+            <p style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-1)', fontFamily: '"Plus Jakarta Sans", sans-serif', letterSpacing: '-0.01em' }}>{value}</p>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
         </div>
     );
 }
-

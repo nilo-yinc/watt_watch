@@ -20,10 +20,10 @@ export default function Analytics() {
         <div className="space-y-6 animate-fade-in">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <BarChart3 size={24} className="text-brand-400" /> Analytics
+                <h1 className="text-2xl font-bold text-[var(--text-1)] flex items-center gap-2">
+                    <BarChart3 size={24} className="text-[var(--accent)]" /> Analytics
                 </h1>
-                <p className="text-sm text-surface-400 mt-1">Energy waste trends and savings analysis</p>
+                <p className="text-sm text-[var(--text-3)] mt-1">Energy waste trends and savings analysis</p>
             </div>
 
             {/* ── Summary cards ───────────────────────────────────── */}
@@ -43,7 +43,7 @@ export default function Analytics() {
                     sub="total across rooms"
                 />
                 <SummaryCard
-                    icon={DoorOpen} color="text-brand-400" bg="bg-brand-500/10"
+                    icon={DoorOpen} color="text-[var(--accent)]" bg="bg-[var(--accent-dim)]"
                     label="Affected Rooms" value={wasteRoomCount} sub={`of ${rooms.length} total`}
                 />
             </div>
@@ -55,8 +55,8 @@ export default function Analytics() {
             </div>
 
             {/* ── Per-room breakdown ─────────────────────────────── */}
-            <div className="glass p-5">
-                <h3 className="text-sm font-semibold text-surface-200 mb-4">Per-Room Breakdown</h3>
+            <div className="card p-5">
+                <h3 className="text-sm font-semibold text-[var(--text-1)] mb-4">Per-Room Breakdown</h3>
                 <EnergyChart data={roomBreakdown} variant="bar" />
             </div>
 
@@ -85,11 +85,11 @@ function SummaryCard({ icon: Icon, color, bg, label, value, sub }) {
                     <Icon size={20} className={color} />
                 </div>
                 <div>
-                    <p className="text-xs text-surface-400">{label}</p>
-                    <p className="text-xl font-bold text-white">{value}</p>
+                    <p className="text-xs text-[var(--text-3)]">{label}</p>
+                    <p className="text-xl font-bold text-[var(--text-1)]">{value}</p>
                 </div>
             </div>
-            <p className="text-[11px] text-surface-500 mt-1 ml-[52px]">{sub}</p>
+            <p className="text-[11px] text-[var(--text-3)] mt-1 ml-[52px]">{sub}</p>
         </div>
     );
 }
@@ -98,9 +98,9 @@ function InsightCard({ title, desc, type }) {
     const border = type === 'warning' ? 'border-caution/30' : 'border-secure/30';
     const icon = type === 'warning' ? '⚠️' : '✅';
     return (
-        <div className={`glass p-5 border-l-2 ${border}`}>
-            <h4 className="text-sm font-semibold text-surface-200 mb-2">{icon} {title}</h4>
-            <p className="text-xs text-surface-400 leading-relaxed">{desc}</p>
+        <div className={`card p-5 border-l-2 ${border}`}>
+            <h4 className="text-sm font-semibold text-[var(--text-1)] mb-2">{icon} {title}</h4>
+            <p className="text-xs text-[var(--text-3)] leading-relaxed">{desc}</p>
         </div>
     );
 }

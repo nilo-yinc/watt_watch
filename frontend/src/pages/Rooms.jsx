@@ -23,10 +23,10 @@ export default function Rooms() {
             {/* Header */}
             <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <DoorOpen size={24} className="text-brand-400" /> Rooms
+                    <h1 className="text-2xl font-bold text-[var(--text-1)] flex items-center gap-2">
+                        <DoorOpen size={24} className="text-[var(--accent)]" /> Rooms
                     </h1>
-                    <p className="text-sm text-surface-400 mt-1">Monitor all campus rooms in real-time</p>
+                    <p className="text-sm text-[var(--text-3)] mt-1">Monitor all campus rooms in real-time</p>
                 </div>
 
                 {/* Filter pills */}
@@ -41,8 +41,8 @@ export default function Rooms() {
                             key={f.key}
                             onClick={() => setFilter(f.key)}
                             className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all ${filter === f.key
-                                    ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
-                                    : 'bg-surface-800/40 text-surface-400 border border-surface-700/20 hover:bg-surface-800/60'
+                                    ? 'bg-[var(--accent-dim)] text-[var(--accent)] border border-[var(--border-2)]'
+                                    : 'bg-[var(--surface-2)] text-[var(--text-3)] border border-[var(--border)] hover:bg-[var(--surface-2)]'
                                 }`}
                         >
                             {f.label} ({f.count})
@@ -65,8 +65,8 @@ export default function Rooms() {
                             </div>
                         ))}
                         {filtered.length === 0 && (
-                            <div className="col-span-full text-center py-12 glass">
-                                <p className="text-surface-400">No rooms match this filter</p>
+                            <div className="col-span-full text-center py-12 card">
+                                <p className="text-[var(--text-3)]">No rooms match this filter</p>
                             </div>
                         )}
                     </div>
@@ -75,12 +75,12 @@ export default function Rooms() {
                 {/* Detail panel */}
                 <div className="xl:col-span-1">
                     {detail ? (
-                        <div className="glass p-6 space-y-5 animate-slide-up sticky top-6">
+                        <div className="card p-6 space-y-5 animate-slide-up sticky top-6">
                             {/* Room header */}
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <h2 className="text-lg font-bold text-white">{detail.name}</h2>
-                                    <p className="text-xs text-surface-400 flex items-center gap-1 mt-1">
+                                    <h2 className="text-lg font-bold text-[var(--text-1)]">{detail.name}</h2>
+                                    <p className="text-xs text-[var(--text-3)] flex items-center gap-1 mt-1">
                                         <MapPin size={12} /> {detail.location}
                                     </p>
                                 </div>
@@ -88,14 +88,14 @@ export default function Rooms() {
                             </div>
 
                             {/* Divider */}
-                            <div className="border-t border-surface-700/40" />
+                            <div className="border-t border-[var(--border)]" />
 
                             {/* Anonymized preview placeholder */}
-                            <div className="relative rounded-xl overflow-hidden bg-surface-800/60 border border-surface-700/30">
-                                <div className="aspect-video flex flex-col items-center justify-center gap-2 text-surface-500">
+                            <div className="relative rounded-xl overflow-hidden bg-[var(--surface-2)] border border-[var(--border)]">
+                                <div className="aspect-video flex flex-col items-center justify-center gap-2 text-[var(--text-3)]">
                                     <Camera size={32} />
                                     <p className="text-xs">Anonymized Preview</p>
-                                    <p className="text-[10px] text-surface-600">Raw footage is never displayed</p>
+                                    <p className="text-[10px] text-[var(--text-4)]">Raw footage is never displayed</p>
                                 </div>
                                 {/* Privacy shield overlay */}
                                 <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-lg bg-surface-900/80 text-[10px] text-secure">
@@ -116,7 +116,7 @@ export default function Rooms() {
 
                             {/* Appliances */}
                             <div>
-                                <p className="text-xs text-surface-400 mb-2 font-medium uppercase tracking-wide">Appliances</p>
+                                <p className="text-xs text-[var(--text-3)] mb-2 font-medium uppercase tracking-wide">Appliances</p>
                                 <div className="space-y-2">
                                     <ApplianceRow icon={Projector} label="Projector" on={detail.appliances?.projector} />
                                     <ApplianceRow icon={MonitorSmartphone} label="Monitors" on={detail.appliances?.monitors} />
@@ -125,15 +125,15 @@ export default function Rooms() {
                             </div>
 
                             {/* Camera info */}
-                            <div className="text-[10px] text-surface-500 flex items-center gap-2 pt-2 border-t border-surface-700/30">
+                            <div className="text-[10px] text-[var(--text-3)] flex items-center gap-2 pt-2 border-t border-[var(--border)]">
                                 <Camera size={12} />
                                 Source: {detail.camera_source} · Last update: {new Date(detail.last_updated).toLocaleTimeString()}
                             </div>
                         </div>
                     ) : (
-                        <div className="glass p-8 text-center">
-                            <DoorOpen size={40} className="mx-auto text-surface-600 mb-3" />
-                            <p className="text-surface-400 text-sm">Select a room to view details</p>
+                        <div className="card p-8 text-center">
+                            <DoorOpen size={40} className="mx-auto text-[var(--text-4)] mb-3" />
+                            <p className="text-[var(--text-3)] text-sm">Select a room to view details</p>
                         </div>
                     )}
                 </div>
@@ -144,11 +144,11 @@ export default function Rooms() {
 
 function DetailStat({ icon: Icon, label, value, sub, alert }) {
     return (
-        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-surface-800/40">
-            <Icon size={16} className={alert ? 'text-waste' : 'text-brand-400'} />
+        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[var(--surface-2)]">
+            <Icon size={16} className={alert ? 'text-waste' : 'text-[var(--accent)]'} />
             <div>
-                <p className={`text-lg font-bold leading-none ${alert ? 'text-waste' : 'text-white'}`}>{value}</p>
-                <p className="text-[10px] text-surface-500 mt-0.5">{label}</p>
+                <p className={`text-lg font-bold leading-none ${alert ? 'text-waste' : 'text-[var(--text-1)]'}`}>{value}</p>
+                <p className="text-[10px] text-[var(--text-3)] mt-0.5">{label}</p>
             </div>
         </div>
     );
@@ -156,13 +156,13 @@ function DetailStat({ icon: Icon, label, value, sub, alert }) {
 
 function ApplianceRow({ icon: Icon, label, on }) {
     return (
-        <div className={`flex items-center justify-between px-3 py-2 rounded-lg ${on ? 'bg-brand-500/5 border border-brand-500/15' : 'bg-surface-800/30 border border-surface-700/15'
+        <div className={`flex items-center justify-between px-3 py-2 rounded-lg ${on ? 'bg-[var(--accent-dim)] border border-[var(--border-2)]' : 'bg-[var(--surface-2)] border border-[var(--border)]'
             }`}>
             <div className="flex items-center gap-2">
-                <Icon size={14} className={on ? 'text-brand-400' : 'text-surface-500'} />
-                <span className="text-sm text-surface-300">{label}</span>
+                <Icon size={14} className={on ? 'text-[var(--accent)]' : 'text-[var(--text-3)]'} />
+                <span className="text-sm text-[var(--text-2)]">{label}</span>
             </div>
-            <span className={`text-xs font-medium ${on ? 'text-brand-400' : 'text-surface-500'}`}>
+            <span className={`text-xs font-medium ${on ? 'text-[var(--accent)]' : 'text-[var(--text-3)]'}`}>
                 {on ? 'ON' : 'OFF'}
             </span>
         </div>

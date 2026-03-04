@@ -38,16 +38,16 @@ export default function Settings() {
         <div className="space-y-6 animate-fade-in max-w-3xl">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <SettingsIcon size={24} className="text-brand-400" /> Settings
+                <h1 className="text-2xl font-bold text-[var(--text-1)] flex items-center gap-2">
+                    <SettingsIcon size={24} className="text-[var(--accent)]" /> Settings
                 </h1>
-                <p className="text-sm text-surface-400 mt-1">Configure detection thresholds and notifications</p>
+                <p className="text-sm text-[var(--text-3)] mt-1">Configure detection thresholds and notifications</p>
             </div>
 
             {/* ── Detection Settings ────────────────────────────── */}
-            <section className="glass p-6 space-y-5">
-                <h2 className="text-sm font-semibold text-surface-200 uppercase tracking-wide flex items-center gap-2">
-                    <Eye size={16} className="text-brand-400" /> Detection Settings
+            <section className="card p-6 space-y-5">
+                <h2 className="text-sm font-semibold text-[var(--text-1)] uppercase tracking-wide flex items-center gap-2">
+                    <Eye size={16} className="text-[var(--accent)]" /> Detection Settings
                 </h2>
 
                 <RangeInput
@@ -84,9 +84,9 @@ export default function Settings() {
             </section>
 
             {/* ── Notification Settings ──────────────────────────── */}
-            <section className="glass p-6 space-y-5">
-                <h2 className="text-sm font-semibold text-surface-200 uppercase tracking-wide flex items-center gap-2">
-                    <Bell size={16} className="text-brand-400" /> Notifications
+            <section className="card p-6 space-y-5">
+                <h2 className="text-sm font-semibold text-[var(--text-1)] uppercase tracking-wide flex items-center gap-2">
+                    <Bell size={16} className="text-[var(--accent)]" /> Notifications
                 </h2>
 
                 <ToggleRow
@@ -110,13 +110,13 @@ export default function Settings() {
             </section>
 
             {/* ── Privacy ────────────────────────────────────────── */}
-            <section className="glass p-6">
-                <h2 className="text-sm font-semibold text-surface-200 uppercase tracking-wide flex items-center gap-2 mb-3">
+            <section className="card p-6">
+                <h2 className="text-sm font-semibold text-[var(--text-1)] uppercase tracking-wide flex items-center gap-2 mb-3">
                     <ShieldCheck size={16} className="text-secure" /> Privacy Policy
                 </h2>
-                <div className="text-xs text-surface-400 space-y-2 leading-relaxed">
-                    <p>✅ Raw video frames are <strong className="text-surface-200">never stored or transmitted</strong>.</p>
-                    <p>✅ All preview feeds are <strong className="text-surface-200">anonymized</strong> (face/body blur) before display.</p>
+                <div className="text-xs text-[var(--text-3)] space-y-2 leading-relaxed">
+                    <p>✅ Raw video frames are <strong className="text-[var(--text-1)]">never stored or transmitted</strong>.</p>
+                    <p>✅ All preview feeds are <strong className="text-[var(--text-1)]">anonymized</strong> (face/body blur) before display.</p>
                     <p>✅ Only metadata is logged: room ID, timestamp, person count, appliance state, waste status.</p>
                     <p>✅ No facial recognition is used.</p>
                 </div>
@@ -128,7 +128,7 @@ export default function Settings() {
                     onClick={handleSave}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${saved
                             ? 'bg-secure/20 text-secure border border-secure/30'
-                            : 'bg-brand-500 text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20'
+                            : 'bg-[var(--accent)] text-white hover:bg-brand-600 shadow-lg shadow-brand-500/20'
                         }`}
                 >
                     <Save size={16} />
@@ -136,7 +136,7 @@ export default function Settings() {
                 </button>
                 <button
                     onClick={handleReset}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-surface-400 bg-surface-800/40 border border-surface-700/30 hover:bg-surface-800/60 transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-[var(--text-3)] bg-[var(--surface-2)] border border-[var(--border)] hover:bg-[var(--surface-2)] transition-all"
                 >
                     <RotateCcw size={16} />
                     Reset Defaults
@@ -152,10 +152,10 @@ function RangeInput({ label, desc, value, min, max, step, unit, onChange }) {
         <div>
             <div className="flex items-center justify-between mb-1.5">
                 <div>
-                    <p className="text-sm text-surface-200 font-medium">{label}</p>
-                    <p className="text-[11px] text-surface-500">{desc}</p>
+                    <p className="text-sm text-[var(--text-1)] font-medium">{label}</p>
+                    <p className="text-[11px] text-[var(--text-3)]">{desc}</p>
                 </div>
-                <span className="text-lg font-bold text-brand-400 font-mono min-w-[60px] text-right">
+                <span className="text-lg font-bold text-[var(--accent)] font-mono min-w-[60px] text-right">
                     {value}{unit}
                 </span>
             </div>
@@ -163,9 +163,9 @@ function RangeInput({ label, desc, value, min, max, step, unit, onChange }) {
                 type="range"
                 min={min} max={max} step={step} value={value}
                 onChange={e => onChange(parseFloat(e.target.value))}
-                className="w-full h-1.5 rounded-full appearance-none bg-surface-700 cursor-pointer accent-brand-500
+                className="w-full h-1.5 rounded-full appearance-none bg-[var(--surface-3)] cursor-pointer accent-brand-500
           [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand-500 [&::-webkit-slider-thumb]:cursor-pointer
+          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--accent)] [&::-webkit-slider-thumb]:cursor-pointer
           [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-brand-500/30"
             />
         </div>
@@ -177,18 +177,18 @@ function ToggleRow({ icon: Icon, label, desc, checked, onChange }) {
     return (
         <div className="flex items-center justify-between py-1">
             <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${checked ? 'bg-brand-500/15 text-brand-400' : 'bg-surface-700/40 text-surface-500'
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${checked ? 'bg-[var(--accent-dim)] text-[var(--accent)]' : 'bg-[var(--surface-3)] text-[var(--text-3)]'
                     }`}>
                     <Icon size={16} />
                 </div>
                 <div>
-                    <p className="text-sm text-surface-200 font-medium">{label}</p>
-                    <p className="text-[11px] text-surface-500">{desc}</p>
+                    <p className="text-sm text-[var(--text-1)] font-medium">{label}</p>
+                    <p className="text-[11px] text-[var(--text-3)]">{desc}</p>
                 </div>
             </div>
             <button
                 onClick={() => onChange(!checked)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${checked ? 'bg-brand-500' : 'bg-surface-600'
+                className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${checked ? 'bg-[var(--accent)]' : 'bg-surface-600'
                     }`}
             >
                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 ${checked ? 'translate-x-5' : 'translate-x-0'
