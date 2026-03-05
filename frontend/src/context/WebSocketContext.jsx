@@ -58,7 +58,10 @@ export function WebSocketProvider({ children }) {
                     } else if (data.type === 'alert') {
                         dispatch({ type: 'ADD_ALERT', payload: data.payload });
                     } else if (data.type === 'ghost_frame') {
-                        dispatch({ type: 'SET_GHOST_FRAME', payload: data.payload });
+                        dispatch({
+                            type: 'SET_GHOST_FRAME',
+                            payload: { ...data.payload, received_at: Date.now() },
+                        });
                     }
                 } catch (err) {
                     console.warn('[WS] Invalid message:', err);

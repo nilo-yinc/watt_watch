@@ -143,7 +143,8 @@ export default function GhostView() {
     const activeGhostSrc = activeGhostFrame?.image_b64
         ? `data:image/jpeg;base64,${activeGhostFrame.image_b64}`
         : '';
-    const ghostFresh = !!activeGhostFrame?.timestamp && (Date.now() - activeGhostFrame.timestamp < 2500);
+    const frameSeenAt = activeGhostFrame?.received_at || activeGhostFrame?.timestamp || 0;
+    const ghostFresh = !!frameSeenAt && (Date.now() - frameSeenAt < 3500);
     // Prefer CV/YOLO ghost stream (with boxes/labels). Use local camera only as fallback.
     const usingYoloStream = ghostMode && !!activeGhostSrc && ghostFresh;
     const usingLocalGhostStream = ghostMode && !usingYoloStream && localCameraReady;
