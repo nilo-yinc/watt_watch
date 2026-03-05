@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Spotlight } from '../components/ui/spotlight';
 import { useRooms } from '../hooks/useRooms';
 import { useApp } from '../context/AppContext';
@@ -13,7 +13,6 @@ export default function GhostView() {
     const [dataOnlyMode, setDataOnlyMode] = useState(false);
     const [feedError, setFeedError] = useState('');
     const [localCameraReady, setLocalCameraReady] = useState(false);
-    const [cameraRetryTick, setCameraRetryTick] = useState(0);
     const [timeNow, setTimeNow] = useState(Date.now());
     const videoRef = useRef(null);
     const streamRef = useRef(null);
@@ -56,65 +55,70 @@ export default function GhostView() {
         return () => clearInterval(timer);
     }, []);
 
-    useEffect(() => {
-        let cancelled = false;
-
-        async function openCamera() {
-            if (dataOnlyMode) {
-                setFeedError('');
-                setLocalCameraReady(false);
-                return;
-            }
-            if (!window.isSecureContext || !navigator?.mediaDevices?.getUserMedia) {
-                setFeedError('Camera API unavailable in this browser/context.');
-                setLocalCameraReady(false);
-                return;
-            }
-
-            const attempts = [
-                { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false },
-                { video: { width: { ideal: 960 }, height: { ideal: 540 } }, audio: false },
-                { video: true, audio: false },
-            ];
-
-            let stream = null;
-            for (const constraints of attempts) {
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    break;
-                } catch {
-                    // Try next fallback constraints.
-                }
-            }
-
-            if (!stream) {
-                setFeedError('Camera permission denied or no camera found.');
-                setLocalCameraReady(false);
-                return;
-            }
-
-            if (cancelled) {
-                stream.getTracks().forEach((track) => track.stop());
-                return;
-            }
-            streamRef.current = stream;
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-            }
+    const requestCamera = useCallback(async () => {
+        if (dataOnlyMode) {
             setFeedError('');
-            setLocalCameraReady(true);
+            setLocalCameraReady(false);
+            return;
+        }
+        if (!window.isSecureContext || !navigator?.mediaDevices?.getUserMedia) {
+            setFeedError('Camera API unavailable in this browser/context.');
+            setLocalCameraReady(false);
+            return;
         }
 
-        openCamera();
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach((track) => track.stop());
+            streamRef.current = null;
+        }
+
+        const attempts = [
+            { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false },
+            { video: { width: { ideal: 960 }, height: { ideal: 540 } }, audio: false },
+            { video: true, audio: false },
+        ];
+
+        let stream = null;
+        let lastErr = null;
+        for (const constraints of attempts) {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                break;
+            } catch (err) {
+                lastErr = err;
+            }
+        }
+
+        if (!stream) {
+            const reason = lastErr?.name ? ` (${lastErr.name})` : '';
+            setFeedError(`Camera permission denied or no camera found${reason}.`);
+            setLocalCameraReady(false);
+            return;
+        }
+
+        streamRef.current = stream;
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            try {
+                await videoRef.current.play();
+            } catch {
+                // Playback may still need user interaction in some browsers.
+            }
+        }
+        setFeedError('');
+        setLocalCameraReady(true);
+    }, [dataOnlyMode]);
+
+    useEffect(() => {
+        requestCamera();
         return () => {
-            cancelled = true;
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach((track) => track.stop());
                 streamRef.current = null;
             }
             setLocalCameraReady(false);
         };
-    }, [dataOnlyMode, cameraRetryTick]);
+    }, [requestCamera]);
 
     const activeRoom = allRooms.find((room) => room.id === selectedRoom) || allRooms[0];
     const latestGhostFrame = useMemo(() => {
@@ -349,11 +353,14 @@ export default function GhostView() {
                                                     {!!feedError && (
                                                         <button
                                                             type="button"
-                                                            onClick={() => setCameraRetryTick((n) => n + 1)}
+                                                            onClick={requestCamera}
                                                             className="mt-4 px-3 py-1.5 text-[10px] font-mono border border-cyan-500/30 rounded text-cyan-300 hover:bg-cyan-500/10"
                                                         >
                                                             RETRY CAMERA
                                                         </button>
+                                                    )}
+                                                    {!!feedError && (
+                                                        <div className="mt-2 text-[10px] font-mono text-amber-300">{feedError}</div>
                                                     )}
                                                 </div>
                                             </div>
