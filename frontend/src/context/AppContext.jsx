@@ -128,7 +128,10 @@ function reducer(state, action) {
                 ...state,
                 ghostFrames: {
                     ...state.ghostFrames,
-                    [action.payload.room_id]: action.payload,
+                    [action.payload.room_id]: {
+                        ...action.payload,
+                        received_at: Date.now()
+                    },
                 },
             };
         case 'SET_CONFIG':
