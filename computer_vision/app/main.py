@@ -4,6 +4,8 @@ import time
 import os
 import json
 import base64
+import queue
+import threading
 import urllib.request
 import urllib.error
 from app.cv.camera import get_camera
@@ -30,9 +32,16 @@ PUSH_TO_NODE = os.getenv("WW_PUSH_TO_NODE", "1") == "1"
 DATA_PUSH_INTERVAL_S = float(os.getenv("WW_DATA_PUSH_INTERVAL_S", "1.0"))
 GHOST_PUSH_INTERVAL_S = float(os.getenv("WW_GHOST_PUSH_INTERVAL_S", "0.4"))
 SHOW_WINDOW = os.getenv("WW_SHOW_WINDOW", "0") == "1"
+POST_TIMEOUT_S = float(os.getenv("WW_POST_TIMEOUT_S", "0.25"))
+SEND_QUEUE_MAX = int(os.getenv("WW_SEND_QUEUE_MAX", "400"))
+STREAM_WIDTH = int(os.getenv("WW_STREAM_WIDTH", "512"))
+STREAM_HEIGHT = int(os.getenv("WW_STREAM_HEIGHT", "384"))
+STREAM_JPEG_QUALITY = int(os.getenv("WW_STREAM_JPEG_QUALITY", "35"))
+
+_send_queue: "queue.Queue[tuple[str, dict]]" = queue.Queue(maxsize=SEND_QUEUE_MAX)
 
 
-def _post_json(url: str, payload: dict, timeout: float = 1.5) -> bool:
+def _post_json(url: str, payload: dict, timeout: float = POST_TIMEOUT_S) -> bool:
     body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         url,
@@ -45,6 +54,30 @@ def _post_json(url: str, payload: dict, timeout: float = 1.5) -> bool:
             return True
     except (urllib.error.URLError, urllib.error.HTTPError):
         return False
+
+
+def _enqueue_post(url: str, payload: dict) -> None:
+    try:
+        _send_queue.put_nowait((url, payload))
+    except queue.Full:
+        # Drop oldest frame/update under backpressure to keep CV loop realtime.
+        try:
+            _send_queue.get_nowait()
+            _send_queue.put_nowait((url, payload))
+        except queue.Empty:
+            pass
+
+
+def _sender_worker() -> None:
+    while True:
+        url, payload = _send_queue.get()
+        try:
+            _post_json(url, payload)
+        finally:
+            _send_queue.task_done()
+
+
+threading.Thread(target=_sender_worker, daemon=True).start()
 
 
 def _parse_room_ids(raw: str) -> list[str]:
@@ -183,11 +216,16 @@ def main():
                     "latency_ms": int(latency * 1000),
                     "privacy_mode": "blur",
                 }
-                _post_json(f"{NODE_API_URL}/api/cv/data", data_payload)
+                _enqueue_post(f"{NODE_API_URL}/api/cv/data", data_payload)
                 last_data_push = now
 
             if now - last_ghost_push >= GHOST_PUSH_INTERVAL_S:
-                ok, ghost_buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), JPEG_QUALITY])
+                stream_frame = cv2.resize(frame, (STREAM_WIDTH, STREAM_HEIGHT))
+                ok, ghost_buf = cv2.imencode(
+                    ".jpg",
+                    stream_frame,
+                    [int(cv2.IMWRITE_JPEG_QUALITY), STREAM_JPEG_QUALITY],
+                )
                 if ok:
                     frame_b64 = base64.b64encode(ghost_buf.tobytes()).decode("ascii")
                     ts_ms = int(time.time() * 1000)
@@ -196,8 +234,13 @@ def main():
                             "room_id": room_id,
                             "image_b64": frame_b64,
                             "timestamp": ts_ms,
+                            "person_count": int(person_count),
+                            "appliance_on": bool(appliance_on),
+                            "waste_detected": bool(waste_detected),
+                            "brightness": int(brightness),
+                            "latency_ms": int(latency * 1000),
                         }
-                        _post_json(f"{NODE_API_URL}/api/cv/ghost-frame", ghost_payload)
+                        _enqueue_post(f"{NODE_API_URL}/api/cv/ghost-frame", ghost_payload)
                 last_ghost_push = now
 
         if SHOW_WINDOW:

@@ -93,11 +93,12 @@ export default function GhostView() {
 
     const activeRoom = allRooms.find((room) => room.id === selectedRoom) || allRooms[0];
     const activeGhostFrame = activeRoom ? ghostFrames[activeRoom.id] : null;
+    const ghostMeta = activeGhostFrame || {};
     const activeGhostSrc = activeGhostFrame?.image_b64
         ? `data:image/jpeg;base64,${activeGhostFrame.image_b64}`
         : '';
     const usingYoloStream = ghostMode && !!activeGhostSrc;
-    const isWaste = activeRoom?.waste_detected || activeRoom?.status === 'waste';
+    const isWaste = (ghostMeta.waste_detected ?? activeRoom?.waste_detected) || activeRoom?.status === 'waste';
     const statusText = isWaste ? 'WASTE' : 'CLEAR';
     const statusClass = isWaste ? 'text-red-400' : 'text-emerald-400';
 
@@ -114,7 +115,7 @@ export default function GhostView() {
         const items = [];
 
         // People detected
-        const people = activeRoom.person_count ?? activeRoom.occupancy ?? 0;
+        const people = ghostMeta.person_count ?? activeRoom.person_count ?? activeRoom.occupancy ?? 0;
         items.push({ label: 'People Detected', value: people, on: people > 0 });
 
         // Bulbs/Lights
@@ -124,10 +125,12 @@ export default function GhostView() {
             items.push({ label: `Bulb ON`, value: `${bulbsOn} / ${bulbs.length}`, on: bulbsOn > 0 });
         } else if (app.bulbs) {
             // mockData rooms with explicit bulb count
-            const bulbsOn = app.lights ? app.bulbs : 0;
+            const lightsOn = ghostMeta.appliance_on ?? app.lights;
+            const bulbsOn = lightsOn ? app.bulbs : 0;
             items.push({ label: 'Bulb ON', value: `${bulbsOn} / ${app.bulbs}`, on: bulbsOn > 0 });
         } else {
-            items.push({ label: 'Lights', value: app.lights ? 'ON' : 'OFF', on: !!app.lights });
+            const lightsOn = ghostMeta.appliance_on ?? app.lights;
+            items.push({ label: 'Lights', value: lightsOn ? 'ON' : 'OFF', on: !!lightsOn });
         }
 
         // Fan
@@ -174,9 +177,15 @@ export default function GhostView() {
 
         // AC
         items.push({ label: 'AC', value: app.ac ? 'ON' : 'OFF', on: !!app.ac });
+        if (ghostMeta.brightness !== undefined) {
+            items.push({ label: 'Brightness', value: `${ghostMeta.brightness}`, on: true });
+        }
+        if (ghostMeta.latency_ms !== undefined) {
+            items.push({ label: 'Latency', value: `${(ghostMeta.latency_ms / 1000).toFixed(2)}s`, on: true });
+        }
 
         return items;
-    }, [activeRoom, roomDevices]);
+    }, [activeRoom, roomDevices, ghostMeta]);
 
     // Total power being drawn
     const totalPower = useMemo(() => {
@@ -188,7 +197,7 @@ export default function GhostView() {
 
     return (
         <Spotlight className="min-h-full">
-            <div className="max-w-[1400px] mx-auto">
+            <div className="max-w-[1650px] mx-auto">
                 <div className="mb-6">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
@@ -199,7 +208,7 @@ export default function GhostView() {
                 </div>
 
                 <div className="hud-card p-4 mb-6">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <div className="hud-label mb-2">SELECT FEED</div>
                             <select
@@ -240,10 +249,10 @@ export default function GhostView() {
                 </div>
 
                 {activeRoom && (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                         {/* ── Video Feed ─────────────────────────── */}
                         <div className="col-span-2">
-                            <div className="hud-card overflow-hidden" style={{ minHeight: '420px' }}>
+                            <div className="hud-card overflow-hidden" style={{ minHeight: '560px' }}>
                                 <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.03]">
                                     <div className="flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
@@ -258,7 +267,7 @@ export default function GhostView() {
                                 </div>
 
                                 {dataOnlyMode ? (
-                                    <div className="flex items-center justify-center p-12" style={{ minHeight: '360px' }}>
+                                    <div className="flex items-center justify-center p-12" style={{ minHeight: '500px' }}>
                                         <div className="text-center">
                                             <div className="text-[var(--ww-text-muted)] text-5xl font-mono mb-4">[X]</div>
                                             <p className="text-xs font-mono text-[var(--ww-text-3)] mb-6">VISUAL FEED DISABLED</p>
@@ -281,11 +290,11 @@ export default function GhostView() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="relative" style={{ minHeight: '360px' }}>
+                                    <div className="relative" style={{ minHeight: '500px' }}>
                                         {usingYoloStream ? (
-                                            <img src={activeGhostSrc} alt="Ghost feed" className="w-full h-[360px] object-cover" />
+                                            <img src={activeGhostSrc} alt="Ghost feed" className="w-full h-[500px] object-contain bg-black" />
                                         ) : ghostMode ? (
-                                            <div className="w-full h-[360px] flex items-center justify-center text-center bg-black/80 px-6">
+                                            <div className="w-full h-[500px] flex items-center justify-center text-center bg-black/80 px-6">
                                                 <div>
                                                     <div className="text-sm font-mono text-red-400 mb-2">PRIVACY LOCK</div>
                                                     <div className="text-xs font-mono text-[var(--ww-text-3)]">Ghost Mode needs YOLO stream.</div>
@@ -300,7 +309,7 @@ export default function GhostView() {
                                                 autoPlay
                                                 muted
                                                 playsInline
-                                                className="w-full h-[360px] object-cover"
+                                                className="w-full h-[500px] object-contain bg-black"
                                             />
                                         )}
                                         {ghostMode && (
@@ -312,7 +321,7 @@ export default function GhostView() {
                                             </div>
                                             <div className="text-xs font-mono text-[var(--ww-text-1)] mt-1">
                                                 {usingYoloStream
-                                                    ? `${activeRoom.person_count ?? activeRoom.occupancy ?? 0} detected`
+                                                    ? `${ghostMeta.person_count ?? activeRoom.person_count ?? activeRoom.occupancy ?? 0} detected`
                                                     : 'N/A (CV stream required)'}
                                             </div>
                                         </div>
@@ -356,6 +365,8 @@ export default function GhostView() {
                                 {[
                                     { label: 'Room', val: activeRoom.name },
                                     { label: 'Monitoring', val: activeRoom.monitoring || 'CCTV' },
+                                    { label: 'Brightness', val: ghostMeta.brightness !== undefined ? `${ghostMeta.brightness}` : 'N/A' },
+                                    { label: 'Latency', val: ghostMeta.latency_ms !== undefined ? `${(ghostMeta.latency_ms / 1000).toFixed(2)}s` : 'N/A' },
                                     { label: 'Power Draw', val: `${totalPower}W`, accent: totalPower > 0 ? 'text-amber-400' : '' },
                                     { label: 'Status', val: statusText, accent: statusClass },
                                     { label: 'Backend', val: backendOnline ? 'ONLINE' : 'OFFLINE', accent: backendOnline ? 'text-emerald-400' : 'text-red-400' },
