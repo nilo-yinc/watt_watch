@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const ESP_IP = '10.20.79.174';
+const ESP_ENABLED = (import.meta.env.VITE_ENABLE_ESP32 || 'false') === 'true';
+const ESP_IP = (import.meta.env.VITE_ESP32_IP || '').trim();
 const BASE_URL = `http://${ESP_IP}`;
 const POLL_INTERVAL_MS = 5000;
 
@@ -17,7 +18,7 @@ export function useESP32(enabled = true) {
   const intervalRef = useRef(null);
 
   const fetchStatus = useCallback(async () => {
-    if (!enabled) return;
+    if (!enabled || !ESP_ENABLED || !ESP_IP) return;
     try {
       const res = await fetch(`${BASE_URL}/status`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -32,6 +33,10 @@ export function useESP32(enabled = true) {
 
   // Control LED
   const controlLED = useCallback(async (action) => {
+    if (!ESP_ENABLED || !ESP_IP) {
+      setLastMessage('ESP32 disabled in deployment');
+      return;
+    }
     setIsLoading(true);
     setLastMessage('');
     try {
@@ -52,6 +57,10 @@ export function useESP32(enabled = true) {
 
   // Control Fan
   const controlFan = useCallback(async (action) => {
+    if (!ESP_ENABLED || !ESP_IP) {
+      setLastMessage('ESP32 disabled in deployment');
+      return;
+    }
     setIsLoading(true);
     setLastMessage('');
     try {
@@ -72,7 +81,7 @@ export function useESP32(enabled = true) {
 
   // Polling
   useEffect(() => {
-    if (!enabled) {
+    if (!enabled || !ESP_ENABLED || !ESP_IP) {
       setConnectionStatus('disconnected');
       return;
     }
@@ -90,6 +99,6 @@ export function useESP32(enabled = true) {
     controlLED,
     controlFan,
     refreshStatus: fetchStatus,
-    espIp: ESP_IP,
+    espIp: ESP_IP || 'not-configured',
   };
 }

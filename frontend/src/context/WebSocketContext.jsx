@@ -3,6 +3,18 @@ import { useApp } from './AppContext';
 
 const WebSocketContext = createContext(null);
 
+function resolveWsUrl() {
+    const configured = (import.meta.env.VITE_WS_URL || '').trim();
+    const nodeDefault = 'wss://watt-watch-node.onrender.com/ws';
+
+    if (!configured) return nodeDefault;
+
+    // Guard against misconfigured Python CV URL in frontend env.
+    if (configured.includes('watt-watch.onrender.com')) return nodeDefault;
+
+    return configured;
+}
+
 /**
  * WebSocket provider — connects to backend for real-time updates.
  * In demo mode (no backend), simulates live updates every few seconds.
@@ -16,7 +28,7 @@ export function WebSocketProvider({ children }) {
 
     // ── Attempt real WebSocket connection ─────────────────────────
     const connect = useCallback(() => {
-        const wsUrl = import.meta.env.VITE_WS_URL || 'wss://watt-watch-node.onrender.com/ws';
+        const wsUrl = resolveWsUrl();
 
         try {
             const ws = new WebSocket(wsUrl);
