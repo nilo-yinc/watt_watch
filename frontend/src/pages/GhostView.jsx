@@ -116,8 +116,9 @@ export default function GhostView() {
         ? `data:image/jpeg;base64,${activeGhostFrame.image_b64}`
         : '';
     const ghostFresh = !!activeGhostFrame?.timestamp && (Date.now() - activeGhostFrame.timestamp < 2500);
-    const usingYoloStream = ghostMode && !!activeGhostSrc && ghostFresh;
-    const usingLocalGhostStream = ghostMode && !usingYoloStream && localCameraReady;
+    // Device camera is primary for Ghost Mode (works for every room on user laptop/mobile).
+    const usingLocalGhostStream = ghostMode && localCameraReady;
+    const usingYoloStream = ghostMode && !usingLocalGhostStream && !!activeGhostSrc && ghostFresh;
     const isWaste = (ghostMeta.waste_detected ?? activeRoom?.waste_detected) || activeRoom?.status === 'waste';
     const statusText = isWaste ? 'WASTE' : 'CLEAR';
     const statusClass = isWaste ? 'text-red-400' : 'text-emerald-400';
@@ -350,11 +351,11 @@ export default function GhostView() {
                                                 {ghostMode ? (usingYoloStream ? 'GHOST MODE' : 'LOCAL GHOST MODE') : 'LIVE MODE'}
                                             </div>
                                             <div className="text-xs font-mono text-[var(--ww-text-1)] mt-1">
-                                                {usingYoloStream
-                                                    ? `${ghostMeta.person_count ?? activeRoom.person_count ?? activeRoom.occupancy ?? 0} detected`
-                                                    : usingLocalGhostStream
-                                                        ? 'Live local camera (privacy blur)'
-                                                        : 'N/A (CV stream required)'}
+                                                {usingLocalGhostStream
+                                                    ? 'Live local camera (privacy blur)'
+                                                    : usingYoloStream
+                                                        ? `${ghostMeta.person_count ?? activeRoom.person_count ?? activeRoom.occupancy ?? 0} detected`
+                                                        : 'N/A (camera/CV required)'}
                                             </div>
                                         </div>
                                         <div className="absolute bottom-4 left-4 right-4">
@@ -364,12 +365,12 @@ export default function GhostView() {
                                                 <span className="text-[8px] font-mono text-[var(--ww-text-3)]">
                                                     {(!ghostMode && feedError)
                                                         || (!backendOnline
-                                                            ? 'Backend offline: showing local fallback only'
-                                                            : usingYoloStream
-                                                                ? 'YOLO blur stream active'
-                                                                : usingLocalGhostStream
-                                                                    ? 'YOLO stream stale/unavailable: using local ghost camera'
-                                                                    : 'YOLO stream unavailable: privacy lock active')}
+                                                            ? 'Backend offline: using local ghost camera'
+                                                            : usingLocalGhostStream
+                                                                ? 'Local ghost camera active (all rooms)'
+                                                                : usingYoloStream
+                                                                    ? 'YOLO blur stream active'
+                                                                    : 'Camera/CV unavailable: privacy lock active')}
                                                 </span>
                                             </div>
                                         </div>
