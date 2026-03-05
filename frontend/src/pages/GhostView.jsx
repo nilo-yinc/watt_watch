@@ -64,25 +64,38 @@ export default function GhostView() {
                 setLocalCameraReady(false);
                 return;
             }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
-                    audio: false,
-                });
-                if (cancelled) {
-                    stream.getTracks().forEach((track) => track.stop());
-                    return;
+            const attempts = [
+                { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false },
+                { video: { width: { ideal: 960 }, height: { ideal: 540 } }, audio: false },
+                { video: true, audio: false },
+            ];
+
+            let stream = null;
+            for (const constraints of attempts) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    break;
+                } catch {
+                    // Try next fallback constraints.
                 }
-                streamRef.current = stream;
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                }
-                setFeedError('');
-                setLocalCameraReady(true);
-            } catch {
+            }
+
+            if (!stream) {
                 setFeedError('Camera permission denied or no camera found.');
                 setLocalCameraReady(false);
+                return;
             }
+
+            if (cancelled) {
+                stream.getTracks().forEach((track) => track.stop());
+                return;
+            }
+            streamRef.current = stream;
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+            }
+            setFeedError('');
+            setLocalCameraReady(true);
         }
 
         openCamera();
