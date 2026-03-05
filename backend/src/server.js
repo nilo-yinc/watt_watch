@@ -69,11 +69,11 @@ app.post("/api/cv/data", async (req, res) => {
 
 app.post("/api/cv/ghost-frame", (req, res) => {
   try {
-    const { room_id, image_b64, timestamp } = req.body;
-    if (!room_id || !image_b64) return res.status(400).json({ error: "room_id and image_b64 required" });
+    const payload = req.body;
+    if (!payload?.room_id || !payload?.image_b64) return res.status(400).json({ error: "room_id and image_b64 required" });
     broadcast({
       type: "ghost_frame",
-      payload: { room_id, image_b64, timestamp: timestamp || Date.now() },
+      payload: { ...payload, timestamp: payload.timestamp || Date.now() },
     });
     res.json({ ok: true });
   } catch (err) {
