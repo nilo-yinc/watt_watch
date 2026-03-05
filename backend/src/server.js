@@ -16,12 +16,33 @@ import { addClient, removeClient, broadcast } from "./services/ws-hub.js";
 
 const app = express();
 app.use(express.json({ limit: "5mb" }));
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true; // non-browser / same-origin requests
+
+  const allowList = env.corsOrigins || [];
+  if (allowList.includes("*")) return true;
+  if (allowList.includes(origin)) return true;
+
+  // Always allow Vercel deploy domains unless explicitly locked down.
+  if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin)) return true;
+
+  return false;
+}
+
+const corsOptions = {
+  origin(origin, callback) {
+    callback(null, isAllowedOrigin(origin));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
 app.use(
-  cors({
-    origin: env.corsOrigins.includes("*") ? true : env.corsOrigins,
-    credentials: true,
-  })
+  cors(corsOptions)
 );
+app.options("*", cors(corsOptions));
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.get("/api/alerts", async (_req, res) => {
