@@ -13,6 +13,7 @@ export default function GhostView() {
     const [dataOnlyMode, setDataOnlyMode] = useState(false);
     const [feedError, setFeedError] = useState('');
     const [localCameraReady, setLocalCameraReady] = useState(false);
+    const [cameraRetryTick, setCameraRetryTick] = useState(0);
     const [timeNow, setTimeNow] = useState(Date.now());
     const videoRef = useRef(null);
     const streamRef = useRef(null);
@@ -64,6 +65,12 @@ export default function GhostView() {
                 setLocalCameraReady(false);
                 return;
             }
+            if (!window.isSecureContext || !navigator?.mediaDevices?.getUserMedia) {
+                setFeedError('Camera API unavailable in this browser/context.');
+                setLocalCameraReady(false);
+                return;
+            }
+
             const attempts = [
                 { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false },
                 { video: { width: { ideal: 960 }, height: { ideal: 540 } }, audio: false },
@@ -107,10 +114,17 @@ export default function GhostView() {
             }
             setLocalCameraReady(false);
         };
-    }, [dataOnlyMode]);
+    }, [dataOnlyMode, cameraRetryTick]);
 
     const activeRoom = allRooms.find((room) => room.id === selectedRoom) || allRooms[0];
-    const activeGhostFrame = activeRoom ? ghostFrames[activeRoom.id] : null;
+    const latestGhostFrame = useMemo(() => {
+        const frames = Object.values(ghostFrames || {});
+        if (!frames.length) return null;
+        return frames.reduce((latest, frame) => (
+            !latest || (frame?.timestamp || 0) > (latest?.timestamp || 0) ? frame : latest
+        ), null);
+    }, [ghostFrames]);
+    const activeGhostFrame = (activeRoom ? ghostFrames[activeRoom.id] : null) || latestGhostFrame;
     const ghostMeta = activeGhostFrame || {};
     const activeGhostSrc = activeGhostFrame?.image_b64
         ? `data:image/jpeg;base64,${activeGhostFrame.image_b64}`
@@ -332,6 +346,15 @@ export default function GhostView() {
                                                     <div className="text-xs font-mono text-[var(--ww-text-3)] mt-1">
                                                         Start computer_vision service for person-only blur.
                                                     </div>
+                                                    {!!feedError && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setCameraRetryTick((n) => n + 1)}
+                                                            className="mt-4 px-3 py-1.5 text-[10px] font-mono border border-cyan-500/30 rounded text-cyan-300 hover:bg-cyan-500/10"
+                                                        >
+                                                            RETRY CAMERA
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         ) : (
