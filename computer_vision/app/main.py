@@ -52,7 +52,9 @@ def _post_json(url: str, payload: dict, timeout: float = POST_TIMEOUT_S) -> bool
     try:
         with urllib.request.urlopen(req, timeout=timeout):
             return True
-    except (urllib.error.URLError, urllib.error.HTTPError):
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, OSError):
+        return False
+    except Exception:
         return False
 
 
@@ -72,7 +74,11 @@ def _sender_worker() -> None:
     while True:
         url, payload = _send_queue.get()
         try:
-            _post_json(url, payload)
+            try:
+                _post_json(url, payload)
+            except Exception:
+                # Keep worker alive on unexpected network/runtime errors.
+                pass
         finally:
             _send_queue.task_done()
 
