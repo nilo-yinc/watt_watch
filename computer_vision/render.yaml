@@ -8,11 +8,11 @@ services:
     healthCheckPath: /healthz
     envVars:
       - key: RUN_CV
-        value: "1"
+        value: "0"
       - key: WW_DUMMY_CAMERA
         value: "1"
       - key: WW_PUSH_TO_NODE
-        value: "1"
+        value: "0"
       - key: WW_NODE_API_URL
         value: "https://watt-watch-node.onrender.com"
       - key: WW_SHOW_WINDOW
