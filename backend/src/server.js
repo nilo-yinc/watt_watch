@@ -71,6 +71,7 @@ app.post("/api/cv/ghost-frame", (req, res) => {
   try {
     const payload = req.body;
     if (!payload?.room_id || !payload?.image_b64) return res.status(400).json({ error: "room_id and image_b64 required" });
+    console.log(`[cv-http] received ghost frame for ${payload.room_id}`);
     broadcast({
       type: "ghost_frame",
       payload: { ...payload, timestamp: payload.timestamp || Date.now() },
