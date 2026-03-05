@@ -12,6 +12,7 @@ export default function GhostView() {
     const [ghostMode, setGhostMode] = useState(true);
     const [dataOnlyMode, setDataOnlyMode] = useState(false);
     const [feedError, setFeedError] = useState('');
+    const [localCameraReady, setLocalCameraReady] = useState(false);
     const [timeNow, setTimeNow] = useState(Date.now());
     const videoRef = useRef(null);
     const streamRef = useRef(null);
@@ -58,9 +59,9 @@ export default function GhostView() {
         let cancelled = false;
 
         async function openCamera() {
-            // In Ghost Mode, video should come from backend YOLO stream only.
-            if (dataOnlyMode || ghostMode) {
+            if (dataOnlyMode) {
                 setFeedError('');
+                setLocalCameraReady(false);
                 return;
             }
             try {
@@ -77,8 +78,10 @@ export default function GhostView() {
                     videoRef.current.srcObject = stream;
                 }
                 setFeedError('');
+                setLocalCameraReady(true);
             } catch {
                 setFeedError('Camera permission denied or no camera found.');
+                setLocalCameraReady(false);
             }
         }
 
@@ -89,8 +92,9 @@ export default function GhostView() {
                 streamRef.current.getTracks().forEach((track) => track.stop());
                 streamRef.current = null;
             }
+            setLocalCameraReady(false);
         };
-    }, [dataOnlyMode, ghostMode]);
+    }, [dataOnlyMode]);
 
     const activeRoom = allRooms.find((room) => room.id === selectedRoom) || allRooms[0];
     const activeGhostFrame = activeRoom ? ghostFrames[activeRoom.id] : null;
@@ -98,7 +102,9 @@ export default function GhostView() {
     const activeGhostSrc = activeGhostFrame?.image_b64
         ? `data:image/jpeg;base64,${activeGhostFrame.image_b64}`
         : '';
-    const usingYoloStream = ghostMode && !!activeGhostSrc;
+    const ghostFresh = !!activeGhostFrame?.timestamp && (Date.now() - activeGhostFrame.timestamp < 2500);
+    const usingYoloStream = ghostMode && !!activeGhostSrc && ghostFresh;
+    const usingLocalGhostStream = ghostMode && !usingYoloStream && localCameraReady;
     const isWaste = (ghostMeta.waste_detected ?? activeRoom?.waste_detected) || activeRoom?.status === 'waste';
     const statusText = isWaste ? 'WASTE' : 'CLEAR';
     const statusClass = isWaste ? 'text-red-400' : 'text-emerald-400';
@@ -294,6 +300,16 @@ export default function GhostView() {
                                     <div className="relative" style={{ minHeight: '500px' }}>
                                         {usingYoloStream ? (
                                             <img src={activeGhostSrc} alt="Ghost feed" className="w-full h-[500px] object-contain bg-black" />
+                                        ) : usingLocalGhostStream ? (
+                                            <div className="relative w-full h-[500px] bg-black overflow-hidden">
+                                                <video
+                                                    ref={videoRef}
+                                                    autoPlay
+                                                    muted
+                                                    playsInline
+                                                    className="w-full h-[500px] object-contain bg-black [filter:blur(10px)_saturate(0.9)]"
+                                                />
+                                            </div>
                                         ) : ghostMode ? (
                                             <div className="w-full h-[500px] flex items-center justify-center text-center bg-black/80 px-6">
                                                 <div>
@@ -318,12 +334,14 @@ export default function GhostView() {
                                         )}
                                         <div className="absolute top-4 left-4">
                                             <div className="text-[9px] font-mono text-purple-400 tracking-wider">
-                                                {ghostMode ? 'GHOST MODE' : 'LIVE MODE'}
+                                                {ghostMode ? (usingYoloStream ? 'GHOST MODE' : 'LOCAL GHOST MODE') : 'LIVE MODE'}
                                             </div>
                                             <div className="text-xs font-mono text-[var(--ww-text-1)] mt-1">
                                                 {usingYoloStream
                                                     ? `${ghostMeta.person_count ?? activeRoom.person_count ?? activeRoom.occupancy ?? 0} detected`
-                                                    : 'N/A (CV stream required)'}
+                                                    : usingLocalGhostStream
+                                                        ? 'Live local camera (privacy blur)'
+                                                        : 'N/A (CV stream required)'}
                                             </div>
                                         </div>
                                         <div className="absolute bottom-4 left-4 right-4">
@@ -336,7 +354,9 @@ export default function GhostView() {
                                                             ? 'Backend offline: showing local fallback only'
                                                             : usingYoloStream
                                                                 ? 'YOLO blur stream active'
-                                                                : 'YOLO stream unavailable: privacy lock active')}
+                                                                : usingLocalGhostStream
+                                                                    ? 'YOLO stream stale/unavailable: using local ghost camera'
+                                                                    : 'YOLO stream unavailable: privacy lock active')}
                                                 </span>
                                             </div>
                                         </div>
