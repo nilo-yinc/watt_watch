@@ -16,6 +16,7 @@ export default function GhostView() {
     const [timeNow, setTimeNow] = useState(Date.now());
     const videoRef = useRef(null);
     const streamRef = useRef(null);
+    const cameraRequestRef = useRef(false);
 
     // ESP32 IoT — only enabled when test-room is selected
     const isTestRoom = selectedRoom === 'test-room';
@@ -56,16 +57,19 @@ export default function GhostView() {
     }, []);
 
     const requestCamera = useCallback(async () => {
-        if (dataOnlyMode) {
-            setFeedError('');
-            setLocalCameraReady(false);
-            return;
-        }
-        if (!window.isSecureContext || !navigator?.mediaDevices?.getUserMedia) {
-            setFeedError('Camera API unavailable in this browser/context.');
-            setLocalCameraReady(false);
-            return;
-        }
+        if (cameraRequestRef.current) return;
+        cameraRequestRef.current = true;
+        try {
+            if (dataOnlyMode) {
+                setFeedError('');
+                setLocalCameraReady(false);
+                return;
+            }
+            if (!window.isSecureContext || !navigator?.mediaDevices?.getUserMedia) {
+                setFeedError('Camera API unavailable in this browser/context.');
+                setLocalCameraReady(false);
+                return;
+            }
 
         if (streamRef.current) {
             streamRef.current.getTracks().forEach((track) => track.stop());
@@ -82,31 +86,37 @@ export default function GhostView() {
         let lastErr = null;
         for (const constraints of attempts) {
             try {
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                stream = await Promise.race([
+                    navigator.mediaDevices.getUserMedia(constraints),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Camera request timeout')), 8000)),
+                ]);
                 break;
             } catch (err) {
                 lastErr = err;
             }
         }
 
-        if (!stream) {
-            const reason = lastErr?.name ? ` (${lastErr.name})` : '';
-            setFeedError(`Camera permission denied or no camera found${reason}.`);
-            setLocalCameraReady(false);
-            return;
-        }
-
-        streamRef.current = stream;
-        if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            try {
-                await videoRef.current.play();
-            } catch {
-                // Playback may still need user interaction in some browsers.
+            if (!stream) {
+                const reason = lastErr?.name ? ` (${lastErr.name})` : '';
+                setFeedError(`Camera permission denied or no camera found${reason}.`);
+                setLocalCameraReady(false);
+                return;
             }
+
+            streamRef.current = stream;
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                try {
+                    await videoRef.current.play();
+                } catch {
+                    // Playback may still need user interaction in some browsers.
+                }
+            }
+            setFeedError('');
+            setLocalCameraReady(true);
+        } finally {
+            cameraRequestRef.current = false;
         }
-        setFeedError('');
-        setLocalCameraReady(true);
     }, [dataOnlyMode]);
 
     useEffect(() => {
