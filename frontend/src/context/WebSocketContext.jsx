@@ -16,7 +16,7 @@ export function WebSocketProvider({ children }) {
 
     // ── Attempt real WebSocket connection ─────────────────────────
     const connect = useCallback(() => {
-        const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+        const wsUrl = import.meta.env.VITE_WS_URL || 'wss://watt-watch-node.onrender.com/ws';
 
         try {
             const ws = new WebSocket(wsUrl);
