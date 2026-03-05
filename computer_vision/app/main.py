@@ -26,7 +26,7 @@ mqtt=MQTTClient()
 evaluator=Evaluator()
 
 NODE_API_URL = os.getenv("WW_NODE_API_URL", "https://watt-watch-node.onrender.com").rstrip("/")
-DEFAULT_ROOM_IDS = "test-room,room-101,room-102,room-103,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12"
+DEFAULT_ROOM_IDS = os.getenv("WW_ROOM_IDS", "test-room,room-101,room-102,room-103,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12")
 ROOM_IDS_RAW = os.getenv("WW_ROOM_IDS", DEFAULT_ROOM_IDS)
 PUSH_TO_NODE = os.getenv("WW_PUSH_TO_NODE", "1") == "1"
 DATA_PUSH_INTERVAL_S = float(os.getenv("WW_DATA_PUSH_INTERVAL_S", "1.0"))
@@ -52,9 +52,8 @@ def _post_json(url: str, payload: dict, timeout: float = POST_TIMEOUT_S) -> bool
     try:
         with urllib.request.urlopen(req, timeout=timeout):
             return True
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, OSError):
-        return False
-    except Exception:
+    except Exception as e:
+        print(f"\n[HTTP Error] Failed to post to {url}: {repr(e)}")
         return False
 
 
