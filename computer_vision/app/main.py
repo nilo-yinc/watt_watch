@@ -32,7 +32,7 @@ PUSH_TO_NODE = os.getenv("WW_PUSH_TO_NODE", "1") == "1"
 DATA_PUSH_INTERVAL_S = float(os.getenv("WW_DATA_PUSH_INTERVAL_S", "1.0"))
 GHOST_PUSH_INTERVAL_S = float(os.getenv("WW_GHOST_PUSH_INTERVAL_S", "0.4"))
 SHOW_WINDOW = os.getenv("WW_SHOW_WINDOW", "0") == "1"
-POST_TIMEOUT_S = float(os.getenv("WW_POST_TIMEOUT_S", "0.25"))
+POST_TIMEOUT_S = float(os.getenv("WW_POST_TIMEOUT_S", "3.0"))
 SEND_QUEUE_MAX = int(os.getenv("WW_SEND_QUEUE_MAX", "400"))
 STREAM_WIDTH = int(os.getenv("WW_STREAM_WIDTH", "512"))
 STREAM_HEIGHT = int(os.getenv("WW_STREAM_HEIGHT", "384"))
@@ -83,7 +83,8 @@ def _sender_worker() -> None:
             _send_queue.task_done()
 
 
-threading.Thread(target=_sender_worker, daemon=True).start()
+for _i in range(3):
+    threading.Thread(target=_sender_worker, daemon=True).start()
 
 
 def _parse_room_ids(raw: str) -> list[str]:
