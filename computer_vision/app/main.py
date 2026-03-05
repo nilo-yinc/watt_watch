@@ -1,6 +1,11 @@
 # app/main.py
 import cv2
 import time
+import os
+import json
+import base64
+import urllib.request
+import urllib.error
 from app.cv.camera import get_camera
 from app.cv.detector import detect_people
 from app.cv.appliance import detect_appliance
@@ -18,6 +23,34 @@ logic = WasteDetector(delay_seconds=5)
 mqtt=MQTTClient()
 evaluator=Evaluator()
 
+NODE_API_URL = os.getenv("WW_NODE_API_URL", "https://watt-watch-node.onrender.com").rstrip("/")
+DEFAULT_ROOM_IDS = "test-room,room-101,room-102,room-103,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12"
+ROOM_IDS_RAW = os.getenv("WW_ROOM_IDS", DEFAULT_ROOM_IDS)
+PUSH_TO_NODE = os.getenv("WW_PUSH_TO_NODE", "1") == "1"
+DATA_PUSH_INTERVAL_S = float(os.getenv("WW_DATA_PUSH_INTERVAL_S", "1.0"))
+GHOST_PUSH_INTERVAL_S = float(os.getenv("WW_GHOST_PUSH_INTERVAL_S", "0.4"))
+SHOW_WINDOW = os.getenv("WW_SHOW_WINDOW", "0") == "1"
+
+
+def _post_json(url: str, payload: dict, timeout: float = 1.5) -> bool:
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout):
+            return True
+    except (urllib.error.URLError, urllib.error.HTTPError):
+        return False
+
+
+def _parse_room_ids(raw: str) -> list[str]:
+    room_ids = [room_id.strip() for room_id in raw.split(",") if room_id.strip()]
+    return room_ids or ["test-room"]
+
 def draw_boxes(frame, boxes):
     """Draw bounding boxes around detected people."""
     for box in boxes:
@@ -26,9 +59,13 @@ def draw_boxes(frame, boxes):
 
 
 def main():
+    room_ids = _parse_room_ids(ROOM_IDS_RAW)
+    primary_room_id = room_ids[0]
     cap = get_camera()
     prev_light_state = None
     prev_fan_state = None
+    last_data_push = 0.0
+    last_ghost_push = 0.0
 
     while True:
         ret, frame = cap.read()
@@ -131,13 +168,46 @@ def main():
         cv2.putText(frame, f"Latency: {latency:.2f}s", (10, 265),
             cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 255), 3)
 
-        cv2.imshow("Watt-Watch | Stage 4", frame)
+        # Push live CV data + blurred ghost frame to the deployed Node backend.
+        # This is required for Ghost View to show YOLO stream in the frontend.
+        if PUSH_TO_NODE:
+            now = time.time()
 
-        if cv2.waitKey(1) == 27:
-            break
+            if now - last_data_push >= DATA_PUSH_INTERVAL_S:
+                data_payload = {
+                    "room_id": primary_room_id,
+                    "person_count": int(person_count),
+                    "appliance_on": bool(appliance_on),
+                    "waste_detected": bool(waste_detected),
+                    "brightness": int(brightness),
+                    "latency_ms": int(latency * 1000),
+                    "privacy_mode": "blur",
+                }
+                _post_json(f"{NODE_API_URL}/api/cv/data", data_payload)
+                last_data_push = now
+
+            if now - last_ghost_push >= GHOST_PUSH_INTERVAL_S:
+                ok, ghost_buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), JPEG_QUALITY])
+                if ok:
+                    frame_b64 = base64.b64encode(ghost_buf.tobytes()).decode("ascii")
+                    ts_ms = int(time.time() * 1000)
+                    for room_id in room_ids:
+                        ghost_payload = {
+                            "room_id": room_id,
+                            "image_b64": frame_b64,
+                            "timestamp": ts_ms,
+                        }
+                        _post_json(f"{NODE_API_URL}/api/cv/ghost-frame", ghost_payload)
+                last_ghost_push = now
+
+        if SHOW_WINDOW:
+            cv2.imshow("Watt-Watch | Stage 4", frame)
+            if cv2.waitKey(1) == 27:
+                break
 
     cap.release()
-    cv2.destroyAllWindows()
+    if SHOW_WINDOW:
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
