@@ -58,7 +58,8 @@ export default function GhostView() {
         let cancelled = false;
 
         async function openCamera() {
-            if (dataOnlyMode) {
+            // In Ghost Mode, video should come from backend YOLO stream only.
+            if (dataOnlyMode || ghostMode) {
                 setFeedError('');
                 return;
             }
@@ -89,7 +90,7 @@ export default function GhostView() {
                 streamRef.current = null;
             }
         };
-    }, [dataOnlyMode]);
+    }, [dataOnlyMode, ghostMode]);
 
     const activeRoom = allRooms.find((room) => room.id === selectedRoom) || allRooms[0];
     const activeGhostFrame = activeRoom ? ghostFrames[activeRoom.id] : null;
@@ -330,7 +331,7 @@ export default function GhostView() {
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1 h-1 rounded-full bg-purple-400" />
                                                 <span className="text-[8px] font-mono text-[var(--ww-text-3)]">
-                                                    {feedError
+                                                    {(!ghostMode && feedError)
                                                         || (!backendOnline
                                                             ? 'Backend offline: showing local fallback only'
                                                             : usingYoloStream
